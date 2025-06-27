@@ -3,8 +3,6 @@ from typing import List, Optional
 
 from pydantic import BaseModel
 
-from integrationsandbox.transport.events.models import TmsShipmentEvent
-
 
 class TmsCustomer(BaseModel):
     id: str
@@ -48,6 +46,15 @@ class TmsStop(BaseModel):
     planned_time_window_end: time
 
 
+class TmsShipmentEvent(BaseModel):
+    id: int
+    created_at: datetime
+    event_type: str
+    occured_at: datetime
+    source: str
+    location: TmsLocation
+
+
 class TmsShipment(BaseModel):
     id: str
     external_reference: str
@@ -57,12 +64,4 @@ class TmsShipment(BaseModel):
     line_items: List[TmsLineItem]
     stops: List[TmsStop]
     timeline_events: List[TmsShipmentEvent]
-
-
-class TmsShipmentEvent(BaseModel):
-    id: int
-    created_at: datetime
-    event_type: str
-    occured_at: datetime
-    source: str
-    location: TmsLocation
+    timeline_events: List[TmsShipmentEvent]
