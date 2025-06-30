@@ -1,8 +1,8 @@
-- [ ] Models
-  - [ ] Create model for TMS order
-  - [ ] Create model for broker order
-  - [ ] Create model for TMS event
-  - [ ] Create model for broker event
+- [x] Models
+  - [x] Create model for TMS order
+  - [x] Create model for broker order
+  - [x] Create model for TMS event
+  - [x] Create model for broker event
 - [ ] Factories
   - [ ] Create order factory with faker for TMS orders
   - [ ] Create order factory with faker for broker orders
