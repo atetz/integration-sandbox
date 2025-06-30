@@ -1,6 +1,6 @@
 from faker import Faker
 
-from integrationsandbox.transport.shipments.models import TmsCustomer
+from integrationsandbox.TMS.models import TmsCustomer, TmsLineItem
 
 
 class TmsShipmentFactory:
@@ -14,6 +14,8 @@ class TmsShipmentFactory:
             name=fake.company(),
             carrier=f"{fake.company()} Transport",
         )
+    
+    def create_line_item(self) -> TmsLineItem
 
 
 def main() -> None:
