@@ -64,4 +64,3 @@ class TmsShipment(BaseModel):
     line_items: List[TmsLineItem]
     stops: List[TmsStop]
     timeline_events: List[TmsShipmentEvent]
-    timeline_events: List[TmsShipmentEvent]
