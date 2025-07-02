@@ -1,45 +1,45 @@
 from datetime import date, datetime, time
-from enum import Enum, auto
+from enum import Enum
 from typing import List, Optional
 
 from pydantic import BaseModel
 
 
-class PackageType(Enum):
-    BALE = auto()
-    BOX = auto()
-    COIL = auto()
-    CRATE = auto()
-    CYLINDER = auto()
-    DRUM = auto()
-    OTHER = auto()
-    PLT = auto()
+class PackageType(str, Enum):
+    BALE = "BALE"
+    BOX = "BOX"
+    COIL = "COIL"
+    CRATE = "CRATE"
+    CYLINDER = "CYLINDER"
+    DRUM = "DRUM"
+    OTHER = "OTHER"
+    PLT = "PLT"
 
 
-class StopType(Enum):
-    PICKUP = auto()
-    DELIVERY = auto()
+class StopType(str, Enum):
+    PICKUP = "PICKUP"
+    DELIVERY = "DELIVERY"
 
 
-class EventType(Enum):
-    BOOKED = auto()
-    CANCELLED = auto()
-    DELIVERED = auto()
-    DISPATCHED = auto()
-    ETA_CHANGED = auto()
-    PICKED_UP = auto()
+class EventType(str, Enum):
+    BOOKED = "BOOKED"
+    CANCELLED = "CANCELLED"
+    DELIVERED = "DELIVERED"
+    DISPATCHED = "DISPATCHED"
+    ETA_CHANGED = "ETA_CHANGED"
+    PICKED_UP = "PICKED_UP"
 
 
-class EquipmentType(Enum):
-    TRUCK_AND_TRAILER = auto()
-    FLATBED_53_FOOT = auto()
-    MOVING_VAN = auto()
-    CONTAINER = auto()
+class EquipmentType(str, Enum):
+    TRUCK_AND_TRAILER = "TRUCK_AND_TRAILER"
+    FLATBED_53_FOOT = "FLATBED_53_FOOT"
+    MOVING_VAN = "MOVING_VAN"
+    CONTAINER = "CONTAINER"
 
 
-class ModeType(Enum):
-    FTL = auto()
-    LTL = auto()
+class ModeType(str, Enum):
+    FTL = "FTL"
+    LTL = "LTL"
 
 
 class TmsCustomer(BaseModel):
@@ -51,9 +51,9 @@ class TmsCustomer(BaseModel):
 class TmsLineItem(BaseModel):
     package_type: Optional[PackageType]
     stackable: bool
-    height: Optional[int]
-    length: Optional[int]
-    width: Optional[int]
+    height: Optional[float]
+    length: Optional[float]
+    width: Optional[float]
     length_unit: str
     package_weight: float
     weight_unit: str
@@ -64,7 +64,6 @@ class TmsLineItem(BaseModel):
 class TmsAddress(BaseModel):
     address: str
     city: str
-    state_province: str
     postal_code: str
     country: str
 
@@ -95,10 +94,10 @@ class TmsShipmentEvent(BaseModel):
 
 class TmsShipment(BaseModel):
     id: str
-    external_reference: str
+    external_reference: Optional[str]
     mode: ModeType
     equipment_type: EquipmentType
     customer: TmsCustomer
     line_items: List[TmsLineItem]
     stops: List[TmsStop]
-    timeline_events: List[TmsShipmentEvent]
+    timeline_events: Optional[List[TmsShipmentEvent]]
