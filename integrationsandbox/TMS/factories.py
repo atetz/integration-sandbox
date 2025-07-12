@@ -5,7 +5,7 @@ from typing import List
 
 from faker import Faker
 
-from integrationsandbox.TMS.models import (
+from integrationsandbox.tms.models import (
     EquipmentType,
     ModeType,
     PackageType,

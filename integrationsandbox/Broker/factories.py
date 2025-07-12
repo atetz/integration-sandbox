@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 
 from faker import Faker
 
-from integrationsandbox.Broker.models import (
+from integrationsandbox.broker.models import (
     BrokerEventMessage,
     BrokerEventOrder,
     BrokerEventOrg,

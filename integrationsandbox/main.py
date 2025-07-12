@@ -1,5 +1,5 @@
-from integrationsandbox.Broker.factories import BrokerEventMessageFactory
-from integrationsandbox.Broker.models import BrokerEventType
+from integrationsandbox.broker.factories import BrokerEventMessageFactory
+from integrationsandbox.broker.models import BrokerEventType
 
 
 def main():
