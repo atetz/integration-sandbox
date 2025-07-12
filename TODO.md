@@ -3,9 +3,9 @@
   - [x] Create model for broker order
   - [x] Create model for TMS event
   - [x] Create model for broker event
-- [ ] Factories
+- [x] Factories
   - [x] Create order factory with faker for TMS orders
-  - [ ] Create order factory with faker for broker events
+  - [x] Create order factory with faker for broker events
 - [ ] Controllers
   - [ ] Create a POST endpoint that receives a 'trigger' event for a target url
     - [ ] and then sends messages to it with fake data
