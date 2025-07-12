@@ -1,7 +1,17 @@
 from datetime import datetime
+from enum import Enum
 from typing import List, Optional
 
 from pydantic import BaseModel
+
+
+class BrokerEventType(str, Enum):
+    ORDER_CREATED = "ORDER_CREATED"
+    CANCEL_ORDER = "CANCEL_ORDER"
+    DRIVING_TO_LOAD = "DRIVING_TO_LOAD"
+    ORDER_LOADED = "ORDER_LOADED"
+    ETA_EVENT = "ETA_EVENT"
+    ORDER_DELIVERED = "ORDER_DELIVERED"
 
 
 class BrokerOrderMeta(BaseModel):
@@ -22,7 +32,6 @@ class BrokerLocation(BaseModel):
     address1: str
     address2: str
     country: str
-    state: str
     postalCode: str
     city: str
     latitude: float
@@ -82,7 +91,7 @@ class BrokerEventPosition(BaseModel):
 
 
 class BrokerEventSituation(BaseModel):
-    event: str
+    event: BrokerEventType
     registrationDate: datetime
     actualDate: datetime
     position: BrokerEventPosition
