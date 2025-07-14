@@ -6,7 +6,8 @@ readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "faker>=37.4.0",
-    "fastapi>=0.115.13",
+    "fastapi[standard]>=0.115.13",
+    "httpx[cli]>=0.28.1",
 ]
 
 [dependency-groups]
