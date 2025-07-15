@@ -6,7 +6,6 @@ from faker import Faker
 from integrationsandbox.broker.models import (
     BrokerEventMessage,
     BrokerEventOrder,
-    BrokerEventOrg,
     BrokerEventPosition,
     BrokerEventSituation,
     BrokerEventType,
@@ -23,11 +22,8 @@ class BrokerEventMessageFactory:
     def __init__(self):
         self.fake = Faker()
 
-    def create_org(self, org_name: str = None) -> BrokerEventOrg:
-        return BrokerEventOrg(
-            id=self.fake.uuid4(),
-            name=org_name if org_name is not None else self.fake.company(),
-        )
+    def create_org(self, org_name: str = None) -> str:
+        return org_name if org_name is not None else self.fake.company()
 
     def create_order(self, reference: str = None) -> BrokerEventOrder:
         return BrokerEventOrder(
