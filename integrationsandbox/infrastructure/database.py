@@ -9,5 +9,16 @@ def create_connection() -> Connection:
 def setup() -> None:
     with create_connection() as con:
         con.execute(
-            "CREATE TABLE IF NOT EXISTS tms_orders(id TEXT PRIMARY KEY, data JSON)"
+            "CREATE TABLE IF NOT EXISTS tms_shipment(id TEXT PRIMARY KEY, data JSON)"
+        )
+
+        con.execute(
+            """
+            CREATE TABLE IF NOT EXISTS broker_event(
+            id TEXT PRIMARY KEY, 
+            shipment_id TEXT, 
+            event_type TEXT, 
+            data JSON, 
+            UNIQUE(shipment_id,event_type))
+            """
         )
