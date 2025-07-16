@@ -20,4 +20,12 @@
     "python.testing.cwd": "${workspaceFolder}/tests",
     "python.testing.pytestPath": "${workspaceFolder}/.venv/bin/pytest",
     "python.testing.autoTestDiscoverOnSaveEnabled": true,
+    "sqltools.connections": [
+        {
+            "previewLimit": 50,
+            "driver": "SQLite",
+            "database": "${workspaceFolder:integration-sandbox}/integrationsandbox/infrastructure/db.sqlite3",
+            "name": "db"
+        }
+    ],
 }

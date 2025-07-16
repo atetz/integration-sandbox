@@ -74,11 +74,6 @@ class BokerOrderMessage(BaseModel):
     shipment: BrokerShipment
 
 
-class BrokerEventOrg(BaseModel):
-    id: str
-    name: str
-
-
 class BrokerEventOrder(BaseModel):
     reference: str
     eta: Optional[datetime]
@@ -101,7 +96,7 @@ class BrokerEventMessage(BaseModel):
     id: str
     shipmentId: str
     dateTransmission: datetime
-    owner: BrokerEventOrg
+    owner: str
     order: BrokerEventOrder
     situation: BrokerEventSituation
-    carrier: BrokerEventOrg
+    carrier: str
