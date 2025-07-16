@@ -69,6 +69,7 @@ class TmsAddress(BaseModel):
 
 
 class TmsLocation(BaseModel):
+    code: str
     name: str
     address: Optional[TmsAddress]
     latitude: float

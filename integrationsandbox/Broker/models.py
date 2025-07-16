@@ -1,6 +1,6 @@
 from datetime import datetime
 from enum import Enum
-from typing import List, Optional
+from typing import List
 
 from pydantic import BaseModel
 
@@ -12,6 +12,16 @@ class BrokerEventType(str, Enum):
     ORDER_LOADED = "ORDER_LOADED"
     ETA_EVENT = "ETA_EVENT"
     ORDER_DELIVERED = "ORDER_DELIVERED"
+
+
+class BrokerPackagingQualifier(str, Enum):
+    BL = "BL"
+    BX = "BX"
+    CL = "CL"
+    CY = "CY"
+    DR = "DR"
+    OT = "OT"
+    PL = "PL"
 
 
 class BrokerOrderMeta(BaseModel):
@@ -42,11 +52,11 @@ class BrokerLocation(BaseModel):
 
 class BrokerQuantity(BaseModel):
     grossWeight: float
-    loadingMeters: float
+    loadingMeters: float | None
 
 
 class BrokerHandlingUnit(BaseModel):
-    packagingQualifier: str
+    packagingQualifier: BrokerPackagingQualifier
     grossWeight: float
     width: float
     length: float
@@ -62,21 +72,34 @@ class BrokerOder(BaseModel):
     handlingUnits: List[BrokerHandlingUnit]
 
 
-class BrokerShipment(BaseModel):
+class CreateBrokerShipment(BaseModel):
     reference: str
     carrier: str
     transportMode: str
     orders: List[BrokerOder]
 
 
-class BokerOrderMessage(BaseModel):
+class CreateBrokerOrderMessage(BaseModel):
+    meta: BrokerOrderMeta
+    shipment: CreateBrokerShipment
+
+
+class BrokerShipment(BaseModel):
+    id: str
+    reference: str
+    carrier: str
+    transportMode: str
+    orders: List[BrokerOder]
+
+
+class BrokerOrderMessage(BaseModel):
     meta: BrokerOrderMeta
     shipment: BrokerShipment
 
 
 class BrokerEventOrder(BaseModel):
     reference: str
-    eta: Optional[datetime]
+    eta: datetime | None
 
 
 class BrokerEventPosition(BaseModel):

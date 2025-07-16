@@ -180,6 +180,7 @@ class TmsShipmentFactory:
     def create_location(self) -> TmsLocation:
         localed_faker = Faker(random.choice(self.address_locales))
         return TmsLocation(
+            code=self.fake.bothify(text="LOC-####"),
             name=localed_faker.company(),
             address=self.create_address(localed_faker),
             latitude=localed_faker.latitude(),
