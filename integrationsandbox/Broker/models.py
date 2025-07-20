@@ -24,6 +24,11 @@ class BrokerPackagingQualifier(str, Enum):
     PL = "PL"
 
 
+class BrokerDateQualifier(str, Enum):
+    PERIOD_EARLIEST = "PERIOD_EARLIEST"
+    PERIOD_LATEST = "PERIOD_LATEST"
+
+
 class BrokerOrderMeta(BaseModel):
     senderId: str
     messageDate: datetime
@@ -32,7 +37,7 @@ class BrokerOrderMeta(BaseModel):
 
 
 class BrokerDate(BaseModel):
-    qualifier: str
+    qualifier: BrokerDateQualifier
     dateTime: datetime
 
 

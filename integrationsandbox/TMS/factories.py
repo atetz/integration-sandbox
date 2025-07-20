@@ -138,6 +138,11 @@ class TmsShipmentFactory:
             positive=True, min_value=150, max_value=12000, right_digits=2
         )
 
+    def get_random_loadingmeters(self):
+        return self.fake.pyfloat(
+            positive=True, min_value=1, max_value=16, right_digits=2
+        )
+
     def get_random_goods_description(self):
         return random.choice(self.goods_descriptions)
 
@@ -216,6 +221,7 @@ class TmsShipmentFactory:
             external_reference=None,
             mode=get_random_enum_choice(ModeType),
             equipment_type=get_random_enum_choice(EquipmentType),
+            loading_meters=self.get_random_loadingmeters(),
             customer=self.create_customer(),
             line_items=[self.create_line_item() for i in range(random.randint(1, 20))],
             stops=self.create_stops(),
