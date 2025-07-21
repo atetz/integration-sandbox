@@ -18,6 +18,7 @@ class BrokerPackagingQualifier(str, Enum):
     BL = "BL"
     BX = "BX"
     CL = "CL"
+    CR = "CR"
     CY = "CY"
     DR = "DR"
     OT = "OT"

@@ -113,12 +113,12 @@ order = BrokerOder(
     pickUp=pickup_location,
     consignee=delivery_location,
     goodsDescription=(
-        "Commercial grade floor mats for high-traffic areas, "
-        "Heavy-duty truck tires, new and retreaded options, "
+        "Commercial grade floor mats for high-traffic areas|"
+        "Heavy-duty truck tires, new and retreaded options|"
         "Industrial conveyor belt sections"
     ),
     quantity=BrokerQuantity(
-        grossWeight=30605.77,
+        grossWeight=33286.01,
         loadingMeters=14.8,
     ),
     handlingUnits=handling_units,
@@ -138,3 +138,6 @@ broker_message = BrokerOrderMessage(
     meta=meta,
     shipment=shipment,
 )
+
+
+print(broker_message.model_dump_json())

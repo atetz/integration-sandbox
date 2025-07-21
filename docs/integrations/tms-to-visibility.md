@@ -21,7 +21,7 @@ This document describes the mapping between the TMS (Transport Management System
 | Field | Source | Notes |
 |-------|--------|-------|
 | shipment.orders[].reference | id | ShipmentId of TMS since the TMS shipment only has 1 order |
-| shipment.orders[].goodsDescription | line_items[].description | Concatenated from all line items |
+| shipment.orders[].goodsDescription | line_items[].description | Concatenated from all line items with a pipe separator '\|' |
 | shipment.orders[].quantity.grossWeight | line_items[].package_weight + total_packages | Sum of (weight × quantity) |
 | shipment.orders[].quantity.loadingMeters | loading_meters ||
 
