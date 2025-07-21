@@ -235,6 +235,7 @@ dependencies = [
     { name = "faker" },
     { name = "fastapi", extra = ["standard"] },
     { name = "httpx", extra = ["cli"] },
+    { name = "pytest" },
 ]
 
 [package.dev-dependencies]
@@ -247,6 +248,7 @@ requires-dist = [
     { name = "faker", specifier = ">=37.4.0" },
     { name = "fastapi", extras = ["standard"], specifier = ">=0.115.13" },
     { name = "httpx", extras = ["cli"], specifier = ">=0.28.1" },
+    { name = "pytest", specifier = ">=8.4.1" },
 ]
 
 [package.metadata.requires-dev]

@@ -52,8 +52,8 @@ def validate_line_items(
 
     if tms_lines_groups != broker_lines_groups:
         failures.append("Order lines mismatch:")
-        failures.append(f"  TMS lines: {tms_lines_groups}")
-        failures.append(f"  Broker lines: {broker_lines_groups}")
+        failures.append(f"TMS lines: {tms_lines_groups}")
+        failures.append(f"Broker lines: {broker_lines_groups}")
 
     return len(failures) == 0, failures
 
