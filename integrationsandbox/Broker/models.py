@@ -4,6 +4,8 @@ from typing import List
 
 from pydantic import BaseModel
 
+from integrationsandbox.broker.payload_examples import create_broker_message
+
 
 class BrokerEventType(str, Enum):
     ORDER_CREATED = "ORDER_CREATED"
@@ -89,6 +91,8 @@ class CreateBrokerOrderMessage(BaseModel):
     meta: BrokerOrderMeta
     shipment: CreateBrokerShipment
 
+    model_config = create_broker_message
+
 
 class BrokerShipment(BaseModel):
     id: str
@@ -128,4 +132,5 @@ class BrokerEventMessage(BaseModel):
     owner: str
     order: BrokerEventOrder
     situation: BrokerEventSituation
+    carrier: str
     carrier: str
