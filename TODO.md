@@ -19,3 +19,6 @@
   - [ ] Implement helpful error messages.
 - [ ] Settings management with Pydantic Settings
 - [ ] Add security
+- [ ] Add structured logging for request tracing
+- [ ] Improve FastAPI auto-generated documentation (descriptions, examples, tags)
+- [ ] Add basic monitoring/metrics endpoint
