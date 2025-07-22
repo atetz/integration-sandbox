@@ -138,6 +138,11 @@ class TmsShipmentFactory:
             positive=True, min_value=150, max_value=12000, right_digits=2
         )
 
+    def get_random_loadingmeters(self):
+        return self.fake.pyfloat(
+            positive=True, min_value=1, max_value=16, right_digits=2
+        )
+
     def get_random_goods_description(self):
         return random.choice(self.goods_descriptions)
 
@@ -166,7 +171,7 @@ class TmsShipmentFactory:
             package_weight=self.get_random_weight(),
             weight_unit="KG",
             description=self.get_random_goods_description(),
-            total_packages=self.fake.random_int(min=1, max=50),
+            total_packages=self.fake.random_int(min=1, max=5),
         )
 
     def create_address(self, localed_faker: Faker) -> TmsAddress:
@@ -180,6 +185,7 @@ class TmsShipmentFactory:
     def create_location(self) -> TmsLocation:
         localed_faker = Faker(random.choice(self.address_locales))
         return TmsLocation(
+            code=self.fake.bothify(text="LOC-####"),
             name=localed_faker.company(),
             address=self.create_address(localed_faker),
             latitude=localed_faker.latitude(),
@@ -215,8 +221,9 @@ class TmsShipmentFactory:
             external_reference=None,
             mode=get_random_enum_choice(ModeType),
             equipment_type=get_random_enum_choice(EquipmentType),
+            loading_meters=self.get_random_loadingmeters(),
             customer=self.create_customer(),
-            line_items=[self.create_line_item() for i in range(random.randint(1, 20))],
+            line_items=[self.create_line_item() for i in range(random.randint(1, 10))],
             stops=self.create_stops(),
             timeline_events=None,
         )

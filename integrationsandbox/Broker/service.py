@@ -1,0 +1,182 @@
+from datetime import datetime
+from typing import Any, Dict, List, Tuple
+
+from deepdiff import DeepDiff
+
+from integrationsandbox.broker.models import (
+    BrokerDate,
+    BrokerDateQualifier,
+    BrokerHandlingUnit,
+    BrokerLocation,
+    BrokerPackagingQualifier,
+    BrokerQuantity,
+    CreateBrokerOrderMessage,
+)
+from integrationsandbox.tms.models import PackageType, TmsShipment, TmsStop
+from integrationsandbox.tms.repository import get_shipment_by_id
+
+PACKAGE_MAP = {
+    PackageType.BALE: BrokerPackagingQualifier.BL,
+    PackageType.BOX: BrokerPackagingQualifier.BX,
+    PackageType.CRATE: BrokerPackagingQualifier.CR,
+    PackageType.COIL: BrokerPackagingQualifier.CL,
+    PackageType.CYLINDER: BrokerPackagingQualifier.CY,
+    PackageType.DRUM: BrokerPackagingQualifier.DR,
+    PackageType.OTHER: BrokerPackagingQualifier.OT,
+    PackageType.PLT: BrokerPackagingQualifier.PL,
+}
+
+NEW_MESSAGE_FUNCTION = 9
+
+
+def get_tms_stop_by_type(stops: List[TmsStop], location_type: str) -> TmsStop:
+    for stop in stops:
+        if stop.type == location_type:
+            return stop
+    raise ValueError(f"No stop found with type: {location_type}")
+
+
+def get_stop_dates(tms_stop: TmsStop) -> List[BrokerDate]:
+    planned_date = tms_stop.planned_date
+    planned_time_window_start = tms_stop.planned_time_window_start
+    planned_time_window_end = tms_stop.planned_time_window_end
+
+    period_earliest = datetime.combine(planned_date, planned_time_window_start)
+    period_latest = datetime.combine(planned_date, planned_time_window_end)
+
+    return [
+        BrokerDate(
+            qualifier=BrokerDateQualifier.PERIOD_EARLIEST, dateTime=period_earliest
+        ),
+        BrokerDate(qualifier=BrokerDateQualifier.PERIOD_LATEST, dateTime=period_latest),
+    ]
+
+
+def map_address_details(
+    tms_shipment: TmsShipment, location_type: str
+) -> BrokerLocation:
+    tms_stop = get_tms_stop_by_type(tms_shipment.stops, location_type)
+
+    return BrokerLocation(
+        identification=tms_stop.location.code,
+        name=tms_stop.location.name,
+        address1=tms_stop.location.address.address,
+        address2="",
+        country=tms_stop.location.address.country,
+        postalCode=tms_stop.location.address.postal_code,
+        city=tms_stop.location.address.city,
+        latitude=tms_stop.location.latitude,
+        longitude=tms_stop.location.longitude,
+        instructions="",
+        dates=get_stop_dates(tms_stop),
+    )
+
+
+def map_line_items(tms_shipment: TmsShipment) -> List[BrokerHandlingUnit]:
+    units = []
+    for item in tms_shipment.line_items:
+        for _ in range(item.total_packages):
+            units.append(
+                BrokerHandlingUnit(
+                    packagingQualifier=PACKAGE_MAP[item.package_type],
+                    grossWeight=item.package_weight,
+                    width=item.width,
+                    length=item.length,
+                    height=item.height,
+                )
+            )
+    return units
+
+
+def apply_mapping_rules(tms_shipment: TmsShipment) -> Dict[str, Any]:
+    result = {}
+    result["meta_message_function"] = NEW_MESSAGE_FUNCTION
+    result["shipment_reference"] = tms_shipment.id
+    result["shipment_carrier"] = tms_shipment.customer.carrier
+    result["shipment_transportmode"] = "ROAD"
+    result["order_reference"] = tms_shipment.id
+    result["order_pickup_details"] = map_address_details(tms_shipment, "PICKUP")
+    result["order_consignee_details"] = map_address_details(tms_shipment, "DELIVERY")
+    result["order_goods_description"] = set(
+        item.description for item in tms_shipment.line_items
+    )
+    result["order_quantities"] = BrokerQuantity(
+        loadingMeters=tms_shipment.loading_meters,
+        grossWeight=sum(
+            item.package_weight * item.total_packages
+            for item in tms_shipment.line_items
+        ),
+    )
+    result["order_handling_units"] = map_line_items(tms_shipment)
+
+    return result
+
+
+def get_transformed_data(broker_order: CreateBrokerOrderMessage) -> Dict[str, Any]:
+    result = {}
+    result["meta_message_function"] = broker_order.meta.messageFunction
+    result["shipment_reference"] = broker_order.shipment.reference
+    result["shipment_carrier"] = broker_order.shipment.carrier
+    result["shipment_transportmode"] = broker_order.shipment.transportMode
+    result["order_reference"] = broker_order.shipment.orders[0].reference
+    result["order_pickup_details"] = broker_order.shipment.orders[0].pickUp
+    result["order_consignee_details"] = broker_order.shipment.orders[0].consignee
+    result["order_goods_description"] = set(
+        desc.strip()
+        for desc in broker_order.shipment.orders[0].goodsDescription.split("|")
+    )
+    result["order_quantities"] = broker_order.shipment.orders[0].quantity
+    result["order_handling_units"] = broker_order.shipment.orders[0].handlingUnits
+
+    return result
+
+
+def serialize_value(value):
+    # fastapi won't serialize correctly if return type is unknown. So serialize to dict is neccesary here.
+    if hasattr(value, "model_dump"):
+        return value.model_dump()
+    elif isinstance(value, set):
+        return list(value)
+    elif isinstance(value, list):
+        return [serialize_value(item) for item in value]
+    return value
+
+
+def compare_mappings(tms_data, broker_data):
+    errors = []
+    all_keys = set(tms_data.keys()) | set(broker_data.keys())
+
+    for key in all_keys:
+        if key not in tms_data:
+            errors.append({"field": key, "error": "missing in tms_data"})
+        elif key not in broker_data:
+            errors.append({"field": key, "error": "missing in broker_data"})
+        else:
+            tms_serialized = serialize_value(tms_data[key])
+            broker_serialized = serialize_value(broker_data[key])
+
+            diff = DeepDiff(
+                tms_serialized, broker_serialized, ignore_order=True, verbose_level=1
+            )
+
+            if diff:
+                errors.append(
+                    {
+                        "field": key,
+                        "differences": diff.to_dict(),
+                        "expected": tms_serialized,
+                        "actual": broker_serialized,
+                    }
+                )
+
+    return len(errors) == 0, errors
+
+
+def validate_order(order: CreateBrokerOrderMessage) -> Tuple[bool, List[str | None]]:
+    shipment_reference = order.shipment.reference
+    tms_shipment = get_shipment_by_id(shipment_reference)
+    if not tms_shipment:
+        return False, [f"Shipment with reference: {shipment_reference} not found"]
+    expected_data = apply_mapping_rules(tms_shipment)
+    transformed_data = get_transformed_data(order)
+    return compare_mappings(expected_data, transformed_data)

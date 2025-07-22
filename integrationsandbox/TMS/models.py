@@ -69,6 +69,7 @@ class TmsAddress(BaseModel):
 
 
 class TmsLocation(BaseModel):
+    code: str
     name: str
     address: Optional[TmsAddress]
     latitude: float
@@ -97,6 +98,7 @@ class TmsShipment(BaseModel):
     external_reference: Optional[str]
     mode: ModeType
     equipment_type: EquipmentType
+    loading_meters: float
     customer: TmsCustomer
     line_items: List[TmsLineItem]
     stops: List[TmsStop]

@@ -1,182 +1,91 @@
-{
-  "id": "c1c843c3-8c82-4a07-b000-270869624f39",
-  "external_reference": null,
-  "mode": "LTL",
-  "equipment_type": "MOVING_VAN",
-  "customer": {
-    "id": "b087e9fc-304a-4376-8fef-3dd774bc3ffb",
-    "name": "Schneider, Baldwin and Cox",
-    "carrier": "Garcia and Sons Transport"
-  },
-  "line_items": [
-    {
-      "package_type": "BOX",
-      "stackable": false,
-      "height": 123.7,
-      "length": 199.86,
-      "width": 176.53,
-      "length_unit": "CM",
-      "package_weight": 3713.92,
-      "weight_unit": "KG",
-      "description": "Prefabricated modular office components",
-      "total_packages": 37
+[
+  {
+    "id": "976eb041-b766-4286-a378-0938c65e7050",
+    "external_reference": null,
+    "mode": "LTL",
+    "equipment_type": "MOVING_VAN",
+    "loading_meters": 14.8,
+    "customer": {
+      "id": "75831ed4-7d29-44a6-953f-066c2e3cd609",
+      "name": "Clark-Acosta",
+      "carrier": "Cole Ltd Transport"
     },
-    {
-      "package_type": "PLT",
-      "stackable": true,
-      "height": 188.52,
-      "length": 187.57,
-      "width": 122.28,
-      "length_unit": "CM",
-      "package_weight": 443.26,
-      "weight_unit": "KG",
-      "description": "Synthetic rubber sheets for industrial applications",
-      "total_packages": 15
-    },
-    {
-      "package_type": "PLT",
-      "stackable": false,
-      "height": 102.91,
-      "length": 100.22,
-      "width": 95.59,
-      "length_unit": "CM",
-      "package_weight": 6491.8,
-      "weight_unit": "KG",
-      "description": "Industrial compressors for manufacturing facilities",
-      "total_packages": 29
-    },
-    {
-      "package_type": "DRUM",
-      "stackable": true,
-      "height": 39.9,
-      "length": 187.8,
-      "width": 88.68,
-      "length_unit": "CM",
-      "package_weight": 5189.52,
-      "weight_unit": "KG",
-      "description": "Bulk corn syrup for food manufacturing",
-      "total_packages": 43
-    },
-    {
-      "package_type": "CRATE",
-      "stackable": false,
-      "height": 158.42,
-      "length": 184.81,
-      "width": 90.8,
-      "length_unit": "CM",
-      "package_weight": 9160.64,
-      "weight_unit": "KG",
-      "description": "Prefabricated shower units for construction",
-      "total_packages": 50
-    },
-    {
-      "package_type": "COIL",
-      "stackable": false,
-      "height": 47.46,
-      "length": 168.14,
-      "width": 61.24,
-      "length_unit": "CM",
-      "package_weight": 5008.22,
-      "weight_unit": "KG",
-      "description": "Aluminum extrusions for window frame manufacturing",
-      "total_packages": 5
-    },
-    {
-      "package_type": "CRATE",
-      "stackable": true,
-      "height": 24.27,
-      "length": 114.53,
-      "width": 64.3,
-      "length_unit": "CM",
-      "package_weight": 7558.64,
-      "weight_unit": "KG",
-      "description": "Wooden shipping pallets, heat-treated, standard 48x40 inch",
-      "total_packages": 8
-    },
-    {
-      "package_type": "PLT",
-      "stackable": true,
-      "height": 142.36,
-      "length": 63.6,
-      "width": 157.79,
-      "length_unit": "CM",
-      "package_weight": 11802.91,
-      "weight_unit": "KG",
-      "description": "Bulk paper towels for institutional use",
-      "total_packages": 40
-    },
-    {
-      "package_type": "BALE",
-      "stackable": true,
-      "height": 165.82,
-      "length": 105.16,
-      "width": 50.93,
-      "length_unit": "CM",
-      "package_weight": 9441.29,
-      "weight_unit": "KG",
-      "description": "Commercial grade carpet tiles for office spaces",
-      "total_packages": 24
-    },
-    {
-      "package_type": "DRUM",
-      "stackable": true,
-      "height": 174.47,
-      "length": 51.3,
-      "width": 44.92,
-      "length_unit": "CM",
-      "package_weight": 9531.1,
-      "weight_unit": "KG",
-      "description": "Industrial paper rolls for packaging applications",
-      "total_packages": 44
-    },
-    {
-      "package_type": "CRATE",
-      "stackable": true,
-      "height": 103.89,
-      "length": 52.9,
-      "width": 135.34,
-      "length_unit": "CM",
-      "package_weight": 8656.3,
-      "weight_unit": "KG",
-      "description": "Steel storage tanks for industrial applications",
-      "total_packages": 26
-    }
-  ],
-  "stops": [
-    {
-      "type": "PICKUP",
-      "location": {
-        "name": "Schrik BV",
-        "address": {
-          "address": "Jaylinnweg 6",
-          "city": "Maarssen",
-          "postal_code": "1757 XT",
-          "country": "NL"
-        },
-        "latitude": -10.0990515,
-        "longitude": 91.238255
+    "line_items": [
+      {
+        "package_type": "BALE",
+        "stackable": false,
+        "height": 115.15,
+        "length": 138.51,
+        "width": 20.88,
+        "length_unit": "CM",
+        "package_weight": 7069.62,
+        "weight_unit": "KG",
+        "description": "Commercial grade floor mats for high-traffic areas",
+        "total_packages": 4
       },
-      "planned_date": "2025-07-08",
-      "planned_time_window_start": "06:00:00",
-      "planned_time_window_end": "17:00:00"
-    },
-    {
-      "type": "DELIVERY",
-      "location": {
-        "name": "Holsten KGaA",
-        "address": {
-          "address": "Zeljko-Henschel-Straße 08",
-          "city": "Erfurt",
-          "postal_code": "05544",
-          "country": "DE"
-        },
-        "latitude": -53.552886,
-        "longitude": 162.941741
+      {
+        "package_type": "CYLINDER",
+        "stackable": true,
+        "height": 31.16,
+        "length": 71.51,
+        "width": 162.91,
+        "length_unit": "CM",
+        "package_weight": 2336.24,
+        "weight_unit": "KG",
+        "description": "Heavy-duty truck tires, new and retreaded options",
+        "total_packages": 1
       },
-      "planned_date": "2025-07-14",
-      "planned_time_window_start": "06:00:00",
-      "planned_time_window_end": "17:00:00"
-    }
-  ],
-  "timeline_events": null
-}
+      {
+        "package_type": "CYLINDER",
+        "stackable": false,
+        "height": 66.97,
+        "length": 111.34,
+        "width": 95.14,
+        "length_unit": "CM",
+        "package_weight": 890.43,
+        "weight_unit": "KG",
+        "description": "Industrial conveyor belt sections",
+        "total_packages": 3
+      }
+    ],
+    "stops": [
+      {
+        "type": "PICKUP",
+        "location": {
+          "code": "LOC-9973",
+          "name": "Scamarcio e figli",
+          "address": {
+            "address": "Borgo Buonauro, 27 Piano 6",
+            "city": "Riva",
+            "postal_code": "81046",
+            "country": "IT"
+          },
+          "latitude": 9.223782,
+          "longitude": 123.12346
+        },
+        "planned_date": "2025-07-22",
+        "planned_time_window_start": "06:00:00",
+        "planned_time_window_end": "17:00:00"
+      },
+      {
+        "type": "DELIVERY",
+        "location": {
+          "code": "LOC-8521",
+          "name": "Williams-Patel",
+          "address": {
+            "address": "Studio 6\nGill courts",
+            "city": "Leonardtown",
+            "postal_code": "WA7 6JT",
+            "country": "GB"
+          },
+          "latitude": 13.042235,
+          "longitude": -168.601537
+        },
+        "planned_date": "2025-07-24",
+        "planned_time_window_start": "06:00:00",
+        "planned_time_window_end": "17:00:00"
+      }
+    ],
+    "timeline_events": null
+  }
+]
