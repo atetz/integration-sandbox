@@ -11,8 +11,8 @@
     - [x] and then sends messages to it with fake data
     - [x] TMS order out
     - [x] Broker event out  
-  - [ ] Create a POST endpoint for broker orders
-    - [ ] and then validates the data
+  - [x] Create a POST endpoint for broker orders
+    - [x] and then validates the data
   - [ ] Create a POST endpoint for TMS events
     - [ ] and then validates the data
   - [ ] Create a get endpoint for TMS orders (batch)
