@@ -2,15 +2,12 @@ from typing import List
 
 import httpx
 
-from integrationsandbox.broker.factories import BrokerEventMessageFactory
-from integrationsandbox.broker.models import BrokerEventMessage, BrokerEventType
+from integrationsandbox.broker.models import BrokerEventMessage
 from integrationsandbox.broker.repository import create_events
+from integrationsandbox.broker.service import create_events_from_factory
 from integrationsandbox.tms.models import TmsShipment
 from integrationsandbox.tms.repository import create_shipments, get_shipments_by_id
-from integrationsandbox.tms.service import (
-    create_shipments_from_factory,
-    get_location_for_event,
-)
+from integrationsandbox.tms.service import create_shipments_from_factory
 from integrationsandbox.trigger.models import EventTrigger, ShipmentTrigger
 
 
@@ -26,24 +23,6 @@ def create_and_dispatch_shipments(trigger: ShipmentTrigger):
     create_shipments(shipments)
     dispatch_shipments_to_url(shipments, trigger.target_url.encoded_string())
     return shipments
-
-
-def create_events_from_factory(
-    shipments: List[TmsShipment], event: BrokerEventType
-) -> List[BrokerEventMessage]:
-    factory = BrokerEventMessageFactory()
-    events = [
-        factory.create_event_message(
-            shipment_id=shipment.id,
-            owner_name="Adam's logistics",
-            reference=shipment.external_reference,
-            event_type=event,
-            carrier_name=shipment.customer.carrier,
-            location_reference=get_location_for_event(shipment, event),
-        )
-        for shipment in shipments
-    ]
-    return events
 
 
 # dedup later if needed.
