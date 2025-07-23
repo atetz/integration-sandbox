@@ -8,7 +8,7 @@ from integrationsandbox.broker.models import BrokerEventType
 class ShipmentTrigger(BaseModel):
     target_url: AnyUrl = Field(description="URL to send the generated events to")
     count: PositiveInt = Field(
-        description="Number of shipments to generate and send to target"
+        description="Number of shipments to generate and send to target", le=1000
     )
 
     model_config = {
@@ -29,7 +29,8 @@ class EventTrigger(BaseModel):
         description="Type of event to generate for all shipments"
     )
     shipment_ids: List[str] = Field(
-        description="List of shipment IDs to generate events for. Supports multiple shipments for bulk testing."
+        description="List of shipment IDs to generate events for. Supports multiple shipments for bulk testing.",
+        le=1000,
     )
 
     model_config = {

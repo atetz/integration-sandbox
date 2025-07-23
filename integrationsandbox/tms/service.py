@@ -3,6 +3,7 @@ from typing import Any, Dict, List, Tuple
 from integrationsandbox.broker.models import BrokerEventMessage, BrokerEventType
 from integrationsandbox.broker.repository import get_event
 from integrationsandbox.common.validation import compare_mappings
+from integrationsandbox.tms.factories import TmsShipmentFactory
 from integrationsandbox.tms.models import (
     CreateTmsShipmentEvent,
     TmsEventType,
@@ -88,3 +89,8 @@ def validate_event(
     expected_data = apply_event_mapping_rules(broker_event)
     transformed_data = get_transformed_event_data(event)
     return compare_mappings(expected_data, transformed_data)
+
+
+def create_shipments_from_factory(count: int) -> List[TmsShipment]:
+    factory = TmsShipmentFactory()
+    return [factory.create_shipment() for shipment in range(count)]

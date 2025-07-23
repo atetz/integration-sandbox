@@ -5,16 +5,13 @@ import httpx
 from integrationsandbox.broker.factories import BrokerEventMessageFactory
 from integrationsandbox.broker.models import BrokerEventMessage, BrokerEventType
 from integrationsandbox.broker.repository import create_events
-from integrationsandbox.tms.factories import TmsShipmentFactory
 from integrationsandbox.tms.models import TmsShipment
 from integrationsandbox.tms.repository import create_shipments, get_shipments_by_id
-from integrationsandbox.tms.service import get_location_for_event
+from integrationsandbox.tms.service import (
+    create_shipments_from_factory,
+    get_location_for_event,
+)
 from integrationsandbox.trigger.models import EventTrigger, ShipmentTrigger
-
-
-def create_shipments_from_factory(count: int) -> List[TmsShipment]:
-    factory = TmsShipmentFactory()
-    return [factory.create_shipment() for shipment in range(count)]
 
 
 def dispatch_shipments_to_url(shipments: List[TmsShipment], url: str) -> None:
