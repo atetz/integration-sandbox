@@ -8,6 +8,7 @@ from integrationsandbox.broker.repository import create_events
 from integrationsandbox.tms.factories import TmsShipmentFactory
 from integrationsandbox.tms.models import TmsShipment
 from integrationsandbox.tms.repository import create_shipments, get_shipments_by_id
+from integrationsandbox.tms.service import get_location_for_event
 from integrationsandbox.trigger.models import EventTrigger, ShipmentTrigger
 
 
@@ -32,7 +33,7 @@ def create_and_dispatch_shipments(trigger: ShipmentTrigger):
 
 def create_events_from_factory(
     shipments: List[TmsShipment], event: BrokerEventType
-) -> List[TmsShipment]:
+) -> List[BrokerEventMessage]:
     factory = BrokerEventMessageFactory()
     events = [
         factory.create_event_message(
@@ -41,6 +42,7 @@ def create_events_from_factory(
             reference=shipment.external_reference,
             event_type=event,
             carrier_name=shipment.customer.carrier,
+            location_reference=get_location_for_event(shipment, event),
         )
         for shipment in shipments
     ]
