@@ -13,8 +13,8 @@
     - [x] Broker event out  
   - [x] Create a POST endpoint for broker orders
     - [x] and then validates the data
-  - [ ] Create a POST endpoint for TMS events
-    - [ ] and then validates the data
+  - [x] Create a POST endpoint for TMS events
+    - [x] and then validates the data
   - [ ] Create a get endpoint for TMS orders (batch)
   - [ ] Implement helpful error messages.
 - [ ] Settings management with Pydantic Settings
