@@ -122,7 +122,7 @@ class BrokerEventSituation(BaseModel):
     event: BrokerEventType
     registrationDate: datetime
     actualDate: datetime
-    position: BrokerEventPosition
+    position: BrokerEventPosition | None = None
 
 
 class BrokerEventMessage(BaseModel):
@@ -132,5 +132,4 @@ class BrokerEventMessage(BaseModel):
     owner: str
     order: BrokerEventOrder
     situation: BrokerEventSituation
-    carrier: str
     carrier: str

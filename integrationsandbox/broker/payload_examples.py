@@ -127,5 +127,5 @@ create_broker_message = {
                 },
             }
         ]
-    }
+    },
 }

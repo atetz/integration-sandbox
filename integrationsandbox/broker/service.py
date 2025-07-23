@@ -1,8 +1,6 @@
 from datetime import datetime
 from typing import Any, Dict, List, Tuple
 
-from deepdiff import DeepDiff
-
 from integrationsandbox.broker.models import (
     BrokerDate,
     BrokerDateQualifier,
@@ -12,6 +10,7 @@ from integrationsandbox.broker.models import (
     BrokerQuantity,
     CreateBrokerOrderMessage,
 )
+from integrationsandbox.common.validation import compare_mappings
 from integrationsandbox.tms.models import PackageType, TmsShipment, TmsStop
 from integrationsandbox.tms.repository import get_shipment_by_id
 
@@ -88,7 +87,7 @@ def map_line_items(tms_shipment: TmsShipment) -> List[BrokerHandlingUnit]:
     return units
 
 
-def apply_mapping_rules(tms_shipment: TmsShipment) -> Dict[str, Any]:
+def apply_shipment_mapping_rules(tms_shipment: TmsShipment) -> Dict[str, Any]:
     result = {}
     result["meta_message_function"] = NEW_MESSAGE_FUNCTION
     result["shipment_reference"] = tms_shipment.id
@@ -112,7 +111,9 @@ def apply_mapping_rules(tms_shipment: TmsShipment) -> Dict[str, Any]:
     return result
 
 
-def get_transformed_data(broker_order: CreateBrokerOrderMessage) -> Dict[str, Any]:
+def get_transformed_shipment_data(
+    broker_order: CreateBrokerOrderMessage,
+) -> Dict[str, Any]:
     result = {}
     result["meta_message_function"] = broker_order.meta.messageFunction
     result["shipment_reference"] = broker_order.shipment.reference
@@ -131,52 +132,11 @@ def get_transformed_data(broker_order: CreateBrokerOrderMessage) -> Dict[str, An
     return result
 
 
-def serialize_value(value):
-    # fastapi won't serialize correctly if return type is unknown. So serialize to dict is neccesary here.
-    if hasattr(value, "model_dump"):
-        return value.model_dump()
-    elif isinstance(value, set):
-        return list(value)
-    elif isinstance(value, list):
-        return [serialize_value(item) for item in value]
-    return value
-
-
-def compare_mappings(tms_data, broker_data):
-    errors = []
-    all_keys = set(tms_data.keys()) | set(broker_data.keys())
-
-    for key in all_keys:
-        if key not in tms_data:
-            errors.append({"field": key, "error": "missing in tms_data"})
-        elif key not in broker_data:
-            errors.append({"field": key, "error": "missing in broker_data"})
-        else:
-            tms_serialized = serialize_value(tms_data[key])
-            broker_serialized = serialize_value(broker_data[key])
-
-            diff = DeepDiff(
-                tms_serialized, broker_serialized, ignore_order=True, verbose_level=1
-            )
-
-            if diff:
-                errors.append(
-                    {
-                        "field": key,
-                        "differences": diff.to_dict(),
-                        "expected": tms_serialized,
-                        "actual": broker_serialized,
-                    }
-                )
-
-    return len(errors) == 0, errors
-
-
 def validate_order(order: CreateBrokerOrderMessage) -> Tuple[bool, List[str | None]]:
     shipment_reference = order.shipment.reference
     tms_shipment = get_shipment_by_id(shipment_reference)
     if not tms_shipment:
         return False, [f"Shipment with reference: {shipment_reference} not found"]
-    expected_data = apply_mapping_rules(tms_shipment)
-    transformed_data = get_transformed_data(order)
+    expected_data = apply_shipment_mapping_rules(tms_shipment)
+    transformed_data = get_transformed_shipment_data(order)
     return compare_mappings(expected_data, transformed_data)

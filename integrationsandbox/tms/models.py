@@ -1,6 +1,6 @@
 from datetime import date, datetime, time
 from enum import Enum
-from typing import List, Optional
+from typing import List
 
 from pydantic import BaseModel
 
@@ -21,7 +21,7 @@ class StopType(str, Enum):
     DELIVERY = "DELIVERY"
 
 
-class EventType(str, Enum):
+class TmsEventType(str, Enum):
     BOOKED = "BOOKED"
     CANCELLED = "CANCELLED"
     DELIVERED = "DELIVERED"
@@ -49,11 +49,11 @@ class TmsCustomer(BaseModel):
 
 
 class TmsLineItem(BaseModel):
-    package_type: Optional[PackageType]
+    package_type: PackageType | None
     stackable: bool
-    height: Optional[float]
-    length: Optional[float]
-    width: Optional[float]
+    height: float | None
+    length: float | None
+    width: float | None
     length_unit: str
     package_weight: float
     weight_unit: str
@@ -70,8 +70,8 @@ class TmsAddress(BaseModel):
 
 class TmsLocation(BaseModel):
     code: str
-    name: str
-    address: Optional[TmsAddress]
+    name: str | None = None
+    address: TmsAddress | None = None
     latitude: float
     longitude: float
 
@@ -84,22 +84,25 @@ class TmsStop(BaseModel):
     planned_time_window_end: time
 
 
-class TmsShipmentEvent(BaseModel):
-    id: int
+class CreateTmsShipmentEvent(BaseModel):
     created_at: datetime
-    event_type: EventType
+    event_type: TmsEventType
     occured_at: datetime
     source: str
-    location: TmsLocation
+    location: TmsLocation | None = None
+
+
+class TmsShipmentEvent(CreateTmsShipmentEvent):
+    id: str
 
 
 class TmsShipment(BaseModel):
     id: str
-    external_reference: Optional[str]
+    external_reference: str | None
     mode: ModeType
     equipment_type: EquipmentType
     loading_meters: float
     customer: TmsCustomer
     line_items: List[TmsLineItem]
     stops: List[TmsStop]
-    timeline_events: Optional[List[TmsShipmentEvent]]
+    timeline_events: List[TmsShipmentEvent] | None = None

@@ -5,6 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from integrationsandbox.broker import controller as broker_controller
 from integrationsandbox.infrastructure import database
+from integrationsandbox.tms import controller as tms_controller
 from integrationsandbox.trigger import controller as trigger_controller
 
 API_PREFIX = "/api/v1"
@@ -37,6 +38,7 @@ app.add_middleware(
 
 # Include routers
 app.include_router(trigger_controller.router, prefix=API_PREFIX)
+app.include_router(tms_controller.router, prefix=API_PREFIX)
 app.include_router(broker_controller.router, prefix=API_PREFIX)
 
 

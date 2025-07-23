@@ -1,0 +1,120 @@
+[
+  {
+    "id": "d16b6e3e-4c09-4788-a464-64eee661ce9e",
+    "shipmentId": "2ed5e1e3-1891-4979-a9b1-57d05a338add",
+    "dateTransmission": "2025-07-22T03:54:40.668567",
+    "owner": "Adam's logistics",
+    "order": {
+      "reference": "ORD-78974",
+      "eta": "2025-07-28T00:02:11.824112"
+    },
+    "situation": {
+      "event": "ORDER_CREATED",
+      "registrationDate": "2025-07-22T17:38:50.325628",
+      "actualDate": "2025-07-22T16:45:50.325628",
+      "position": null
+    },
+    "carrier": "Austin, Kim and Peters Transport"
+  },
+  {
+    "id": "0f74650c-8bdc-4166-b0d1-62f38dc1e521",
+    "shipmentId": "2ed5e1e3-1891-4979-a9b1-57d05a338add",
+    "dateTransmission": "2025-07-22T09:19:26.072437",
+    "owner": "Adam's logistics",
+    "order": {
+      "reference": "ORD-83206",
+      "eta": "2025-07-25T00:33:31.528188"
+    },
+    "situation": {
+      "event": "DRIVING_TO_LOAD",
+      "registrationDate": "2025-07-22T17:38:22.339472",
+      "actualDate": "2025-07-22T18:31:22.339472",
+      "position": {
+        "locationReference": "LOC-2813",
+        "latitude": -36.6143765,
+        "longitude": 144.24388
+      }
+    },
+    "carrier": "Austin, Kim and Peters Transport"
+  },
+  {
+    "id": "ca5f5889-41c3-4340-983e-f4905d7a4e49",
+    "shipmentId": "2ed5e1e3-1891-4979-a9b1-57d05a338add",
+    "dateTransmission": "2025-07-22T10:09:54.791840",
+    "owner": "Adam's logistics",
+    "order": {
+      "reference": "ORD-29468",
+      "eta": "2025-07-29T08:43:39.480967"
+    },
+    "situation": {
+      "event": "ORDER_LOADED",
+      "3": "2025-07-22T17:39:41.388650",
+      "actualDate": "2025-07-22T17:46:41.388650",
+      "position": {
+        "locationReference": "LOC-2813",
+        "latitude": 53.8371895,
+        "longitude": -10.00239
+      }
+    },
+    "carrier": "Austin, Kim and Peters Transport"
+  },
+  {
+    "id": "c5756162-5178-4c82-b07d-00623f13c326",
+    "shipmentId": "2ed5e1e3-1891-4979-a9b1-57d05a338add",
+    "dateTransmission": "2025-07-21T23:08:48.883590",
+    "owner": "Adam's logistics",
+    "order": {
+      "reference": "ORD-79215",
+      "eta": "2025-07-31T18:39:16.061164"
+    },
+    "situation": {
+      "event": "ETA_EVENT",
+      "registrationDate": "2025-07-22T17:40:32.004179",
+      "actualDate": "2025-07-22T17:47:32.004179",
+      "position": {
+        "locationReference": "LOC-3242",
+        "latitude": 74.706712,
+        "longitude": -150.385693
+      }
+    },
+    "carrier": "Austin, Kim and Peters Transport"
+  },
+  {
+    "id": "d16a5800-5592-4c59-a73a-10641adaa3bb",
+    "shipmentId": "2ed5e1e3-1891-4979-a9b1-57d05a338add",
+    "dateTransmission": "2025-07-22T08:57:03.114359",
+    "owner": "Adam's logistics",
+    "order": {
+      "reference": "ORD-28494",
+      "eta": "2025-07-24T23:20:19.252403"
+    },
+    "situation": {
+      "event": "ORDER_DELIVERED",
+      "registrationDate": "2025-07-22T17:41:16.228994",
+      "actualDate": "2025-07-22T16:54:16.228994",
+      "position": {
+        "locationReference": "LOC-3242",
+        "latitude": 80.6794025,
+        "longitude": 49.657663
+      }
+    },
+    "carrier": "Austin, Kim and Peters Transport"
+  },
+  {
+    "id": "c80909ef-b50c-4d93-93cf-520682c73afa",
+    "shipmentId": "2ed5e1e3-1891-4979-a9b1-57d05a338add",
+    "dateTransmission": "2025-07-22T06:22:43.928382",
+    "owner": "Adam's logistics",
+    "order": {
+      "reference": "ORD-58048",
+      "eta": "2025-07-29T19:28:56.434214"
+    },
+    "situation": {
+      "event": "CANCEL_ORDER",
+      "registrationDate": "2025-07-22T17:42:25.176733",
+      "actualDate": "2025-07-22T17:34:25.176733",
+      "position": null
+    },
+    "carrier": "Austin, Kim and Peters Transport"
+  }
+]
