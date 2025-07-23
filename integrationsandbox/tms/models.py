@@ -2,7 +2,9 @@ from datetime import date, datetime, time
 from enum import Enum
 from typing import List
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, PositiveInt
+
+from integrationsandbox.tms.payload_examples import tms_shipment_seed
 
 
 class PackageType(str, Enum):
@@ -106,3 +108,10 @@ class TmsShipment(BaseModel):
     line_items: List[TmsLineItem]
     stops: List[TmsStop]
     timeline_events: List[TmsShipmentEvent] | None = None
+
+
+class TmsShipmentSeedRequest(BaseModel):
+    count: PositiveInt = Field(
+        description="Number of broker events to generate and save.", le=1000
+    )
+    model_config = tms_shipment_seed

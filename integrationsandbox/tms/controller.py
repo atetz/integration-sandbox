@@ -1,14 +1,21 @@
+from typing import List
+
 from fastapi import APIRouter, HTTPException, status
 
-from integrationsandbox.tms.models import CreateTmsShipmentEvent
-from integrationsandbox.tms.service import validate_event
+from integrationsandbox.tms.models import (
+    CreateTmsShipmentEvent,
+    TmsShipment,
+    TmsShipmentSeedRequest,
+)
+from integrationsandbox.tms.repository import create_shipments
+from integrationsandbox.tms.service import create_shipments_from_factory, validate_event
 
 router = APIRouter(prefix="/tms")
 
 
 @router.post(
     "/event/{shipment_id}",
-    summary="Receive and validate TMS event for a specific id.",
+    summary="Receive and validate TMS event",
     description="""
       Receives an event in TMS format and validates the transformations based on the broker event data and mapping rules. 
       """,
@@ -19,3 +26,18 @@ def incoming_event(event: CreateTmsShipmentEvent, shipment_id: str) -> None:
     result, errors = validate_event(event, shipment_id)
     if not result:
         raise HTTPException(status_code=400, detail=errors)
+
+
+@router.post(
+    "/shipments/seed",
+    summary="Seed shipments",
+    description="""
+      Receives a count and then proceeds to generate and save shipments for given count. 
+      """,
+    response_description="List of generated shipments sent to target URL",
+    status_code=status.HTTP_201_CREATED,
+)
+def seed_shipments(seed_request: TmsShipmentSeedRequest) -> List[TmsShipment]:
+    shipments = create_shipments_from_factory(seed_request.count)
+    create_shipments(shipments)
+    return shipments
