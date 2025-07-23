@@ -33,25 +33,28 @@ class BrokerEventMessageFactory:
             eta=self.fake.date_time_between(start_date="now", end_date="+10d"),
         )
 
-    def create_position(self) -> BrokerEventPosition:
+    def create_position(self, location_reference: str = None) -> BrokerEventPosition:
         return BrokerEventPosition(
-            locationReference=self.fake.bothify(text="LOC-####"),
+            locationReference=location_reference if location_reference else self.fake.bothify(text="LOC-####"),
             latitude=self.fake.latitude(),
             longitude=self.fake.longitude(),
         )
 
     def create_situation(
-        self, event_type: BrokerEventType = None
+        self, event_type: BrokerEventType = None, location_reference: str = None
     ) -> BrokerEventSituation:
         now = datetime.now()
         actual = now + timedelta(minutes=random.randint(-60, 60))
+        position = True
+        if event_type in [BrokerEventType.CANCEL_ORDER, BrokerEventType.ORDER_CREATED]:
+            position = False
         return BrokerEventSituation(
             event=event_type
             if event_type is not None
             else get_random_enum_choice(BrokerEventType),
             registrationDate=now,
             actualDate=actual,
-            position=self.create_position(),
+            position=self.create_position(location_reference) if position else None,
         )
 
     def create_event_message(
@@ -61,6 +64,7 @@ class BrokerEventMessageFactory:
         reference: str = None,
         event_type: BrokerEventType = None,
         carrier_name: str = None,
+        location_reference: str = None,
     ) -> BrokerEventMessage:
         return BrokerEventMessage(
             id=self.fake.uuid4(),
@@ -72,6 +76,6 @@ class BrokerEventMessageFactory:
             ),
             owner=self.create_org(owner_name),
             order=self.create_order(reference),
-            situation=self.create_situation(event_type),
+            situation=self.create_situation(event_type, location_reference),
             carrier=self.create_org(carrier_name),
         )

@@ -51,3 +51,16 @@ def get_events(query_params: Dict[str, Any] | None) -> List[BrokerEventMessage] 
             return [BrokerEventMessage.model_validate_json(row[0]) for row in rows]
 
         return None
+
+
+def get_event(query_params: Dict[str, Any] | None) -> BrokerEventMessage | None:
+    base_query = "SELECT data from broker_event"
+    where_clause, params = build_where_clause(query_params)
+    query = base_query + where_clause + " LIMIT 1"
+
+    with create_connection() as con:
+        res = con.execute(query, params)
+        row = res.fetchone()
+        if row:
+            return BrokerEventMessage.model_validate_json(row[0])
+        return None
