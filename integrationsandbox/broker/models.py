@@ -2,7 +2,7 @@ from datetime import datetime
 from enum import Enum
 from typing import List
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from integrationsandbox.broker.payload_examples import create_broker_message
 
@@ -133,3 +133,13 @@ class BrokerEventMessage(BaseModel):
     order: BrokerEventOrder
     situation: BrokerEventSituation
     carrier: str
+
+
+class BrokerEventSeedRequest(BaseModel):
+    event: BrokerEventType = Field(
+        description="Type of event to generate for all shipments"
+    )
+    shipment_ids: List[str] = Field(
+        description="List of shipment IDs to generate events for. Supports multiple shipments for bulk testing.",
+        max_length=1000,
+    )

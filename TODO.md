@@ -15,9 +15,11 @@
     - [x] and then validates the data
   - [x] Create a POST endpoint for TMS events
     - [x] and then validates the data
+  - [x] Create seed endpoints for broker and TMS data
   - [ ] Create a get endpoint for TMS orders (batch)
   - [ ] Implement helpful error messages.
 - [ ] Settings management with Pydantic Settings
+  - [ ] Search for magic values and make configurable if needed.
 - [ ] Add security
 - [ ] Add structured logging for request tracing
 - [ ] Improve FastAPI auto-generated documentation (descriptions, examples, tags)

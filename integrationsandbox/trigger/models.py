@@ -30,7 +30,7 @@ class EventTrigger(BaseModel):
     )
     shipment_ids: List[str] = Field(
         description="List of shipment IDs to generate events for. Supports multiple shipments for bulk testing.",
-        le=1000,
+        max_length=1000,
     )
 
     model_config = {
