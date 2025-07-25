@@ -1,18 +1,24 @@
 from datetime import datetime
 from typing import Any, Dict, List, Tuple
 
+from integrationsandbox.broker import repository
+from integrationsandbox.broker.factories import BrokerEventMessageFactory
 from integrationsandbox.broker.models import (
     BrokerDate,
     BrokerDateQualifier,
+    BrokerEventMessage,
+    BrokerEventType,
     BrokerHandlingUnit,
     BrokerLocation,
     BrokerPackagingQualifier,
     BrokerQuantity,
     CreateBrokerOrderMessage,
+    EventFilters,
 )
 from integrationsandbox.common.validation import compare_mappings
 from integrationsandbox.tms.models import PackageType, TmsShipment, TmsStop
 from integrationsandbox.tms.repository import get_shipment_by_id
+from integrationsandbox.tms.service import get_location_for_event
 
 PACKAGE_MAP = {
     PackageType.BALE: BrokerPackagingQualifier.BL,
@@ -140,3 +146,25 @@ def validate_order(order: CreateBrokerOrderMessage) -> Tuple[bool, List[str | No
     expected_data = apply_shipment_mapping_rules(tms_shipment)
     transformed_data = get_transformed_shipment_data(order)
     return compare_mappings(expected_data, transformed_data)
+
+
+def create_events_from_factory(
+    shipments: List[TmsShipment], event: BrokerEventType
+) -> List[BrokerEventMessage]:
+    factory = BrokerEventMessageFactory()
+    events = [
+        factory.create_event_message(
+            shipment_id=shipment.id,
+            owner_name="Adam's logistics",
+            reference=shipment.external_reference,
+            event_type=event,
+            carrier_name=shipment.customer.carrier,
+            location_reference=get_location_for_event(shipment, event),
+        )
+        for shipment in shipments
+    ]
+    return events
+
+
+def list_events(filters: EventFilters) -> List[BrokerEventMessage]:
+    return repository.get_all(filters)

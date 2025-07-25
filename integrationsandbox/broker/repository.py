@@ -1,6 +1,6 @@
 from typing import Any, Dict, List, Tuple
 
-from integrationsandbox.broker.models import BrokerEventMessage
+from integrationsandbox.broker.models import BrokerEventMessage, EventFilters
 from integrationsandbox.infrastructure.database import create_connection
 
 
@@ -22,26 +22,25 @@ def create_events(events: List[BrokerEventMessage]) -> None:
         )
 
 
-def build_where_clause(query_params: dict) -> Tuple[str, list]:
-    filters = []
+def build_where_clause(filters: EventFilters) -> Tuple[str, List[Any]]:
+    conditions = []
     params = []
 
-    for param, value in query_params.items():
-        if "__eq" in param:
-            col = param.split("__eq")[0]
-            filters.append(f"{col} = ?")
-            params.append(value)
+    for field, value in filters.model_dump(exclude_none=True).items():
+        col = "event_type" if field == "event" else field
+        conditions.append(f"{col} = ?")
+        params.append(value)
 
     clause = ""
-    if filters:
-        clause = " WHERE " + " AND ".join(filters)
+    if conditions:
+        clause = " WHERE " + " AND ".join(conditions)
 
     return clause, params
 
 
-def get_events(query_params: Dict[str, Any] | None) -> List[BrokerEventMessage] | None:
+def get_all(filters: EventFilters | None) -> List[BrokerEventMessage] | None:
     base_query = "SELECT data from broker_event"
-    where_clause, params = build_where_clause(query_params)
+    where_clause, params = build_where_clause(filters)
     query = base_query + where_clause
 
     with create_connection() as con:
