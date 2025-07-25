@@ -54,9 +54,9 @@ def seed_events(seed_request: BrokerEventSeedRequest) -> List[BrokerEventMessage
     "/events/",
     summary="Get events",
     description="""
-      Receives a count and then proceeds to generate and save events for given count. 
+      Retreives a list of all the events.
       """,
-    response_description="List of generated events sent to target URL",
+    response_description="List of events",
     status_code=status.HTTP_200_OK,
 )
 def get_events(filters: EventFilters = Depends()) -> List[BrokerEventMessage] | None:

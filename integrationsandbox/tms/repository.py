@@ -1,7 +1,24 @@
-from typing import List, Optional
+from typing import Any, List, Optional, Tuple
 
 from integrationsandbox.infrastructure.database import create_connection
-from integrationsandbox.tms.models import TmsShipment
+from integrationsandbox.tms.models import TmsShipment, TmsShipmentFilters
+
+
+# overkill for only 1 filter but keeping the same as other repo.
+def build_where_clause(filters: TmsShipmentFilters) -> Tuple[str, List[Any]]:
+    conditions = []
+    params = []
+
+    for field, value in filters.model_dump(exclude_none=True).items():
+        col = field
+        conditions.append(f"{col} = ?")
+        params.append(value)
+
+    clause = ""
+    if conditions:
+        clause = " WHERE " + " AND ".join(conditions)
+
+    return clause, params
 
 
 def create_shipments(shipments: List[TmsShipment]) -> None:
@@ -45,3 +62,17 @@ def get_shipments_by_id(shipment_ids: List[str]) -> List[TmsShipment]:
             )
 
         return shipments
+
+
+def get_all(filters: TmsShipmentFilters) -> List[TmsShipment] | None:
+    base_query = "SELECT data from tms_shipment"
+    where_clause, params = build_where_clause(filters)
+    query = base_query + where_clause
+
+    with create_connection() as con:
+        res = con.execute(query, params)
+        rows = res.fetchall()
+        if rows:
+            return [TmsShipment.model_validate_json(row[0]) for row in rows]
+
+        return None

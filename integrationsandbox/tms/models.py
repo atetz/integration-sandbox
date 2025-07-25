@@ -115,3 +115,8 @@ class TmsShipmentSeedRequest(BaseModel):
         description="Number of broker events to generate and save.", le=1000
     )
     model_config = tms_shipment_seed
+
+
+# bit overkill for now but maybe we'll get more filters later. Keeping it the same as broker.
+class TmsShipmentFilters(BaseModel):
+    id: str | None = None

@@ -3,11 +3,13 @@ from typing import Any, Dict, List, Tuple
 from integrationsandbox.broker.models import BrokerEventMessage, BrokerEventType
 from integrationsandbox.broker.repository import get_event
 from integrationsandbox.common.validation import compare_mappings
+from integrationsandbox.tms import repository
 from integrationsandbox.tms.factories import TmsShipmentFactory
 from integrationsandbox.tms.models import (
     CreateTmsShipmentEvent,
     TmsEventType,
     TmsShipment,
+    TmsShipmentFilters,
 )
 
 EVENT_TYPE_MAP = {
@@ -94,3 +96,7 @@ def validate_event(
 def create_shipments_from_factory(count: int) -> List[TmsShipment]:
     factory = TmsShipmentFactory()
     return [factory.create_shipment() for shipment in range(count)]
+
+
+def list_shipments(filters: TmsShipmentFilters) -> List[TmsShipment]:
+    return repository.get_all(filters)

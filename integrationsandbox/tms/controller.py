@@ -1,14 +1,19 @@
 from typing import List
 
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status
 
 from integrationsandbox.tms.models import (
     CreateTmsShipmentEvent,
     TmsShipment,
+    TmsShipmentFilters,
     TmsShipmentSeedRequest,
 )
 from integrationsandbox.tms.repository import create_shipments
-from integrationsandbox.tms.service import create_shipments_from_factory, validate_event
+from integrationsandbox.tms.service import (
+    create_shipments_from_factory,
+    list_shipments,
+    validate_event,
+)
 
 router = APIRouter(prefix="/tms")
 
@@ -41,3 +46,16 @@ def seed_shipments(seed_request: TmsShipmentSeedRequest) -> List[TmsShipment]:
     shipments = create_shipments_from_factory(seed_request.count)
     create_shipments(shipments)
     return shipments
+
+
+@router.get(
+    "/shipments/",
+    summary="Get shipments",
+    description="""
+      Retreives a list of all the shipments.
+      """,
+    response_description="List of shipments",
+    status_code=status.HTTP_200_OK,
+)
+def get_events(filters: TmsShipmentFilters = Depends()) -> List[TmsShipment] | None:
+    return list_shipments(filters)
