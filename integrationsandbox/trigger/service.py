@@ -6,8 +6,8 @@ from integrationsandbox.broker.models import BrokerEventMessage
 from integrationsandbox.broker.repository import create_events
 from integrationsandbox.broker.service import create_events_from_factory
 from integrationsandbox.tms.models import TmsShipment
-from integrationsandbox.tms.repository import create_shipments, get_shipments_by_id
-from integrationsandbox.tms.service import create_shipments_from_factory
+from integrationsandbox.tms.repository import create_many, get_shipments_by_id
+from integrationsandbox.tms.service import build_shipments
 from integrationsandbox.trigger.models import EventTrigger, ShipmentTrigger
 
 
@@ -19,8 +19,8 @@ def dispatch_shipments_to_url(shipments: List[TmsShipment], url: str) -> None:
 
 
 def create_and_dispatch_shipments(trigger: ShipmentTrigger):
-    shipments = create_shipments_from_factory(trigger.count)
-    create_shipments(shipments)
+    shipments = build_shipments(trigger.count)
+    create_many(shipments)
     dispatch_shipments_to_url(shipments, trigger.target_url.encoded_string())
     return shipments
 

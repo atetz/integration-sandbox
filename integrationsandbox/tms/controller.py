@@ -8,9 +8,8 @@ from integrationsandbox.tms.models import (
     TmsShipmentFilters,
     TmsShipmentSeedRequest,
 )
-from integrationsandbox.tms.repository import create_shipments
 from integrationsandbox.tms.service import (
-    create_shipments_from_factory,
+    create_seed_shipments,
     list_shipments,
     validate_event,
 )
@@ -43,8 +42,7 @@ def incoming_event(event: CreateTmsShipmentEvent, shipment_id: str) -> None:
     status_code=status.HTTP_201_CREATED,
 )
 def seed_shipments(seed_request: TmsShipmentSeedRequest) -> List[TmsShipment]:
-    shipments = create_shipments_from_factory(seed_request.count)
-    create_shipments(shipments)
+    shipments = create_seed_shipments(seed_request.count)
     return shipments
 
 

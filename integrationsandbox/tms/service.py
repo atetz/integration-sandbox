@@ -93,9 +93,15 @@ def validate_event(
     return compare_mappings(expected_data, transformed_data)
 
 
-def create_shipments_from_factory(count: int) -> List[TmsShipment]:
+def build_shipments(count: int) -> List[TmsShipment]:
     factory = TmsShipmentFactory()
     return [factory.create_shipment() for shipment in range(count)]
+
+
+def create_seed_shipments(count: int) -> List[TmsShipment]:
+    shipments = build_shipments(count)
+    repository.create_many(shipments)
+    return shipments
 
 
 def list_shipments(filters: TmsShipmentFilters) -> List[TmsShipment]:

@@ -31,7 +31,7 @@ def build_where_clause(filters: TmsShipmentFilters) -> Tuple[str, List[Any]]:
     return clause, params
 
 
-def create_shipments(shipments: List[TmsShipment]) -> None:
+def create_many(shipments: List[TmsShipment]) -> None:
     with create_connection() as con:
         con.executemany(
             "INSERT INTO tms_shipment(id, data) VALUES(?, ?)",
