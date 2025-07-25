@@ -10,13 +10,23 @@ def build_where_clause(filters: TmsShipmentFilters) -> Tuple[str, List[Any]]:
     params = []
 
     for field, value in filters.model_dump(exclude_none=True).items():
+        if field == "limit":
+            continue
+        operator = "="
         col = field
-        conditions.append(f"{col} = ?")
+        if field == "start":
+            col = "row_id"
+            operator = ">="
+        conditions.append(f"{col} {operator} ?")
         params.append(value)
 
     clause = ""
     if conditions:
         clause = " WHERE " + " AND ".join(conditions)
+
+    if filters.limit:
+        params.append(filters.limit)
+        clause += " LIMIT ?"
 
     return clause, params
 

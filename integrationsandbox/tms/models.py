@@ -120,3 +120,5 @@ class TmsShipmentSeedRequest(BaseModel):
 # bit overkill for now but maybe we'll get more filters later. Keeping it the same as broker.
 class TmsShipmentFilters(BaseModel):
     id: str | None = None
+    start: int | None = 0
+    limit: int | None = 50
