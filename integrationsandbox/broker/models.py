@@ -143,3 +143,9 @@ class BrokerEventSeedRequest(BaseModel):
         description="List of shipment IDs to generate events for. Supports multiple shipments for bulk testing.",
         max_length=1000,
     )
+
+
+class EventFilters(BaseModel):
+    id: str | None = None
+    event: BrokerEventType | None = None
+    shipment_id: str | None = None

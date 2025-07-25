@@ -1,6 +1,7 @@
 from datetime import datetime
 from typing import Any, Dict, List, Tuple
 
+from integrationsandbox.broker import repository
 from integrationsandbox.broker.factories import BrokerEventMessageFactory
 from integrationsandbox.broker.models import (
     BrokerDate,
@@ -12,6 +13,7 @@ from integrationsandbox.broker.models import (
     BrokerPackagingQualifier,
     BrokerQuantity,
     CreateBrokerOrderMessage,
+    EventFilters,
 )
 from integrationsandbox.common.validation import compare_mappings
 from integrationsandbox.tms.models import PackageType, TmsShipment, TmsStop
@@ -162,3 +164,7 @@ def create_events_from_factory(
         for shipment in shipments
     ]
     return events
+
+
+def list_events(filters: EventFilters) -> List[BrokerEventMessage]:
+    return repository.get_all(filters)

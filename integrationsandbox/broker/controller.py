@@ -1,14 +1,19 @@
 from typing import List
 
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status
 
 from integrationsandbox.broker.models import (
     BrokerEventMessage,
     BrokerEventSeedRequest,
     CreateBrokerOrderMessage,
+    EventFilters,
 )
 from integrationsandbox.broker.repository import create_events
-from integrationsandbox.broker.service import create_events_from_factory, validate_order
+from integrationsandbox.broker.service import (
+    create_events_from_factory,
+    list_events,
+    validate_order,
+)
 from integrationsandbox.tms.repository import get_shipments_by_id
 
 router = APIRouter(prefix="/broker")
@@ -43,3 +48,16 @@ def seed_events(seed_request: BrokerEventSeedRequest) -> List[BrokerEventMessage
     events = create_events_from_factory(shipments, seed_request.event)
     create_events(events)
     return events
+
+
+@router.get(
+    "/events/",
+    summary="Get events",
+    description="""
+      Receives a count and then proceeds to generate and save events for given count. 
+      """,
+    response_description="List of generated events sent to target URL",
+    status_code=status.HTTP_200_OK,
+)
+def get_events(filters: EventFilters = Depends()) -> List[BrokerEventMessage] | None:
+    return list_events(filters)
