@@ -1,3 +1,4 @@
+import uuid
 from datetime import datetime
 from typing import Any, Dict, List
 
@@ -13,6 +14,7 @@ from integrationsandbox.broker.models import (
     BrokerLocation,
     BrokerPackagingQualifier,
     BrokerQuantity,
+    CreateBrokerEventMessage,
     CreateBrokerOrderMessage,
 )
 from integrationsandbox.tms.models import PackageType, TmsShipment, TmsStop
@@ -171,6 +173,12 @@ def list_events(filters: BrokerEventFilters) -> List[BrokerEventMessage]:
 
 def get_event(filters: BrokerEventFilters) -> BrokerEventMessage:
     return repository.get(filters)
+
+
+def create_event(new_event: CreateBrokerEventMessage) -> BrokerEventMessage:
+    event = BrokerEventMessage(id=str(uuid.uuid4()), **new_event.model_dump())
+    repository.create(event)
+    return event
 
 
 def create_events(events: List[BrokerEventMessage]) -> List[BrokerEventMessage]:

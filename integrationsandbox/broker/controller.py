@@ -6,9 +6,10 @@ from integrationsandbox.broker.models import (
     BrokerEventFilters,
     BrokerEventMessage,
     BrokerEventSeedRequest,
+    CreateBrokerEventMessage,
     CreateBrokerOrderMessage,
 )
-from integrationsandbox.broker.service import build_events, create_events, list_events
+from integrationsandbox.broker.service import build_events, create_event, create_events, list_events
 from integrationsandbox.tms.service import get_shipments_by_id_list
 from integrationsandbox.validation.service import validate_broker_order
 
@@ -28,6 +29,20 @@ def incoming_order(order: CreateBrokerOrderMessage) -> None:
     result, errors = validate_broker_order(order)
     if not result:
         raise HTTPException(status_code=400, detail=errors)
+
+
+@router.post(
+    "/events/",
+    summary="Create new broker event",
+    description="""
+      Receives a broker event message and stores it in the database. 
+      """,
+    response_description="HTTP 201 with created event and id in response.",
+    status_code=status.HTTP_201_CREATED,
+)
+def create_event_endpoint(new_event: CreateBrokerEventMessage) -> BrokerEventMessage:
+    event = create_event(new_event)
+    return event
 
 
 @router.post(

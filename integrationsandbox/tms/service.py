@@ -76,7 +76,7 @@ def get_shipment_by_id(id: str) -> TmsShipment:
 def get_shipments_by_id_list(shipment_ids: List[str]) -> None:
     if not shipment_ids:
         return []
-    return repository.get_by_id_list(id)
+    return repository.get_by_id_list(shipment_ids)
 
 
 def create_shipment(new_shipment: CreateTmsShipment) -> TmsShipment:

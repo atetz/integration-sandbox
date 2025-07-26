@@ -22,6 +22,21 @@ def create_many(events: List[BrokerEventMessage]) -> None:
         )
 
 
+def create(event: BrokerEventMessage) -> None:
+    with create_connection() as con:
+        # REPLACE will overwrite existing combinations of shipment_id and status.
+        # This makes is easier to validate incoming broker messages that were accidentally triggered multiple times for a status/id combination
+        con.execute(
+            "REPLACE INTO broker_event(id, shipment_id, event_type, data) VALUES(?,?,?,?)",
+            (
+                event.id,
+                event.shipmentId,
+                event.situation.event,
+                event.model_dump_json(),
+            ),
+        )
+
+
 def build_where_clause(filters: BrokerEventFilters) -> Tuple[str, List[Any]]:
     conditions = []
     params = []
