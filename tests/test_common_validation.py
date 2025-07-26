@@ -1,5 +1,5 @@
 from integrationsandbox.broker.models import BrokerQuantity
-from integrationsandbox.common.validation import compare_mappings, serialize_value
+from integrationsandbox.validation.service import compare_mappings, serialize_value
 
 
 def test_serialize_value_with_model():
