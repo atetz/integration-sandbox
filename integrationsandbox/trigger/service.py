@@ -3,11 +3,13 @@ from typing import List
 import httpx
 
 from integrationsandbox.broker.models import BrokerEventMessage
-from integrationsandbox.broker.repository import create_many
-from integrationsandbox.broker.service import build_events
+from integrationsandbox.broker.service import build_events, create_events
 from integrationsandbox.tms.models import TmsShipment
-from integrationsandbox.tms.repository import create_many, get_by_id_list
-from integrationsandbox.tms.service import build_shipments
+from integrationsandbox.tms.service import (
+    build_shipments,
+    create_shipments,
+    get_shipments_by_id_list,
+)
 from integrationsandbox.trigger.models import EventTrigger, ShipmentTrigger
 
 
@@ -20,7 +22,7 @@ def dispatch_shipments_to_url(shipments: List[TmsShipment], url: str) -> None:
 
 def create_and_dispatch_shipments(trigger: ShipmentTrigger):
     shipments = build_shipments(trigger.count)
-    create_many(shipments)
+    create_shipments(shipments)
     dispatch_shipments_to_url(shipments, trigger.target_url.encoded_string())
     return shipments
 
@@ -33,8 +35,8 @@ def dispatch_events_to_url(events: List[BrokerEventMessage], url: str) -> None:
 
 
 def create_and_dispatch_events(trigger: EventTrigger) -> List[BrokerEventMessage]:
-    shipments = get_by_id_list(trigger.shipment_ids)
+    shipments = get_shipments_by_id_list(trigger.shipment_ids)
     events = build_events(shipments, trigger.event)
-    create_many(events)
+    create_events(events)
     dispatch_events_to_url(events, trigger.target_url.encoded_string())
     return events

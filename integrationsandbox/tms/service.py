@@ -83,3 +83,8 @@ def create_shipment(new_shipment: CreateTmsShipment) -> TmsShipment:
     shipment = TmsShipment(id=str(uuid.uuid4()), **new_shipment.model_dump())
     repository.create(shipment)
     return shipment
+
+
+def create_shipments(shipments: List[TmsShipment]) -> List[TmsShipment]:
+    repository.create_many(shipments)
+    return shipments
