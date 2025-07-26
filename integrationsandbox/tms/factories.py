@@ -1,5 +1,6 @@
 import datetime
 import random
+import uuid
 from enum import Enum
 from typing import List
 
@@ -155,7 +156,7 @@ class TmsShipmentFactory:
 
     def create_customer(self) -> TmsCustomer:
         return TmsCustomer(
-            id=self.fake.uuid4(),
+            id=str(uuid.uuid4()),
             name=self.fake.company(),
             carrier=f"{self.fake.company()} Transport",
         )
@@ -217,7 +218,7 @@ class TmsShipmentFactory:
 
     def create_shipment(self) -> TmsShipment:
         return TmsShipment(
-            id=self.fake.unique.uuid4(),
+            id=str(uuid.uuid4()),
             external_reference=None,
             mode=get_random_enum_choice(ModeType),
             equipment_type=get_random_enum_choice(EquipmentType),
