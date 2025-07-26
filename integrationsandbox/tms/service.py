@@ -1,11 +1,11 @@
-from typing import Any, Dict, List, Tuple
+import uuid
+from typing import Any, Dict, List
 
 from integrationsandbox.broker.models import BrokerEventMessage, BrokerEventType
-from integrationsandbox.broker.repository import get_event
-from integrationsandbox.common.validation import compare_mappings
 from integrationsandbox.tms import repository
 from integrationsandbox.tms.factories import TmsShipmentFactory
 from integrationsandbox.tms.models import (
+    CreateTmsShipment,
     CreateTmsShipmentEvent,
     TmsEventType,
     TmsShipment,
@@ -22,25 +22,6 @@ EVENT_TYPE_MAP = {
 }
 
 REVERSE_EVENT_TYPE_MAP = {v: k for k, v in EVENT_TYPE_MAP.items()}
-
-
-def get_stop_by_type(stops, location_type: str):
-    for stop in stops:
-        if stop.type == location_type:
-            return stop
-    return None
-
-
-def get_location_for_event(
-    shipment: TmsShipment, event_type: BrokerEventType
-) -> str | None:
-    if event_type in [BrokerEventType.DRIVING_TO_LOAD, BrokerEventType.ORDER_LOADED]:
-        pickup_stop = get_stop_by_type(shipment.stops, "PICKUP")
-        return pickup_stop.location.code if pickup_stop else None
-    elif event_type in [BrokerEventType.ORDER_DELIVERED, BrokerEventType.ETA_EVENT]:
-        delivery_stop = get_stop_by_type(shipment.stops, "DELIVERY")
-        return delivery_stop.location.code if delivery_stop else None
-    return None
 
 
 def apply_event_mapping_rules(broker_event: BrokerEventMessage) -> Dict[str, Any]:
@@ -73,29 +54,9 @@ def get_transformed_event_data(event: CreateTmsShipmentEvent) -> Dict[str, Any]:
     return result
 
 
-def validate_event(
-    event: CreateTmsShipmentEvent, shipment_id: str
-) -> Tuple[bool, List[str | None]]:
-    event_type = REVERSE_EVENT_TYPE_MAP[event.event_type]
-    broker_event = get_event(
-        {
-            "shipment_id__eq": shipment_id,
-            "event_type__eq": event_type,
-        }
-    )
-    if not broker_event:
-        return False, [
-            f"Event with type: {event_type} and shipment_id: {shipment_id} not found"
-        ]
-
-    expected_data = apply_event_mapping_rules(broker_event)
-    transformed_data = get_transformed_event_data(event)
-    return compare_mappings(expected_data, transformed_data)
-
-
 def build_shipments(count: int) -> List[TmsShipment]:
     factory = TmsShipmentFactory()
-    return [factory.create_shipment() for shipment in range(count)]
+    return [factory.create_shipment() for _ in range(count)]
 
 
 def create_seed_shipments(count: int) -> List[TmsShipment]:
@@ -106,3 +67,19 @@ def create_seed_shipments(count: int) -> List[TmsShipment]:
 
 def list_shipments(filters: TmsShipmentFilters) -> List[TmsShipment]:
     return repository.get_all(filters)
+
+
+def get_shipment_by_id(id: str) -> TmsShipment:
+    return repository.get_by_id(id)
+
+
+def get_shipments_by_id_list(shipment_ids: List[str]) -> None:
+    if not shipment_ids:
+        return []
+    return repository.get_by_id_list(id)
+
+
+def create_shipment(new_shipment: CreateTmsShipment) -> TmsShipment:
+    shipment = TmsShipment(id=str(uuid.uuid4()), **new_shipment.model_dump())
+    repository.create(shipment)
+    return shipment

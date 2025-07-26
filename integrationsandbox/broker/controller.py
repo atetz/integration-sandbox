@@ -3,18 +3,14 @@ from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
 
 from integrationsandbox.broker.models import (
+    BrokerEventFilters,
     BrokerEventMessage,
     BrokerEventSeedRequest,
     CreateBrokerOrderMessage,
-    EventFilters,
 )
-from integrationsandbox.broker.repository import create_events
-from integrationsandbox.broker.service import (
-    create_events_from_factory,
-    list_events,
-    validate_order,
-)
-from integrationsandbox.tms.repository import get_shipments_by_id
+from integrationsandbox.broker.service import build_events, create_events, list_events
+from integrationsandbox.tms.service import get_shipments_by_id_list
+from integrationsandbox.validation.service import validate_broker_order
 
 router = APIRouter(prefix="/broker")
 
@@ -29,7 +25,7 @@ router = APIRouter(prefix="/broker")
     status_code=status.HTTP_202_ACCEPTED,
 )
 def incoming_order(order: CreateBrokerOrderMessage) -> None:
-    result, errors = validate_order(order)
+    result, errors = validate_broker_order(order)
     if not result:
         raise HTTPException(status_code=400, detail=errors)
 
@@ -44,8 +40,8 @@ def incoming_order(order: CreateBrokerOrderMessage) -> None:
     status_code=status.HTTP_201_CREATED,
 )
 def seed_events(seed_request: BrokerEventSeedRequest) -> List[BrokerEventMessage]:
-    shipments = get_shipments_by_id(seed_request.shipment_ids)
-    events = create_events_from_factory(shipments, seed_request.event)
+    shipments = get_shipments_by_id_list(seed_request.shipment_ids)
+    events = build_events(shipments, seed_request.event)
     create_events(events)
     return events
 
@@ -59,5 +55,7 @@ def seed_events(seed_request: BrokerEventSeedRequest) -> List[BrokerEventMessage
     response_description="List of events",
     status_code=status.HTTP_200_OK,
 )
-def get_events(filters: EventFilters = Depends()) -> List[BrokerEventMessage] | None:
+def get_events(
+    filters: BrokerEventFilters = Depends(),
+) -> List[BrokerEventMessage] | None:
     return list_events(filters)

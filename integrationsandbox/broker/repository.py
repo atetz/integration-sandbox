@@ -1,10 +1,10 @@
-from typing import Any, Dict, List, Tuple
+from typing import Any, List, Tuple
 
-from integrationsandbox.broker.models import BrokerEventMessage, EventFilters
+from integrationsandbox.broker.models import BrokerEventFilters, BrokerEventMessage
 from integrationsandbox.infrastructure.database import create_connection
 
 
-def create_events(events: List[BrokerEventMessage]) -> None:
+def create_many(events: List[BrokerEventMessage]) -> None:
     with create_connection() as con:
         # REPLACE will overwrite existing combinations of shipment_id and status.
         # This makes is easier to validate incoming broker messages that were accidentally triggered multiple times for a status/id combination
@@ -22,7 +22,7 @@ def create_events(events: List[BrokerEventMessage]) -> None:
         )
 
 
-def build_where_clause(filters: EventFilters) -> Tuple[str, List[Any]]:
+def build_where_clause(filters: BrokerEventFilters) -> Tuple[str, List[Any]]:
     conditions = []
     params = []
 
@@ -38,7 +38,7 @@ def build_where_clause(filters: EventFilters) -> Tuple[str, List[Any]]:
     return clause, params
 
 
-def get_all(filters: EventFilters | None) -> List[BrokerEventMessage] | None:
+def get_all(filters: BrokerEventFilters | None) -> List[BrokerEventMessage] | None:
     base_query = "SELECT data from broker_event"
     where_clause, params = build_where_clause(filters)
     query = base_query + where_clause
@@ -52,9 +52,9 @@ def get_all(filters: EventFilters | None) -> List[BrokerEventMessage] | None:
         return None
 
 
-def get_event(query_params: Dict[str, Any] | None) -> BrokerEventMessage | None:
+def get(filters: BrokerEventFilters | None) -> BrokerEventMessage | None:
     base_query = "SELECT data from broker_event"
-    where_clause, params = build_where_clause(query_params)
+    where_clause, params = build_where_clause(filters)
     query = base_query + where_clause + " LIMIT 1"
 
     with create_connection() as con:

@@ -98,8 +98,7 @@ class TmsShipmentEvent(CreateTmsShipmentEvent):
     id: str
 
 
-class TmsShipment(BaseModel):
-    id: str
+class CreateTmsShipment(BaseModel):
     external_reference: str | None
     mode: ModeType
     equipment_type: EquipmentType
@@ -108,6 +107,10 @@ class TmsShipment(BaseModel):
     line_items: List[TmsLineItem]
     stops: List[TmsStop]
     timeline_events: List[TmsShipmentEvent] | None = None
+
+
+class TmsShipment(CreateTmsShipment):
+    id: str
 
 
 class TmsShipmentSeedRequest(BaseModel):

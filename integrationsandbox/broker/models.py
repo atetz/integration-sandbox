@@ -145,7 +145,7 @@ class BrokerEventSeedRequest(BaseModel):
     )
 
 
-class EventFilters(BaseModel):
+class BrokerEventFilters(BaseModel):
     id: str | None = None
     event: BrokerEventType | None = None
     shipment_id: str | None = None
