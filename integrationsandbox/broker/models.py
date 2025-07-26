@@ -135,6 +135,15 @@ class BrokerEventMessage(BaseModel):
     carrier: str
 
 
+class CreateBrokerEventMessage(BaseModel):
+    shipmentId: str
+    dateTransmission: datetime
+    owner: str
+    order: BrokerEventOrder
+    situation: BrokerEventSituation
+    carrier: str
+
+
 class BrokerEventSeedRequest(BaseModel):
     event: BrokerEventType = Field(
         description="Type of event to generate for all shipments"
@@ -145,7 +154,7 @@ class BrokerEventSeedRequest(BaseModel):
     )
 
 
-class EventFilters(BaseModel):
+class BrokerEventFilters(BaseModel):
     id: str | None = None
     event: BrokerEventType | None = None
     shipment_id: str | None = None

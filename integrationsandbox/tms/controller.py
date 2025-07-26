@@ -2,18 +2,15 @@ from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException, status
 
+from integrationsandbox.tms import service as tms_service
 from integrationsandbox.tms.models import (
+    CreateTmsShipment,
     CreateTmsShipmentEvent,
     TmsShipment,
     TmsShipmentFilters,
     TmsShipmentSeedRequest,
 )
-from integrationsandbox.tms.repository import create_shipments
-from integrationsandbox.tms.service import (
-    create_shipments_from_factory,
-    list_shipments,
-    validate_event,
-)
+from integrationsandbox.validation import service as validation_service
 
 router = APIRouter(prefix="/tms")
 
@@ -28,9 +25,23 @@ router = APIRouter(prefix="/tms")
     status_code=status.HTTP_202_ACCEPTED,
 )
 def incoming_event(event: CreateTmsShipmentEvent, shipment_id: str) -> None:
-    result, errors = validate_event(event, shipment_id)
+    result, errors = validation_service.validate_tms_event(event, shipment_id)
     if not result:
         raise HTTPException(status_code=400, detail=errors)
+
+
+@router.post(
+    "/shipments/",
+    summary="Create new TMS Shipment",
+    description="""
+      Receives an TMS shipment message and stores it in the database. 
+      """,
+    response_description="HTTP 201 with created shipment and id in response.",
+    status_code=status.HTTP_201_CREATED,
+)
+def create_shipment(new_shipment: CreateTmsShipment) -> TmsShipment:
+    shipments = tms_service.create_shipment(new_shipment)
+    return shipments
 
 
 @router.post(
@@ -43,8 +54,7 @@ def incoming_event(event: CreateTmsShipmentEvent, shipment_id: str) -> None:
     status_code=status.HTTP_201_CREATED,
 )
 def seed_shipments(seed_request: TmsShipmentSeedRequest) -> List[TmsShipment]:
-    shipments = create_shipments_from_factory(seed_request.count)
-    create_shipments(shipments)
+    shipments = tms_service.create_seed_shipments(seed_request.count)
     return shipments
 
 
@@ -58,4 +68,4 @@ def seed_shipments(seed_request: TmsShipmentSeedRequest) -> List[TmsShipment]:
     status_code=status.HTTP_200_OK,
 )
 def get_events(filters: TmsShipmentFilters = Depends()) -> List[TmsShipment] | None:
-    return list_shipments(filters)
+    return tms_service.list_shipments(filters)

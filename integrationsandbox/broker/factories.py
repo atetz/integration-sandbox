@@ -1,4 +1,5 @@
 import random
+import uuid
 from datetime import datetime, timedelta
 
 from faker import Faker
@@ -35,7 +36,9 @@ class BrokerEventMessageFactory:
 
     def create_position(self, location_reference: str = None) -> BrokerEventPosition:
         return BrokerEventPosition(
-            locationReference=location_reference if location_reference else self.fake.bothify(text="LOC-####"),
+            locationReference=location_reference
+            if location_reference
+            else self.fake.bothify(text="LOC-####"),
             latitude=self.fake.latitude(),
             longitude=self.fake.longitude(),
         )
@@ -67,7 +70,7 @@ class BrokerEventMessageFactory:
         location_reference: str = None,
     ) -> BrokerEventMessage:
         return BrokerEventMessage(
-            id=self.fake.uuid4(),
+            id=str(uuid.uuid4()),
             shipmentId=shipment_id
             if shipment_id is not None
             else self.fake.bothify(text="SHIP-#####"),

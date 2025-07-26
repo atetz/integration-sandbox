@@ -98,7 +98,19 @@ class TmsShipmentEvent(CreateTmsShipmentEvent):
     id: str
 
 
-class TmsShipment(BaseModel):
+class CreateTmsShipment(BaseModel):
+    external_reference: str | None
+    mode: ModeType
+    equipment_type: EquipmentType
+    loading_meters: float
+    customer: TmsCustomer
+    line_items: List[TmsLineItem]
+    stops: List[TmsStop]
+    timeline_events: List[TmsShipmentEvent] | None = None
+
+
+# duplicated because I want ID on top
+class TmsShipment(CreateTmsShipment):
     id: str
     external_reference: str | None
     mode: ModeType
