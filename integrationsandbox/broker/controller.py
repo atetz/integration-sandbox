@@ -9,7 +9,12 @@ from integrationsandbox.broker.models import (
     CreateBrokerEventMessage,
     CreateBrokerOrderMessage,
 )
-from integrationsandbox.broker.service import build_events, create_event, create_events, list_events
+from integrationsandbox.broker.service import (
+    build_events,
+    create_event,
+    create_events,
+    list_events,
+)
 from integrationsandbox.tms.service import get_shipments_by_id_list
 from integrationsandbox.validation.service import validate_broker_order
 

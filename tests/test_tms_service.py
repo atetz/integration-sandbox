@@ -92,29 +92,24 @@ def test_apply_event_mapping_rules():
         registrationDate=datetime(2024, 1, 15, 10, 0),
         actualDate=datetime(2024, 1, 15, 9, 30),
         position=BrokerEventPosition(
-            locationReference="LOC001",
-            latitude=40.7,
-            longitude=-74.0
-        )
+            locationReference="LOC001", latitude=40.7, longitude=-74.0
+        ),
     )
-    
-    order = BrokerEventOrder(
-        reference="SH001",
-        eta=None
-    )
-    
+
+    order = BrokerEventOrder(reference="SH001", eta=None)
+
     broker_event = BrokerEventMessage(
         id="EVT001",
-        shipmentId="SH001", 
+        shipmentId="SH001",
         dateTransmission=datetime(2024, 1, 15, 10, 0),
         owner="Test Owner",
         order=order,
         situation=situation,
-        carrier="Test Carrier"
+        carrier="Test Carrier",
     )
-    
+
     result = apply_event_mapping_rules(broker_event)
-    
+
     assert result["event_type"] == TmsEventType.PICKED_UP
     assert result["created_at"] == datetime(2024, 1, 15, 10, 0)
     assert result["occured_at"] == datetime(2024, 1, 15, 9, 30)

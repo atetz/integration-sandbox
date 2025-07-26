@@ -114,24 +114,7 @@ def test_get_stop_dates():
     assert result[1].dateTime == datetime(2024, 1, 15, 17, 0)
 
 
-def test_map_address_details():
-    address = TmsAddress(
-        address="123 Main St", city="Anytown", postal_code="12345", country="US"
-    )
-    location = TmsLocation(
-        code="LOC001",
-        name="Test Location",
-        address=address,
-        latitude=40.7128,
-        longitude=-74.0060,
-    )
-    stop = TmsStop(
-        type=StopType.PICKUP,
-        location=location,
-        planned_date=date(2024, 1, 15),
-        planned_time_window_start=time(9, 0),
-        planned_time_window_end=time(17, 0),
-    )
+def test_map_address_details(tms_line_items, tms_stops):
     customer = TmsCustomer(id="CUST001", name="Test Customer", carrier="Test Carrier")
     shipment = TmsShipment(
         id="SH001",
@@ -140,17 +123,17 @@ def test_map_address_details():
         equipment_type=EquipmentType.TRUCK_AND_TRAILER,
         customer=customer,
         loading_meters=10.0,
-        stops=[stop],
-        line_items=[],
+        stops=tms_stops,
+        line_items=tms_line_items,
         timeline_events=None,
     )
 
     result = map_address_details(shipment, "PICKUP")
 
-    assert result.identification == "LOC001"
-    assert result.name == "Test Location"
-    assert result.address1 == "123 Main St"
-    assert result.city == "Anytown"
+    assert result.identification == "PU001"
+    assert result.name == "Pickup Location"
+    assert result.address1 == "123 Pickup St"
+    assert result.city == "Origin City"
     assert result.country == "US"
     assert result.postalCode == "12345"
     assert result.latitude == 40.7128
@@ -158,7 +141,7 @@ def test_map_address_details():
     assert len(result.dates) == 2
 
 
-def test_map_line_items():
+def test_map_line_items(tms_stops):
     line_items = [
         TmsLineItem(
             package_type=PackageType.BOX,
@@ -193,7 +176,7 @@ def test_map_line_items():
         equipment_type=EquipmentType.TRUCK_AND_TRAILER,
         customer=customer,
         loading_meters=10.0,
-        stops=[],
+        stops=tms_stops,
         line_items=line_items,
         timeline_events=None,
     )

@@ -1,3 +1,4 @@
+from datetime import date, time
 from typing import List
 
 import pytest
@@ -6,7 +7,23 @@ from integrationsandbox.broker.models import (
     BrokerHandlingUnit,
     BrokerPackagingQualifier,
 )
-from integrationsandbox.tms.models import PackageType, TmsLineItem
+from integrationsandbox.tms.models import (
+    PackageType,
+    TmsLineItem,
+    TmsStop,
+    TmsLocation,
+    TmsAddress,
+    StopType,
+)
+from integrationsandbox.infrastructure import database
+
+
+@pytest.fixture(scope="session", autouse=True)
+def setup_database():
+    """Ensure database is set up before any tests run."""
+    database.setup()
+    yield
+    # Cleanup if needed
 
 
 @pytest.fixture
@@ -92,3 +109,47 @@ def broker_line_items() -> List[TmsLineItem]:
             )
         )
     return lines
+
+
+@pytest.fixture
+def tms_stops() -> List[TmsStop]:
+    pickup_address = TmsAddress(
+        address="123 Pickup St", city="Origin City", postal_code="12345", country="US"
+    )
+    pickup_location = TmsLocation(
+        code="PU001",
+        name="Pickup Location",
+        address=pickup_address,
+        latitude=40.7128,
+        longitude=-74.0060,
+    )
+    pickup_stop = TmsStop(
+        type=StopType.PICKUP,
+        location=pickup_location,
+        planned_date=date(2024, 1, 15),
+        planned_time_window_start=time(9, 0),
+        planned_time_window_end=time(17, 0),
+    )
+
+    delivery_address = TmsAddress(
+        address="456 Delivery Ave",
+        city="Destination City",
+        postal_code="67890",
+        country="US",
+    )
+    delivery_location = TmsLocation(
+        code="DEL001",
+        name="Delivery Location",
+        address=delivery_address,
+        latitude=41.8781,
+        longitude=-87.6298,
+    )
+    delivery_stop = TmsStop(
+        type=StopType.DELIVERY,
+        location=delivery_location,
+        planned_date=date(2024, 1, 16),
+        planned_time_window_start=time(8, 0),
+        planned_time_window_end=time(16, 0),
+    )
+
+    return [pickup_stop, delivery_stop]

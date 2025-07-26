@@ -104,21 +104,21 @@ class CreateTmsShipment(BaseModel):
     equipment_type: EquipmentType
     loading_meters: float
     customer: TmsCustomer
-    line_items: List[TmsLineItem]
-    stops: List[TmsStop]
+    line_items: List[TmsLineItem] = Field(min_length=1)
+    stops: List[TmsStop] = Field(min_length=2)
     timeline_events: List[TmsShipmentEvent] | None = None
 
 
 # duplicated because I want ID on top
-class TmsShipment(CreateTmsShipment):
+class TmsShipment(BaseModel):
     id: str
     external_reference: str | None
     mode: ModeType
     equipment_type: EquipmentType
     loading_meters: float
     customer: TmsCustomer
-    line_items: List[TmsLineItem]
-    stops: List[TmsStop]
+    line_items: List[TmsLineItem] = Field(min_length=1)
+    stops: List[TmsStop] = Field(min_length=2)
     timeline_events: List[TmsShipmentEvent] | None = None
 
 
