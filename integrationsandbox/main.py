@@ -5,37 +5,41 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from integrationsandbox.broker import controller as broker_controller
 from integrationsandbox.common.exceptions import NotFoundError, ValidationError
+from integrationsandbox.config import get_settings
 from integrationsandbox.infrastructure import database
 from integrationsandbox.infrastructure.exceptions import RepositoryError
 from integrationsandbox.tms import controller as tms_controller
 from integrationsandbox.trigger import controller as trigger_controller
+
+APP_TITLE = "Integration Sandbox"
+APP_DESCRIPTION = "API for integration sandbox services"
+APP_VERSION = "1.0.0"
 
 API_PREFIX = "/api/v1"
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Startup
     database.setup()
     yield
-    # Shutdown: Add any cleanup code here if needed
     pass
 
 
 app = FastAPI(
     lifespan=lifespan,
-    title="Integration Sandbox",
-    description="API for integration sandbox services",
-    version="1.0.0",
+    title=APP_TITLE,
+    description=APP_DESCRIPTION,
+    version=APP_VERSION,
 )
 
 # CORS configuration
+settings = get_settings()
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # In production, replace with specific origins
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=settings.cors_origins,
+    allow_credentials=settings.cors_credentials,
+    allow_methods=settings.cors_methods,
+    allow_headers=settings.cors_headers,
 )
 
 # Include routers

@@ -4,6 +4,7 @@ from typing import List
 
 from pydantic import BaseModel, Field, PositiveInt
 
+from integrationsandbox.config import get_settings
 from integrationsandbox.tms.payload_examples import tms_shipment_seed
 
 
@@ -124,12 +125,12 @@ class TmsShipment(BaseModel):
 
 class TmsShipmentSeedRequest(BaseModel):
     count: PositiveInt = Field(
-        description="Number of broker events to generate and save.", le=1000
+        description="Number of broker events to generate and save.",
+        le=get_settings().max_bulk_size,
     )
     model_config = tms_shipment_seed
 
 
-# bit overkill for now but maybe we'll get more filters later. Keeping it the same as broker.
 class TmsShipmentFilters(BaseModel):
     id: str | None = None
     start: int | None = 0

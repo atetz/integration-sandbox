@@ -24,6 +24,23 @@ def get_random_enum_choice(enum_attribute: Enum) -> Enum:
     return random.choice(list(enum_attribute))
 
 
+MIN_MEASUREMENT_CM = 15
+MAX_MEASUREMENT_CM = 200
+MIN_WEIGHT_KG = 150
+MAX_WEIGHT_KG = 12000
+MIN_LOADING_METERS = 1
+MAX_LOADING_METERS = 16
+MAX_DAYS_BETWEEN_STOPS = 7
+MIN_LINE_ITEMS = 1
+MAX_LINE_ITEMS = 10
+MIN_PACKAGES_PER_ITEM = 1
+MAX_PACKAGES_PER_ITEM = 5
+PICKUP_START_TIME = datetime.time(6, 0, 0)
+PICKUP_END_TIME = datetime.time(17, 0, 0)
+DELIVERY_START_TIME = datetime.time(6, 0, 0)
+DELIVERY_END_TIME = datetime.time(17, 0, 0)
+
+
 class TmsShipmentFactory:
     address_locales = ("it_IT", "en_GB", "nl_NL", "fr_FR", "de_DE")
     goods_descriptions = (
@@ -131,25 +148,33 @@ class TmsShipmentFactory:
 
     def get_random_measurement(self):
         return self.fake.pyfloat(
-            positive=True, min_value=15, max_value=200, right_digits=2
+            positive=True,
+            min_value=MIN_MEASUREMENT_CM,
+            max_value=MAX_MEASUREMENT_CM,
+            right_digits=2,
         )
 
     def get_random_weight(self):
         return self.fake.pyfloat(
-            positive=True, min_value=150, max_value=12000, right_digits=2
+            positive=True,
+            min_value=MIN_WEIGHT_KG,
+            max_value=MAX_WEIGHT_KG,
+            right_digits=2,
         )
 
     def get_random_loadingmeters(self):
         return self.fake.pyfloat(
-            positive=True, min_value=1, max_value=16, right_digits=2
+            positive=True,
+            min_value=MIN_LOADING_METERS,
+            max_value=MAX_LOADING_METERS,
+            right_digits=2,
         )
 
     def get_random_goods_description(self):
         return random.choice(self.goods_descriptions)
 
     def get_random_days_to_stop(self):
-        days_to_stop = 7
-        return datetime.timedelta(days=random.randint(1, days_to_stop))
+        return datetime.timedelta(days=random.randint(1, MAX_DAYS_BETWEEN_STOPS))
 
     def __init__(self):
         self.fake = Faker()
@@ -172,7 +197,9 @@ class TmsShipmentFactory:
             package_weight=self.get_random_weight(),
             weight_unit="KG",
             description=self.get_random_goods_description(),
-            total_packages=self.fake.random_int(min=1, max=5),
+            total_packages=self.fake.random_int(
+                min=MIN_PACKAGES_PER_ITEM, max=MAX_PACKAGES_PER_ITEM
+            ),
         )
 
     def create_address(self, localed_faker: Faker) -> TmsAddress:
@@ -202,16 +229,16 @@ class TmsShipmentFactory:
             type=StopType.PICKUP,
             location=self.create_location(),
             planned_date=pickup_date,
-            planned_time_window_start=datetime.time(6, 0, 0),
-            planned_time_window_end=datetime.time(17, 0, 0),
+            planned_time_window_start=PICKUP_START_TIME,
+            planned_time_window_end=PICKUP_END_TIME,
         )
 
         delivery = TmsStop(
             type=StopType.DELIVERY,
             location=self.create_location(),
             planned_date=delivery_date,
-            planned_time_window_start=datetime.time(6, 0, 0),
-            planned_time_window_end=datetime.time(17, 0, 0),
+            planned_time_window_start=DELIVERY_START_TIME,
+            planned_time_window_end=DELIVERY_END_TIME,
         )
 
         return [pickup, delivery]
@@ -224,7 +251,10 @@ class TmsShipmentFactory:
             equipment_type=get_random_enum_choice(EquipmentType),
             loading_meters=self.get_random_loadingmeters(),
             customer=self.create_customer(),
-            line_items=[self.create_line_item() for i in range(random.randint(1, 10))],
+            line_items=[
+                self.create_line_item()
+                for i in range(random.randint(MIN_LINE_ITEMS, MAX_LINE_ITEMS))
+            ],
             stops=self.create_stops(),
             timeline_events=None,
         )

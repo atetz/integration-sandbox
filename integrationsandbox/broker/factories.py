@@ -12,6 +12,12 @@ from integrationsandbox.broker.models import (
     BrokerEventType,
 )
 
+# Factory configuration constants
+MIN_ACTUAL_TIME_OFFSET_MINUTES = -60
+MAX_ACTUAL_TIME_OFFSET_MINUTES = 60
+ETA_MAX_DAYS_FUTURE = 10
+TRANSMISSION_MAX_DAYS_PAST = 1
+
 
 def get_random_enum_choice(enum_cls):
     return random.choice(list(enum_cls))
@@ -31,7 +37,7 @@ class BrokerEventMessageFactory:
             reference=reference
             if reference is not None
             else self.fake.bothify(text="ORD-#####"),
-            eta=self.fake.date_time_between(start_date="now", end_date="+10d"),
+            eta=self.fake.date_time_between(start_date="now", end_date=f"+{ETA_MAX_DAYS_FUTURE}d"),
         )
 
     def create_position(self, location_reference: str = None) -> BrokerEventPosition:
@@ -47,7 +53,7 @@ class BrokerEventMessageFactory:
         self, event_type: BrokerEventType = None, location_reference: str = None
     ) -> BrokerEventSituation:
         now = datetime.now()
-        actual = now + timedelta(minutes=random.randint(-60, 60))
+        actual = now + timedelta(minutes=random.randint(MIN_ACTUAL_TIME_OFFSET_MINUTES, MAX_ACTUAL_TIME_OFFSET_MINUTES))
         position = True
         if event_type in [BrokerEventType.CANCEL_ORDER, BrokerEventType.ORDER_CREATED]:
             position = False
@@ -75,7 +81,7 @@ class BrokerEventMessageFactory:
             if shipment_id is not None
             else self.fake.bothify(text="SHIP-#####"),
             dateTransmission=self.fake.date_time_between(
-                start_date="-1d", end_date="now"
+                start_date=f"-{TRANSMISSION_MAX_DAYS_PAST}d", end_date="now"
             ),
             owner=self.create_org(owner_name),
             order=self.create_order(reference),

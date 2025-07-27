@@ -1,21 +1,25 @@
+import os
 from datetime import date, time
 from typing import List
 
 import pytest
 
+os.environ["DATABASE_PATH"] = "tests/test.db"
+
+
 from integrationsandbox.broker.models import (
     BrokerHandlingUnit,
     BrokerPackagingQualifier,
 )
+from integrationsandbox.infrastructure import database
 from integrationsandbox.tms.models import (
     PackageType,
-    TmsLineItem,
-    TmsStop,
-    TmsLocation,
-    TmsAddress,
     StopType,
+    TmsAddress,
+    TmsLineItem,
+    TmsLocation,
+    TmsStop,
 )
-from integrationsandbox.infrastructure import database
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -23,7 +27,9 @@ def setup_database():
     """Ensure database is set up before any tests run."""
     database.setup()
     yield
-    # Cleanup if needed
+    # Cleanup: remove test database file
+    if os.path.exists("tests/test.db"):
+        os.remove("tests/test.db")
 
 
 @pytest.fixture
@@ -152,4 +158,5 @@ def tms_stops() -> List[TmsStop]:
         planned_time_window_end=time(16, 0),
     )
 
+    return [pickup_stop, delivery_stop]
     return [pickup_stop, delivery_stop]

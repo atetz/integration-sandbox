@@ -3,6 +3,7 @@ from typing import Any, Dict, List
 
 from integrationsandbox.broker.models import BrokerEventMessage, BrokerEventType
 from integrationsandbox.common.exceptions import NotFoundError, ValidationError
+from integrationsandbox.config import get_settings
 from integrationsandbox.tms import repository
 from integrationsandbox.tms.factories import TmsShipmentFactory
 from integrationsandbox.tms.models import (
@@ -61,10 +62,11 @@ def build_shipments(count: int) -> List[TmsShipment]:
 
 
 def create_seed_shipments(count: int) -> List[TmsShipment]:
+    settings = get_settings()
     if count <= 0:
         raise ValidationError("Count must be greater than 0")
-    elif count > 1000:
-        raise ValidationError("Count must be less than 1000")
+    elif count > settings.max_bulk_size:
+        raise ValidationError(f"Count must be less than {settings.max_bulk_size}")
     shipments = build_shipments(count)
     repository.create_many(shipments)
     return shipments
