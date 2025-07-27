@@ -20,6 +20,7 @@ from integrationsandbox.broker.service import (
     get_transformed_shipment_data,
 )
 from integrationsandbox.common.exceptions import ValidationError
+from integrationsandbox.config import get_settings
 from integrationsandbox.tms.models import CreateTmsShipmentEvent
 from integrationsandbox.tms.service import (
     REVERSE_EVENT_TYPE_MAP,
@@ -36,7 +37,7 @@ def serialize_value(value):
     elif isinstance(value, datetime):
         return value.replace(microsecond=0).isoformat()
     elif isinstance(value, float):
-        return round(value, 2)
+        return round(value, get_settings().float_precision)
     elif isinstance(value, set):
         return list(value)
     elif isinstance(value, list):

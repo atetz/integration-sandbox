@@ -9,7 +9,9 @@ dependencies = [
     "faker>=37.4.0",
     "fastapi[standard]>=0.115.13",
     "httpx[cli]>=0.28.1",
+    "pydantic-settings>=2.10.1",
     "pytest>=8.4.1",
+    "python-dotenv>=1.1.1",
 ]
 
 [dependency-groups]

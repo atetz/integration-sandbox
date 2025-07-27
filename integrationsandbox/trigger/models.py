@@ -3,12 +3,14 @@ from typing import List
 from pydantic import AnyUrl, BaseModel, Field, PositiveInt
 
 from integrationsandbox.broker.models import BrokerEventType
+from integrationsandbox.config import get_settings
 
 
 class ShipmentTrigger(BaseModel):
     target_url: AnyUrl = Field(description="URL to send the generated events to")
     count: PositiveInt = Field(
-        description="Number of shipments to generate and send to target", le=1000
+        description="Number of shipments to generate and send to target",
+        le=get_settings().max_bulk_size,
     )
 
     model_config = {
@@ -30,7 +32,7 @@ class EventTrigger(BaseModel):
     )
     shipment_ids: List[str] = Field(
         description="List of shipment IDs to generate events for. Supports multiple shipments for bulk testing.",
-        max_length=1000,
+        max_length=get_settings().max_bulk_size,
     )
 
     model_config = {

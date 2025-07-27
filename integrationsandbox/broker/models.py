@@ -5,6 +5,7 @@ from typing import List
 from pydantic import BaseModel, Field
 
 from integrationsandbox.broker.payload_examples import create_broker_message
+from integrationsandbox.config import get_settings
 
 
 class BrokerEventType(str, Enum):
@@ -150,7 +151,7 @@ class BrokerEventSeedRequest(BaseModel):
     )
     shipment_ids: List[str] = Field(
         description="List of shipment IDs to generate events for. Supports multiple shipments for bulk testing.",
-        max_length=1000,
+        max_length=get_settings().max_shipments_size,
     )
 
 

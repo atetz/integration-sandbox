@@ -1,9 +1,13 @@
 import sqlite3
 from sqlite3 import Connection
 
+from integrationsandbox.config import get_settings
+
+settings = get_settings()
+
 
 def create_connection() -> Connection:
-    return sqlite3.connect("integrationsandbox/infrastructure/db.sqlite3")
+    return sqlite3.connect(settings.database_path)
 
 
 def setup() -> None:
