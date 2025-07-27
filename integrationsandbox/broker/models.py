@@ -151,7 +151,7 @@ class BrokerEventSeedRequest(BaseModel):
     )
     shipment_ids: List[str] = Field(
         description="List of shipment IDs to generate events for. Supports multiple shipments for bulk testing.",
-        max_length=get_settings().max_shipments_size,
+        max_length=get_settings().max_bulk_size,
     )
 
 

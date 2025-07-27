@@ -18,8 +18,8 @@
   - [x] Create seed endpoints for broker and TMS data
   - [x] Create a get endpoint for TMS orders (batch)
   - [x] Implement helpful error messages.
-- [ ] Settings management with Pydantic Settings
-  - [ ] Search for magic values and make configurable if needed.
+- [x] Settings management with Pydantic Settings
+  - [x] Search for magic values and make configurable if needed.
 - [ ] Add security
 - [ ] Add structured logging for request tracing
 - [ ] Improve FastAPI auto-generated documentation (descriptions, examples, tags)
