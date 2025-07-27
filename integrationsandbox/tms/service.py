@@ -2,7 +2,7 @@ import uuid
 from typing import Any, Dict, List
 
 from integrationsandbox.broker.models import BrokerEventMessage, BrokerEventType
-from integrationsandbox.common.exceptions import ValidationError
+from integrationsandbox.common.exceptions import NotFoundError, ValidationError
 from integrationsandbox.tms import repository
 from integrationsandbox.tms.factories import TmsShipmentFactory
 from integrationsandbox.tms.models import (
@@ -75,7 +75,10 @@ def list_shipments(filters: TmsShipmentFilters) -> List[TmsShipment]:
 
 
 def get_shipment_by_id(id: str) -> TmsShipment:
-    return repository.get_by_id(id)
+    shipment = repository.get_by_id(id)
+    if not shipment:
+        raise NotFoundError(f"Shipment with id {id} not found")
+    return shipment
 
 
 def get_shipments_by_id_list(shipment_ids: List[str]) -> List[TmsShipment]:
@@ -83,7 +86,7 @@ def get_shipments_by_id_list(shipment_ids: List[str]) -> List[TmsShipment]:
         return []
     shipments, not_found = repository.get_by_id_list(shipment_ids)
     if not_found:
-        raise ValidationError(f"Shipments not found in database: {shipment_ids}")
+        raise NotFoundError(f"Shipments not found in database: {shipment_ids}")
     return shipments
 
 
