@@ -292,5 +292,5 @@ def test_incoming_order_validation_missing_shipment():
 
     response = client.post("/api/v1/broker/order/", json=broker_order)
 
-    assert response.status_code == 400
-    assert "not found" in response.json()["detail"][0]
+    assert response.status_code == 422
+    assert "not found" in response.json()["detail"]

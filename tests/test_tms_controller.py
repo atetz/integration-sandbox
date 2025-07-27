@@ -211,5 +211,5 @@ def test_incoming_event_validation_missing_broker_event():
 
     response = client.post("/api/v1/tms/event/nonexistent-id", json=event_data)
 
-    assert response.status_code == 400
-    assert "not found" in response.json()["detail"][0]
+    assert response.status_code == 422
+    assert "not found" in response.json()["detail"]

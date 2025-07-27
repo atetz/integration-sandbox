@@ -1,4 +1,7 @@
+import pytest
+
 from integrationsandbox.broker.models import BrokerQuantity
+from integrationsandbox.common.exceptions import ValidationError
 from integrationsandbox.validation.service import compare_mappings, serialize_value
 
 
@@ -33,44 +36,49 @@ def test_compare_mappings_equal():
     data1 = {"field1": "value1", "field2": 42}
     data2 = {"field1": "value1", "field2": 42}
 
-    is_valid, errors = compare_mappings(data1, data2)
+    is_valid = compare_mappings(data1, data2)
 
     assert is_valid is True
-    assert errors == []
 
 
 def test_compare_mappings_different_values():
-    data1 = {"field1": "value1"}
-    data2 = {"field1": "value2"}
+    with pytest.raises(ValidationError) as exc_info:
+        data1 = {"field1": "value1"}
+        data2 = {"field1": "value2"}
 
-    is_valid, errors = compare_mappings(data1, data2)
+        is_valid = compare_mappings(data1, data2)
+        errors = exc_info.value.args[0]  # Get the error list
 
-    assert is_valid is False
-    assert len(errors) == 1
-    assert errors[0]["field"] == "field1"
-    assert "differences" in errors[0]
+        assert is_valid is False
+        assert len(errors) == 1
+        assert errors[0]["field"] == "field1"
+        assert "differences" in errors[0]
 
 
 def test_compare_mappings_missing_field_in_broker():
-    data1 = {"field1": "value1", "field2": "value2"}
-    data2 = {"field1": "value1"}
+    with pytest.raises(ValidationError) as exc_info:
+        data1 = {"field1": "value1", "field2": "value2"}
+        data2 = {"field1": "value1"}
 
-    is_valid, errors = compare_mappings(data1, data2)
+        is_valid = compare_mappings(data1, data2)
+        errors = exc_info.value.args[0]  # Get the error list
 
-    assert is_valid is False
-    assert len(errors) == 1
-    assert errors[0]["field"] == "field2"
-    assert errors[0]["error"] == "missing in broker_data"
+        assert is_valid is False
+        assert len(errors) == 1
+        assert errors[0]["field"] == "field2"
+        assert errors[0]["error"] == "missing in broker_data"
 
 
 def test_compare_mappings_missing_field_in_tms():
-    data1 = {"field1": "value1"}
-    data2 = {"field1": "value1", "field2": "value2"}
+    with pytest.raises(ValidationError) as exc_info:
+        data1 = {"field1": "value1"}
+        data2 = {"field1": "value1", "field2": "value2"}
 
-    is_valid, errors = compare_mappings(data1, data2)
+        is_valid = compare_mappings(data1, data2)
+        errors = exc_info.value.args[0]  # Get the error list
 
-    assert is_valid is False
-    assert len(errors) == 1
-    assert errors[0]["field"] == "field2"
-    assert errors[0]["error"] == "missing in tms_data"
-    assert errors[0]["error"] == "missing in tms_data"
+        assert is_valid is False
+        assert len(errors) == 1
+        assert errors[0]["field"] == "field2"
+        assert errors[0]["error"] == "missing in tms_data"
+        assert errors[0]["error"] == "missing in tms_data"
