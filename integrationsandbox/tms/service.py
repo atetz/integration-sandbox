@@ -2,6 +2,7 @@ import uuid
 from typing import Any, Dict, List
 
 from integrationsandbox.broker.models import BrokerEventMessage, BrokerEventType
+from integrationsandbox.common.exceptions import NotFoundError, ValidationError
 from integrationsandbox.tms import repository
 from integrationsandbox.tms.factories import TmsShipmentFactory
 from integrationsandbox.tms.models import (
@@ -60,6 +61,10 @@ def build_shipments(count: int) -> List[TmsShipment]:
 
 
 def create_seed_shipments(count: int) -> List[TmsShipment]:
+    if count <= 0:
+        raise ValidationError("Count must be greater than 0")
+    elif count > 1000:
+        raise ValidationError("Count must be less than 1000")
     shipments = build_shipments(count)
     repository.create_many(shipments)
     return shipments
@@ -70,13 +75,19 @@ def list_shipments(filters: TmsShipmentFilters) -> List[TmsShipment]:
 
 
 def get_shipment_by_id(id: str) -> TmsShipment:
-    return repository.get_by_id(id)
+    shipment = repository.get_by_id(id)
+    if not shipment:
+        raise NotFoundError(f"Shipment with id {id} not found")
+    return shipment
 
 
-def get_shipments_by_id_list(shipment_ids: List[str]) -> None:
+def get_shipments_by_id_list(shipment_ids: List[str]) -> List[TmsShipment]:
     if not shipment_ids:
         return []
-    return repository.get_by_id_list(shipment_ids)
+    shipments, not_found = repository.get_by_id_list(shipment_ids)
+    if not_found:
+        raise NotFoundError(f"Shipments not found in database: {shipment_ids}")
+    return shipments
 
 
 def create_shipment(new_shipment: CreateTmsShipment) -> TmsShipment:

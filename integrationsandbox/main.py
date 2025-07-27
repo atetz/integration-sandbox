@@ -1,10 +1,12 @@
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import FastAPI, responses
 from fastapi.middleware.cors import CORSMiddleware
 
 from integrationsandbox.broker import controller as broker_controller
+from integrationsandbox.common.exceptions import NotFoundError, ValidationError
 from integrationsandbox.infrastructure import database
+from integrationsandbox.infrastructure.exceptions import RepositoryError
 from integrationsandbox.tms import controller as tms_controller
 from integrationsandbox.trigger import controller as trigger_controller
 
@@ -46,3 +48,18 @@ app.include_router(broker_controller.router, prefix=API_PREFIX)
 @app.get("/health")
 async def health_check():
     return {"status": "healthy"}
+
+
+@app.exception_handler(ValidationError)
+async def validation_error_handler(request, exc):
+    return responses.JSONResponse(status_code=422, content={"detail": str(exc)})
+
+
+@app.exception_handler(NotFoundError)
+async def not_found_error_handler(request, exc):
+    return responses.JSONResponse(status_code=422, content={"detail": str(exc)})
+
+
+@app.exception_handler(RepositoryError)
+async def repository_error_handler(request, exc):
+    return responses.JSONResponse(status_code=500, content={"detail": str(exc)})

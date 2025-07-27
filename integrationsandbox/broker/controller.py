@@ -1,7 +1,8 @@
 from typing import List
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, status
 
+from integrationsandbox.broker import service as broker_service
 from integrationsandbox.broker.models import (
     BrokerEventFilters,
     BrokerEventMessage,
@@ -9,14 +10,9 @@ from integrationsandbox.broker.models import (
     CreateBrokerEventMessage,
     CreateBrokerOrderMessage,
 )
-from integrationsandbox.broker.service import (
-    build_events,
-    create_event,
-    create_events,
-    list_events,
-)
+from integrationsandbox.broker.service import list_events
 from integrationsandbox.tms.service import get_shipments_by_id_list
-from integrationsandbox.validation.service import validate_broker_order
+from integrationsandbox.validation import service as validation_service
 
 router = APIRouter(prefix="/broker")
 
@@ -31,9 +27,7 @@ router = APIRouter(prefix="/broker")
     status_code=status.HTTP_202_ACCEPTED,
 )
 def incoming_order(order: CreateBrokerOrderMessage) -> None:
-    result, errors = validate_broker_order(order)
-    if not result:
-        raise HTTPException(status_code=400, detail=errors)
+    validation_service.validate_broker_order(order)
 
 
 @router.post(
@@ -46,8 +40,7 @@ def incoming_order(order: CreateBrokerOrderMessage) -> None:
     status_code=status.HTTP_201_CREATED,
 )
 def create_event_endpoint(new_event: CreateBrokerEventMessage) -> BrokerEventMessage:
-    event = create_event(new_event)
-    return event
+    return broker_service.create_event(new_event)
 
 
 @router.post(
@@ -61,9 +54,7 @@ def create_event_endpoint(new_event: CreateBrokerEventMessage) -> BrokerEventMes
 )
 def seed_events(seed_request: BrokerEventSeedRequest) -> List[BrokerEventMessage]:
     shipments = get_shipments_by_id_list(seed_request.shipment_ids)
-    events = build_events(shipments, seed_request.event)
-    create_events(events)
-    return events
+    return broker_service.create_seed_events(shipments, seed_request.event)
 
 
 @router.get(

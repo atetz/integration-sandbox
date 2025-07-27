@@ -19,6 +19,7 @@ from integrationsandbox.broker.service import (
     get_event,
     get_transformed_shipment_data,
 )
+from integrationsandbox.common.exceptions import ValidationError
 from integrationsandbox.tms.models import CreateTmsShipmentEvent
 from integrationsandbox.tms.service import (
     REVERSE_EVENT_TYPE_MAP,
@@ -43,9 +44,7 @@ def serialize_value(value):
     return value
 
 
-def compare_mappings(
-    tms_data: Dict[str, Any], broker_data: Dict[str, Any]
-) -> Tuple[bool, List[str | None]]:
+def compare_mappings(tms_data: Dict[str, Any], broker_data: Dict[str, Any]) -> bool:
     errors = []
     all_keys = set(tms_data.keys()) | set(broker_data.keys())
 
@@ -71,8 +70,10 @@ def compare_mappings(
                         "actual": broker_serialized,
                     }
                 )
+    if errors:
+        raise ValidationError(errors)
 
-    return len(errors) == 0, errors
+    return True
 
 
 def validate_broker_order(
@@ -80,8 +81,6 @@ def validate_broker_order(
 ) -> Tuple[bool, List[str | None]]:
     shipment_reference = order.shipment.reference
     tms_shipment = get_shipment_by_id(shipment_reference)
-    if not tms_shipment:
-        return False, [f"Shipment with reference: {shipment_reference} not found"]
     expected_data = apply_shipment_mapping_rules(tms_shipment)
     transformed_data = get_transformed_shipment_data(order)
     return compare_mappings(expected_data, transformed_data)
@@ -93,11 +92,6 @@ def validate_tms_event(
     event_type = REVERSE_EVENT_TYPE_MAP[event.event_type]
     event_filter = BrokerEventFilters(shipment_id=shipment_id, event_type=event_type)
     broker_event = get_event(event_filter)
-    if not broker_event:
-        return False, [
-            f"Event with type: {event_type} and shipment_id: {shipment_id} not found"
-        ]
-
     expected_data = apply_event_mapping_rules(broker_event)
     transformed_data = get_transformed_event_data(event)
     return compare_mappings(expected_data, transformed_data)

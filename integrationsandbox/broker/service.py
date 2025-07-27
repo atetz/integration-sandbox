@@ -17,6 +17,7 @@ from integrationsandbox.broker.models import (
     CreateBrokerEventMessage,
     CreateBrokerOrderMessage,
 )
+from integrationsandbox.common.exceptions import NotFoundError
 from integrationsandbox.tms.models import PackageType, TmsShipment, TmsStop
 
 PACKAGE_MAP = {
@@ -29,6 +30,7 @@ PACKAGE_MAP = {
     PackageType.OTHER: BrokerPackagingQualifier.OT,
     PackageType.PLT: BrokerPackagingQualifier.PL,
 }
+
 
 NEW_MESSAGE_FUNCTION = 9
 
@@ -172,7 +174,10 @@ def list_events(filters: BrokerEventFilters) -> List[BrokerEventMessage]:
 
 
 def get_event(filters: BrokerEventFilters) -> BrokerEventMessage:
-    return repository.get(filters)
+    event = repository.get(filters)
+    if not event:
+        raise NotFoundError(f"Event not found for filters: {filters}")
+    return event
 
 
 def create_event(new_event: CreateBrokerEventMessage) -> BrokerEventMessage:
@@ -185,3 +190,11 @@ def create_events(events: List[BrokerEventMessage]) -> List[BrokerEventMessage]:
     if not events:
         return []
     return repository.create_many(events)
+
+
+def create_seed_events(
+    shipments: List[TmsShipment], event_type: BrokerEventType
+) -> List[BrokerEventMessage]:
+    events = build_events(shipments, event_type)
+    create_events(events)
+    return events

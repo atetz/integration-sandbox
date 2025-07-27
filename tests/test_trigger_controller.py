@@ -1,4 +1,5 @@
 from unittest.mock import patch
+
 from fastapi.testclient import TestClient
 
 from integrationsandbox.main import app
@@ -138,14 +139,7 @@ def test_trigger_events_with_nonexistent_shipment(mock_post):
     response = client.post("/api/v1/trigger/events/", json=trigger_data)
 
     # Should succeed but return empty events (resilient behavior for testing tool)
-    assert response.status_code == 201
-    data = response.json()
-    assert len(data) == 0
-
-    # External call should still be made with empty data
-    mock_post.assert_called_once()
-    args, kwargs = mock_post.call_args
-    assert len(kwargs["json"]) == 0
+    assert response.status_code == 422
 
 
 @patch("integrationsandbox.trigger.service.httpx.post")
@@ -158,4 +152,5 @@ def test_trigger_shipments_zero_count(mock_post):
     assert response.status_code == 422
 
     # No external call should be made when validation fails
+    mock_post.assert_not_called()
     mock_post.assert_not_called()
