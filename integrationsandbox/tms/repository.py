@@ -62,7 +62,9 @@ def get_by_id(id: str) -> Optional[TmsShipment]:
 
 
 @handle_db_errors
-def get_by_id_list(shipment_ids: List[str]) -> List[TmsShipment]:
+def get_by_id_list(
+    shipment_ids: List[str],
+) -> Tuple[List[TmsShipment], List[str]]:
     placeholders = ",".join("?" * len(shipment_ids))
     # use IN clause to prevent n+1 query
     query = f"SELECT id, data FROM tms_shipment WHERE id IN ({placeholders})"
@@ -72,16 +74,17 @@ def get_by_id_list(shipment_ids: List[str]) -> List[TmsShipment]:
         rows = res.fetchall()
 
         shipment_data = {row[0]: row[1] for row in rows}
-
         shipments = []
+        not_found = []
         for shipment_id in shipment_ids:
-            if shipment_id not in shipment_data:
-                raise ValueError(f'Shipment with id "{shipment_id}" not found')
+            if not shipment_data.get(shipment_id, False):
+                not_found.append(shipment_id)
+                continue
             shipments.append(
                 TmsShipment.model_validate_json(shipment_data[shipment_id])
             )
 
-        return shipments
+        return shipments, not_found
 
 
 @handle_db_errors
