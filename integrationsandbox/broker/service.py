@@ -185,3 +185,11 @@ def create_events(events: List[BrokerEventMessage]) -> List[BrokerEventMessage]:
     if not events:
         return []
     return repository.create_many(events)
+
+
+def create_seed_events(
+    shipments: List[TmsShipment], event_type: BrokerEventType
+) -> List[BrokerEventMessage]:
+    events = build_events(shipments, event_type)
+    create_events(events)
+    return events

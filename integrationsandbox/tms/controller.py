@@ -1,6 +1,6 @@
 from typing import List
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, status
 
 from integrationsandbox.tms import service as tms_service
 from integrationsandbox.tms.models import (
@@ -25,9 +25,7 @@ router = APIRouter(prefix="/tms")
     status_code=status.HTTP_202_ACCEPTED,
 )
 def incoming_event(event: CreateTmsShipmentEvent, shipment_id: str) -> None:
-    result, errors = validation_service.validate_tms_event(event, shipment_id)
-    if not result:
-        raise HTTPException(status_code=400, detail=errors)
+    validation_service.validate_tms_event(event, shipment_id)
 
 
 @router.post(
