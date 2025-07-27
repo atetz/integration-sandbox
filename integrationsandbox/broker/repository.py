@@ -2,8 +2,10 @@ from typing import Any, List, Tuple
 
 from integrationsandbox.broker.models import BrokerEventFilters, BrokerEventMessage
 from integrationsandbox.infrastructure.database import create_connection
+from integrationsandbox.infrastructure.exceptions import handle_db_errors
 
 
+@handle_db_errors
 def create_many(events: List[BrokerEventMessage]) -> None:
     with create_connection() as con:
         # REPLACE will overwrite existing combinations of shipment_id and status.
@@ -22,6 +24,7 @@ def create_many(events: List[BrokerEventMessage]) -> None:
         )
 
 
+@handle_db_errors
 def create(event: BrokerEventMessage) -> None:
     with create_connection() as con:
         # REPLACE will overwrite existing combinations of shipment_id and status.
@@ -53,6 +56,7 @@ def build_where_clause(filters: BrokerEventFilters) -> Tuple[str, List[Any]]:
     return clause, params
 
 
+@handle_db_errors
 def get_all(filters: BrokerEventFilters | None) -> List[BrokerEventMessage] | None:
     base_query = "SELECT data from broker_event"
     where_clause, params = build_where_clause(filters)
@@ -67,6 +71,7 @@ def get_all(filters: BrokerEventFilters | None) -> List[BrokerEventMessage] | No
         return None
 
 
+@handle_db_errors
 def get(filters: BrokerEventFilters | None) -> BrokerEventMessage | None:
     base_query = "SELECT data from broker_event"
     where_clause, params = build_where_clause(filters)
