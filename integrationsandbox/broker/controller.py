@@ -1,3 +1,4 @@
+import logging
 from typing import List
 
 from fastapi import APIRouter, Depends, status
@@ -15,6 +16,7 @@ from integrationsandbox.tms.service import get_shipments_by_id_list
 from integrationsandbox.validation import service as validation_service
 
 router = APIRouter(prefix="/broker")
+logger = logging.getLogger(__name__)
 
 
 @router.post(
@@ -27,7 +29,10 @@ router = APIRouter(prefix="/broker")
     status_code=status.HTTP_202_ACCEPTED,
 )
 def incoming_order(order: CreateBrokerOrderMessage) -> None:
+    logger.info("Received broker order for shipment: %s", order.shipment.reference)
+    logger.debug("Order details: %s", order.model_dump())
     validation_service.validate_broker_order(order)
+    logger.info("Broker order validation successful")
 
 
 @router.post(
@@ -40,7 +45,11 @@ def incoming_order(order: CreateBrokerOrderMessage) -> None:
     status_code=status.HTTP_201_CREATED,
 )
 def create_event_endpoint(new_event: CreateBrokerEventMessage) -> BrokerEventMessage:
-    return broker_service.create_event(new_event)
+    logger.info("Creating new broker event")
+    logger.debug("Event details: %s", new_event.model_dump())
+    event = broker_service.create_event(new_event)
+    logger.info("Broker event created with ID: %s", event.id)
+    return event
 
 
 @router.post(
@@ -53,8 +62,12 @@ def create_event_endpoint(new_event: CreateBrokerEventMessage) -> BrokerEventMes
     status_code=status.HTTP_201_CREATED,
 )
 def seed_events(seed_request: BrokerEventSeedRequest) -> List[BrokerEventMessage]:
+    logger.info("Seeding events for %d shipments with event type: %s", len(seed_request.shipment_ids), seed_request.event)
+    logger.debug("Shipment IDs: %s", seed_request.shipment_ids)
     shipments = get_shipments_by_id_list(seed_request.shipment_ids)
-    return broker_service.create_seed_events(shipments, seed_request.event)
+    events = broker_service.create_seed_events(shipments, seed_request.event)
+    logger.info("Successfully created %d seed events", len(events))
+    return events
 
 
 @router.get(
@@ -69,4 +82,9 @@ def seed_events(seed_request: BrokerEventSeedRequest) -> List[BrokerEventMessage
 def get_events(
     filters: BrokerEventFilters = Depends(),
 ) -> List[BrokerEventMessage] | None:
-    return list_events(filters)
+    logger.info("Retrieving broker events with filters")
+    logger.debug("Filters: %s", filters.model_dump() if filters else None)
+    events = list_events(filters)
+    count = len(events) if events else 0
+    logger.info("Retrieved %d broker events", count)
+    return events

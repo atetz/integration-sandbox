@@ -1,3 +1,4 @@
+import logging
 import uuid
 from datetime import datetime
 from typing import Any, Dict, List
@@ -19,6 +20,8 @@ from integrationsandbox.broker.models import (
 )
 from integrationsandbox.common.exceptions import NotFoundError
 from integrationsandbox.tms.models import PackageType, TmsShipment, TmsStop
+
+logger = logging.getLogger(__name__)
 
 PACKAGE_MAP = {
     PackageType.BALE: BrokerPackagingQualifier.BL,
@@ -154,6 +157,7 @@ def get_transformed_shipment_data(
 def build_events(
     shipments: List[TmsShipment], event: BrokerEventType
 ) -> List[BrokerEventMessage]:
+    logger.info("Building %d broker events of type: %s", len(shipments), event)
     factory = BrokerEventMessageFactory()
     events = [
         factory.create_event_message(
@@ -166,35 +170,56 @@ def build_events(
         )
         for shipment in shipments
     ]
+    logger.info("Successfully built %d events", len(events))
     return events
 
 
 def list_events(filters: BrokerEventFilters) -> List[BrokerEventMessage]:
-    return repository.get_all(filters)
+    logger.info("Listing broker events with filters")
+    logger.debug("Filters: %s", filters.model_dump() if filters else None)
+    events = repository.get_all(filters)
+    logger.info("Retrieved %d events from database", len(events))
+    return events
 
 
 def get_event(filters: BrokerEventFilters) -> BrokerEventMessage:
+    logger.info("Retrieving broker event with filters")
+    logger.debug("Filters: %s", filters.model_dump())
     event = repository.get(filters)
     if not event:
+        logger.warning("Event not found for filters: %s", filters)
         raise NotFoundError(f"Event not found for filters: {filters}")
+    logger.info("Successfully retrieved event: %s", event.id)
     return event
 
 
 def create_event(new_event: CreateBrokerEventMessage) -> BrokerEventMessage:
+    logger.info("Creating new broker event")
     event = BrokerEventMessage(id=str(uuid.uuid4()), **new_event.model_dump())
     repository.create(event)
+    logger.info("Successfully created event with ID: %s", event.id)
     return event
 
 
 def create_events(events: List[BrokerEventMessage]) -> List[BrokerEventMessage]:
     if not events:
+        logger.info("Empty events list provided")
         return []
-    return repository.create_many(events)
+    logger.info("Creating %d broker events", len(events))
+    repository.create_many(events)
+    logger.info("Successfully created %d events", len(events))
+    return events
 
 
 def create_seed_events(
     shipments: List[TmsShipment], event_type: BrokerEventType
 ) -> List[BrokerEventMessage]:
+    logger.info(
+        "Creating seed events for %d shipments with type: %s",
+        len(shipments),
+        event_type,
+    )
     events = build_events(shipments, event_type)
     create_events(events)
+    logger.info("Successfully created %d seed events", len(events))
     return events

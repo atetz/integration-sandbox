@@ -21,6 +21,5 @@
 - [x] Settings management with Pydantic Settings
   - [x] Search for magic values and make configurable if needed.
 - [ ] Add security
-- [ ] Add structured logging for request tracing
+- [x] Add structured logging for request tracing
 - [ ] Improve FastAPI auto-generated documentation (descriptions, examples, tags)
-- [ ] Add basic monitoring/metrics endpoint

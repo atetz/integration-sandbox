@@ -5,6 +5,7 @@ Created this service because:
   This creates legitimate circular dependency because both domains need each other.
 """
 
+import logging
 from datetime import datetime
 from typing import Any, Dict, List, Tuple
 
@@ -29,6 +30,8 @@ from integrationsandbox.tms.service import (
     get_transformed_event_data,
 )
 
+logger = logging.getLogger(__name__)
+
 
 def serialize_value(value):
     # Normalizes data structures for deep comparison by converting Pydantic models to dicts
@@ -46,6 +49,10 @@ def serialize_value(value):
 
 
 def compare_mappings(tms_data: Dict[str, Any], broker_data: Dict[str, Any]) -> bool:
+    logger.info(
+        "Comparing %d fields between TMS and broker data",
+        len(set(tms_data.keys()) | set(broker_data.keys())),
+    )
     errors = []
     all_keys = set(tms_data.keys()) | set(broker_data.keys())
 
@@ -72,8 +79,11 @@ def compare_mappings(tms_data: Dict[str, Any], broker_data: Dict[str, Any]) -> b
                     }
                 )
     if errors:
+        logger.warning("Validation failed with %d errors", len(errors))
+        logger.debug("Validation errors: %s", errors)
         raise ValidationError(errors)
 
+    logger.info("Validation successful - all fields match")
     return True
 
 
@@ -81,6 +91,7 @@ def validate_broker_order(
     order: CreateBrokerOrderMessage,
 ) -> Tuple[bool, List[str | None]]:
     shipment_reference = order.shipment.reference
+    logger.info("Validating broker order for shipment: %s", shipment_reference)
     tms_shipment = get_shipment_by_id(shipment_reference)
     expected_data = apply_shipment_mapping_rules(tms_shipment)
     transformed_data = get_transformed_shipment_data(order)
@@ -91,6 +102,7 @@ def validate_tms_event(
     event: CreateTmsShipmentEvent, shipment_id: str
 ) -> Tuple[bool, List[str | None]]:
     event_type = REVERSE_EVENT_TYPE_MAP[event.event_type]
+    logger.info("Validating TMS event %s for shipment: %s", event_type, shipment_id)
     event_filter = BrokerEventFilters(shipment_id=shipment_id, event_type=event_type)
     broker_event = get_event(event_filter)
     expected_data = apply_event_mapping_rules(broker_event)
