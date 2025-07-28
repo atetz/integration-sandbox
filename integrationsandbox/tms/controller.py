@@ -3,6 +3,7 @@ from typing import List
 
 from fastapi import APIRouter, Depends, status
 
+from integrationsandbox.security.service import get_current_active_user
 from integrationsandbox.tms import service as tms_service
 from integrationsandbox.tms.models import (
     CreateTmsShipment,
@@ -13,7 +14,7 @@ from integrationsandbox.tms.models import (
 )
 from integrationsandbox.validation import service as validation_service
 
-router = APIRouter(prefix="/tms")
+router = APIRouter(prefix="/tms", dependencies=[Depends(get_current_active_user)])
 logger = logging.getLogger(__name__)
 
 
