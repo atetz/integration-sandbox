@@ -206,15 +206,19 @@ def create_events(events: List[BrokerEventMessage]) -> List[BrokerEventMessage]:
         logger.info("Empty events list provided")
         return []
     logger.info("Creating %d broker events", len(events))
-    result = repository.create_many(events)
-    logger.info("Successfully created %d events", len(result))
-    return result
+    repository.create_many(events)
+    logger.info("Successfully created %d events", len(events))
+    return events
 
 
 def create_seed_events(
     shipments: List[TmsShipment], event_type: BrokerEventType
 ) -> List[BrokerEventMessage]:
-    logger.info("Creating seed events for %d shipments with type: %s", len(shipments), event_type)
+    logger.info(
+        "Creating seed events for %d shipments with type: %s",
+        len(shipments),
+        event_type,
+    )
     events = build_events(shipments, event_type)
     create_events(events)
     logger.info("Successfully created %d seed events", len(events))
