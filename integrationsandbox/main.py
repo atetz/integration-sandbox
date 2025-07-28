@@ -1,4 +1,6 @@
+import logging
 from contextlib import asynccontextmanager
+from logging.config import dictConfig
 
 from fastapi import FastAPI, responses
 from fastapi.middleware.cors import CORSMiddleware
@@ -16,11 +18,14 @@ APP_DESCRIPTION = "API for integration sandbox services"
 APP_VERSION = "1.0.0"
 
 API_PREFIX = "/api/v1"
+settings = get_settings()
+logger = logging.getLogger(__name__)
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     database.setup()
+    dictConfig(settings.log_config)
     yield
     pass
 
@@ -33,7 +38,6 @@ app = FastAPI(
 )
 
 # CORS configuration
-settings = get_settings()
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins,
@@ -56,14 +60,17 @@ async def health_check():
 
 @app.exception_handler(ValidationError)
 async def validation_error_handler(request, exc):
+    logger.exception("Validation error for: %s", request.url)
     return responses.JSONResponse(status_code=422, content={"detail": str(exc)})
 
 
 @app.exception_handler(NotFoundError)
 async def not_found_error_handler(request, exc):
+    logger.exception("Not found error for: %s", request.url)
     return responses.JSONResponse(status_code=422, content={"detail": str(exc)})
 
 
 @app.exception_handler(RepositoryError)
 async def repository_error_handler(request, exc):
+    logger.exception("Repository error for: %s", request.url)
     return responses.JSONResponse(status_code=500, content={"detail": str(exc)})

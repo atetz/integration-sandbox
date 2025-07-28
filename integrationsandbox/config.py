@@ -12,6 +12,8 @@ class Settings(BaseSettings):
     max_bulk_size: int = 1000
     float_precision: int = 2
     database_path: str = "integrationsandbox/infrastructure/db.sqlite3"
+    log_file_path: str = "fastapi.log"
+    log_file_maxbytes: int = 10485760
     log_level: str = "INFO"
     cors_origins: list[str] = ["*"]
     cors_credentials: bool = True
@@ -19,3 +21,54 @@ class Settings(BaseSettings):
     cors_headers: list[str] = ["*"]
 
     model_config = SettingsConfigDict(env_file=".env")
+
+    @property
+    def log_config(self):
+        return {
+            "version": 1,
+            "disable_existing_loggers": False,
+            "formatters": {
+                "default": {
+                    "format": "%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+                    "datefmt": "%Y-%m-%d %H:%M:%S",
+                },
+            },
+            "handlers": {
+                "console": {
+                    "class": "logging.StreamHandler",
+                    "level": self.log_level,
+                    "formatter": "default",
+                    "stream": "ext://sys.stdout",
+                },
+                "rotating_file": {
+                    "class": "logging.handlers.RotatingFileHandler",
+                    "level": self.log_level,
+                    "formatter": "default",
+                    "filename": self.log_file_path,
+                    "maxBytes": self.log_file_maxbytes,
+                    "backupCount": 5,
+                },
+            },
+            "loggers": {
+                "integrationsandbox": {
+                    "handlers": ["console", "rotating_file"],
+                    "level": self.log_level,
+                    "propagate": False,
+                },
+                "uvicorn": {
+                    "handlers": ["console", "rotating_file"],
+                    "level": self.log_level,
+                    "propagate": False,
+                },
+                "uvicorn.error": {
+                    "handlers": ["console", "rotating_file"],
+                    "level": self.log_level,
+                    "propagate": False,
+                },
+                "uvicorn.access": {
+                    "handlers": ["console", "rotating_file"],
+                    "level": self.log_level,
+                    "propagate": False,
+                },
+            },
+        }
