@@ -20,6 +20,7 @@
   - [x] Implement helpful error messages.
 - [x] Settings management with Pydantic Settings
   - [x] Search for magic values and make configurable if needed.
-- [ ] Add security
 - [x] Add structured logging for request tracing
+- [ ] Add security
+- [ ] Containerize
 - [ ] Improve FastAPI auto-generated documentation (descriptions, examples, tags)
