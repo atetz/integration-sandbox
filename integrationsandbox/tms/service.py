@@ -1,3 +1,4 @@
+import logging
 import uuid
 from typing import Any, Dict, List
 
@@ -13,6 +14,8 @@ from integrationsandbox.tms.models import (
     TmsShipment,
     TmsShipmentFilters,
 )
+
+logger = logging.getLogger(__name__)
 
 EVENT_TYPE_MAP = {
     BrokerEventType.ORDER_CREATED: TmsEventType.BOOKED,
@@ -57,11 +60,15 @@ def get_transformed_event_data(event: CreateTmsShipmentEvent) -> Dict[str, Any]:
 
 
 def build_shipments(count: int) -> List[TmsShipment]:
+    logger.info("Building %d TMS shipments", count)
     factory = TmsShipmentFactory()
-    return [factory.create_shipment() for _ in range(count)]
+    shipments = [factory.create_shipment() for _ in range(count)]
+    logger.info("Successfully built %d shipments", len(shipments))
+    return shipments
 
 
 def create_seed_shipments(count: int) -> List[TmsShipment]:
+    logger.info("Creating %d seed shipments", count)
     settings = get_settings()
     if count <= 0:
         raise ValidationError("Count must be greater than 0")
@@ -69,35 +76,52 @@ def create_seed_shipments(count: int) -> List[TmsShipment]:
         raise ValidationError(f"Count must be less than {settings.max_bulk_size}")
     shipments = build_shipments(count)
     repository.create_many(shipments)
+    logger.info("Successfully created %d seed shipments", len(shipments))
     return shipments
 
 
 def list_shipments(filters: TmsShipmentFilters) -> List[TmsShipment]:
-    return repository.get_all(filters)
+    logger.info("Listing TMS shipments with filters")
+    logger.debug("Filters: %s", filters.model_dump() if filters else None)
+    shipments = repository.get_all(filters)
+    logger.info("Retrieved %d shipments from database", len(shipments))
+    return shipments
 
 
 def get_shipment_by_id(id: str) -> TmsShipment:
+    logger.info("Retrieving TMS shipment by ID: %s", id)
     shipment = repository.get_by_id(id)
     if not shipment:
+        logger.warning("Shipment not found: %s", id)
         raise NotFoundError(f"Shipment with id {id} not found")
+    logger.info("Successfully retrieved shipment: %s", id)
     return shipment
 
 
 def get_shipments_by_id_list(shipment_ids: List[str]) -> List[TmsShipment]:
     if not shipment_ids:
+        logger.info("Empty shipment ID list provided")
         return []
+    logger.info("Retrieving %d TMS shipments by ID list", len(shipment_ids))
+    logger.debug("Shipment IDs: %s", shipment_ids)
     shipments, not_found = repository.get_by_id_list(shipment_ids)
     if not_found:
+        logger.warning("Shipments not found: %s", not_found)
         raise NotFoundError(f"Shipments not found in database: {shipment_ids}")
+    logger.info("Successfully retrieved %d shipments", len(shipments))
     return shipments
 
 
 def create_shipment(new_shipment: CreateTmsShipment) -> TmsShipment:
+    logger.info("Creating new TMS shipment")
     shipment = TmsShipment(id=str(uuid.uuid4()), **new_shipment.model_dump())
     repository.create(shipment)
+    logger.info("Successfully created shipment with ID: %s", shipment.id)
     return shipment
 
 
 def create_shipments(shipments: List[TmsShipment]) -> List[TmsShipment]:
+    logger.info("Creating %d TMS shipments", len(shipments))
     repository.create_many(shipments)
+    logger.info("Successfully created %d shipments", len(shipments))
     return shipments

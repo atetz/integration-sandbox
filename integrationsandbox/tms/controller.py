@@ -1,3 +1,4 @@
+import logging
 from typing import List
 
 from fastapi import APIRouter, Depends, status
@@ -13,6 +14,7 @@ from integrationsandbox.tms.models import (
 from integrationsandbox.validation import service as validation_service
 
 router = APIRouter(prefix="/tms")
+logger = logging.getLogger(__name__)
 
 
 @router.post(
@@ -25,7 +27,10 @@ router = APIRouter(prefix="/tms")
     status_code=status.HTTP_202_ACCEPTED,
 )
 def incoming_event(event: CreateTmsShipmentEvent, shipment_id: str) -> None:
+    logger.info("Received TMS event for shipment: %s", shipment_id)
+    logger.debug("Event details: %s", event.model_dump())
     validation_service.validate_tms_event(event, shipment_id)
+    logger.info("TMS event validation successful")
 
 
 @router.post(
@@ -38,7 +43,10 @@ def incoming_event(event: CreateTmsShipmentEvent, shipment_id: str) -> None:
     status_code=status.HTTP_201_CREATED,
 )
 def create_shipment(new_shipment: CreateTmsShipment) -> TmsShipment:
+    logger.info("Creating new TMS shipment")
+    logger.debug("Shipment details: %s", new_shipment.model_dump())
     shipments = tms_service.create_shipment(new_shipment)
+    logger.info("TMS shipment created with ID: %s", shipments.id)
     return shipments
 
 
@@ -52,7 +60,9 @@ def create_shipment(new_shipment: CreateTmsShipment) -> TmsShipment:
     status_code=status.HTTP_201_CREATED,
 )
 def seed_shipments(seed_request: TmsShipmentSeedRequest) -> List[TmsShipment]:
+    logger.info("Seeding %d TMS shipments", seed_request.count)
     shipments = tms_service.create_seed_shipments(seed_request.count)
+    logger.info("Successfully created %d seed shipments", len(shipments))
     return shipments
 
 
@@ -65,5 +75,10 @@ def seed_shipments(seed_request: TmsShipmentSeedRequest) -> List[TmsShipment]:
     response_description="List of shipments",
     status_code=status.HTTP_200_OK,
 )
-def get_events(filters: TmsShipmentFilters = Depends()) -> List[TmsShipment] | None:
-    return tms_service.list_shipments(filters)
+def get_shipments(filters: TmsShipmentFilters = Depends()) -> List[TmsShipment] | None:
+    logger.info("Retrieving TMS shipments with filters")
+    logger.debug("Filters: %s", filters.model_dump() if filters else None)
+    shipments = tms_service.list_shipments(filters)
+    count = len(shipments) if shipments else 0
+    logger.info("Retrieved %d TMS shipments", count)
+    return shipments
