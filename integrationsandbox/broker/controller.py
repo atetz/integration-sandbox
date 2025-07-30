@@ -12,10 +12,11 @@ from integrationsandbox.broker.models import (
     CreateBrokerOrderMessage,
 )
 from integrationsandbox.broker.service import list_events
+from integrationsandbox.security.service import get_current_active_user
 from integrationsandbox.tms.service import get_shipments_by_id_list
 from integrationsandbox.validation import service as validation_service
 
-router = APIRouter(prefix="/broker")
+router = APIRouter(prefix="/broker", dependencies=[Depends(get_current_active_user)])
 logger = logging.getLogger(__name__)
 
 
@@ -62,7 +63,11 @@ def create_event_endpoint(new_event: CreateBrokerEventMessage) -> BrokerEventMes
     status_code=status.HTTP_201_CREATED,
 )
 def seed_events(seed_request: BrokerEventSeedRequest) -> List[BrokerEventMessage]:
-    logger.info("Seeding events for %d shipments with event type: %s", len(seed_request.shipment_ids), seed_request.event)
+    logger.info(
+        "Seeding events for %d shipments with event type: %s",
+        len(seed_request.shipment_ids),
+        seed_request.event,
+    )
     logger.debug("Shipment IDs: %s", seed_request.shipment_ids)
     shipments = get_shipments_by_id_list(seed_request.shipment_ids)
     events = broker_service.create_seed_events(shipments, seed_request.event)

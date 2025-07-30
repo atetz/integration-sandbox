@@ -1,9 +1,10 @@
 import logging
 from typing import List
 
-from fastapi import APIRouter, status
+from fastapi import APIRouter, Depends, status
 
 from integrationsandbox.broker.models import BrokerEventMessage
+from integrationsandbox.security.service import get_current_active_user
 from integrationsandbox.tms.models import TmsShipment
 from integrationsandbox.trigger.models import EventTrigger, ShipmentTrigger
 from integrationsandbox.trigger.service import (
@@ -11,7 +12,7 @@ from integrationsandbox.trigger.service import (
     create_and_dispatch_shipments,
 )
 
-router = APIRouter(prefix="/trigger")
+router = APIRouter(prefix="/trigger", dependencies=[Depends(get_current_active_user)])
 logger = logging.getLogger(__name__)
 
 

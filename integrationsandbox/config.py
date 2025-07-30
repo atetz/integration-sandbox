@@ -1,3 +1,4 @@
+import secrets
 from functools import lru_cache
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -9,6 +10,11 @@ def get_settings():
 
 
 class Settings(BaseSettings):
+    default_user: str = "sandy"
+    default_password: str = "sandbox"
+    jwt_algorithm: str = "HS256"
+    jwt_expire_minutes: int = 15
+    jwt_secret_key: str = secrets.token_hex(32)
     max_bulk_size: int = 1000
     float_precision: int = 2
     database_path: str = "integrationsandbox/infrastructure/db.sqlite3"
