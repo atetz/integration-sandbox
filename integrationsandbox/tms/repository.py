@@ -58,6 +58,17 @@ def create(shipment: TmsShipment) -> None:
 
 
 @handle_db_errors
+def update(shipment: TmsShipment) -> None:
+    logger.info("Updating TMS shipment in database: %s", shipment.id)
+    with create_connection() as con:
+        con.execute(
+            "UPDATE tms_shipment set data = ? where id = ?",
+            (shipment.model_dump_json(), shipment.id),
+        )
+    logger.info("Successfully updated shipment: %s", shipment.id)
+
+
+@handle_db_errors
 def get_by_id(id: str) -> Optional[TmsShipment]:
     logger.info("Querying TMS shipment by ID: %s", id)
     params = (id,)

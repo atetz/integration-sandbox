@@ -12,6 +12,7 @@ from integrationsandbox.tms.models import (
     CreateTmsShipmentEvent,
     TmsEventType,
     TmsShipment,
+    TmsShipmentEvent,
     TmsShipmentFilters,
 )
 
@@ -31,7 +32,7 @@ REVERSE_EVENT_TYPE_MAP = {v: k for k, v in EVENT_TYPE_MAP.items()}
 
 def apply_event_mapping_rules(broker_event: BrokerEventMessage) -> Dict[str, Any]:
     result = {}
-
+    result["external_order_reference"] = broker_event.order.reference
     result["event_type"] = EVENT_TYPE_MAP[broker_event.situation.event]
     result["created_at"] = broker_event.situation.registrationDate
     result["occured_at"] = broker_event.situation.actualDate
@@ -46,7 +47,7 @@ def apply_event_mapping_rules(broker_event: BrokerEventMessage) -> Dict[str, Any
 
 def get_transformed_event_data(event: CreateTmsShipmentEvent) -> Dict[str, Any]:
     result = {}
-
+    result["external_order_reference"] = event.external_order_reference
     result["event_type"] = event.event_type
     result["created_at"] = event.created_at
     result["occured_at"] = event.occured_at
@@ -65,6 +66,17 @@ def build_shipments(count: int) -> List[TmsShipment]:
     shipments = [factory.create_shipment() for _ in range(count)]
     logger.info("Successfully built %d shipments", len(shipments))
     return shipments
+
+
+def has_existing_event(
+    events: List[TmsShipmentEvent], new_event: TmsShipmentEvent
+) -> bool:
+    if not events:
+        return False
+    for event in events:
+        if event.event_type == new_event.event_type:
+            return True
+    return False
 
 
 def create_seed_shipments(count: int) -> List[TmsShipment]:
@@ -118,6 +130,24 @@ def create_shipment(new_shipment: CreateTmsShipment) -> TmsShipment:
     repository.create(shipment)
     logger.info("Successfully created shipment with ID: %s", shipment.id)
     return shipment
+
+
+def update_shipment_event(event: CreateTmsShipmentEvent, shipment_id: str) -> None:
+    logger.info("Adding event to Shipment ID: %s", shipment_id)
+    shipment = repository.get_by_id(shipment_id)
+    if not shipment:
+        logger.warning("Shipment not found: %s", shipment_id)
+        raise NotFoundError(f"Shipment not found in database: {shipment_id}")
+
+    if shipment.external_reference is None:
+        shipment.external_reference = event.external_order_reference
+
+    event = TmsShipmentEvent(id=str(uuid.uuid4()), **event.model_dump())
+    if has_existing_event(shipment.timeline_events, event):
+        logger.info("Event type already exists. Overwriting %s", event.event_type)
+    shipment.update_timeline_events(event)
+    repository.update(shipment)
+    logger.info("Successfully updated shipment events for Shipment ID: %s", shipment.id)
 
 
 def create_shipments(shipments: List[TmsShipment]) -> List[TmsShipment]:

@@ -32,6 +32,8 @@ def incoming_event(event: CreateTmsShipmentEvent, shipment_id: str) -> None:
     logger.debug("Event details: %s", event.model_dump())
     validation_service.validate_tms_event(event, shipment_id)
     logger.info("TMS event validation successful")
+    tms_service.update_shipment_event(event, shipment_id)
+    logger.info("TMS event udpate successful")
 
 
 @router.post(
