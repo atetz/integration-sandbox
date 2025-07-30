@@ -22,5 +22,7 @@
   - [x] Search for magic values and make configurable if needed.
 - [x] Add structured logging for request tracing
 - [x] Add security
+- [ ] Event validation should add event to shipment
+  - [ ] Enable filtering for new / concept shipment
 - [ ] Containerize
 - [ ] Improve FastAPI auto-generated documentation (descriptions, examples, tags)
