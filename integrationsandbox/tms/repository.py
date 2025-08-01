@@ -58,6 +58,17 @@ def create(shipment: TmsShipment) -> None:
 
 
 @handle_db_errors
+def update(shipment: TmsShipment) -> None:
+    logger.info("Updating TMS shipment in database: %s", shipment.id)
+    with create_connection() as con:
+        con.execute(
+            "UPDATE tms_shipment set data = ? where id = ?",
+            (shipment.model_dump_json(), shipment.id),
+        )
+    logger.info("Successfully updated shipment: %s", shipment.id)
+
+
+@handle_db_errors
 def get_by_id(id: str) -> Optional[TmsShipment]:
     logger.info("Querying TMS shipment by ID: %s", id)
     params = (id,)
@@ -121,4 +132,30 @@ def get_all(filters: TmsShipmentFilters) -> List[TmsShipment] | None:
             return shipments
 
         logger.info("No shipments found matching filters")
+        return None
+
+
+@handle_db_errors
+def get_all_new() -> List[TmsShipment] | None:
+    query = """
+    SELECT
+       data
+    FROM
+        tms_shipment
+    where
+        json_extract(data, '$.external_reference') is null
+        """
+
+    logger.info("Querying TMS shipments from database")
+    logger.debug("Query: %s", query)
+
+    with create_connection() as con:
+        res = con.execute(query)
+        rows = res.fetchall()
+        if rows:
+            shipments = [TmsShipment.model_validate_json(row[0]) for row in rows]
+            logger.info("Retrieved %d shipments from database", len(shipments))
+            return shipments
+
+        logger.info("No new shipments found")
         return None

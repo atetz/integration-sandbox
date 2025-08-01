@@ -4,7 +4,6 @@ from integrationsandbox.main import app
 
 client = TestClient(app)
 
-
 def test_create_shipment_endpoint():
     shipment_data = {
         "external_reference": "EXT001",
@@ -173,7 +172,7 @@ def test_incoming_event_validation_endpoint():
         "shipmentId": shipment_id,
         "dateTransmission": "2024-01-15T10:00:00",
         "owner": "Test Owner",
-        "order": {"reference": shipment_id, "eta": None},
+        "order": {"reference": "EXT001", "eta": None},
         "situation": {
             "event": "ORDER_CREATED",
             "registrationDate": "2024-01-15T10:00:00",
@@ -191,6 +190,7 @@ def test_incoming_event_validation_endpoint():
         "event_type": "BOOKED",
         "created_at": "2024-01-15T10:00:00",
         "occured_at": "2024-01-15T09:30:00",
+        "external_order_reference": "EXT001",
         "source": "broker",
         "location": None,
     }
@@ -205,6 +205,7 @@ def test_incoming_event_validation_missing_broker_event():
         "event_type": "BOOKED",
         "created_at": "2024-01-15T10:00:00",
         "occured_at": "2024-01-15T09:30:00",
+        "external_order_reference": None,
         "source": "broker",
         "location": None,
     }

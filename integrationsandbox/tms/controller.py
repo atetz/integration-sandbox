@@ -32,6 +32,8 @@ def incoming_event(event: CreateTmsShipmentEvent, shipment_id: str) -> None:
     logger.debug("Event details: %s", event.model_dump())
     validation_service.validate_tms_event(event, shipment_id)
     logger.info("TMS event validation successful")
+    tms_service.update_shipment_event(event, shipment_id)
+    logger.info("TMS event udpate successful")
 
 
 @router.post(
@@ -80,6 +82,23 @@ def get_shipments(filters: TmsShipmentFilters = Depends()) -> List[TmsShipment] 
     logger.info("Retrieving TMS shipments with filters")
     logger.debug("Filters: %s", filters.model_dump() if filters else None)
     shipments = tms_service.list_shipments(filters)
+    count = len(shipments) if shipments else 0
+    logger.info("Retrieved %d TMS shipments", count)
+    return shipments
+
+
+@router.get(
+    "/shipments/new",
+    summary="Get new shipments",
+    description="""
+      Retreives a list of all the new shipments.
+      """,
+    response_description="List of new shipments",
+    status_code=status.HTTP_200_OK,
+)
+def get_new_shipments() -> List[TmsShipment] | None:
+    logger.info("Retrieving TMS new shipments")
+    shipments = tms_service.list_new_shipments()
     count = len(shipments) if shipments else 0
     logger.info("Retrieved %d TMS shipments", count)
     return shipments

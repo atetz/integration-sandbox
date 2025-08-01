@@ -6,7 +6,7 @@
 - [x] Factories
   - [x] Create order factory with faker for TMS orders
   - [x] Create order factory with faker for broker events
-- [ ] Controllers
+- [x] Controllers
   - [x] Create a POST endpoint that receives a 'trigger' event for a target url
     - [x] and then sends messages to it with fake data
     - [x] TMS order out
@@ -22,5 +22,10 @@
   - [x] Search for magic values and make configurable if needed.
 - [x] Add structured logging for request tracing
 - [x] Add security
-- [ ] Containerize
+- [x] Event validation should add event to shipment
+  - [x] Enable filtering for new / concept shipment
 - [ ] Improve FastAPI auto-generated documentation (descriptions, examples, tags)
+  - [ ] Explain some assumptions
+  - [ ] Explain what project does and what it does not do
+    - [ ] for example not enforcing order of events. First event creates external ref.
+- [ ] Containerize

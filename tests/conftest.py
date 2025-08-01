@@ -12,6 +12,7 @@ from integrationsandbox.broker.models import (
     BrokerPackagingQualifier,
 )
 from integrationsandbox.infrastructure import database
+from integrationsandbox.main import app
 from integrationsandbox.tms.models import (
     PackageType,
     StopType,
@@ -159,4 +160,19 @@ def tms_stops() -> List[TmsStop]:
     )
 
     return [pickup_stop, delivery_stop]
-    return [pickup_stop, delivery_stop]
+
+
+@pytest.fixture(autouse=True)
+def mock_auth():
+    """Override authentication dependency for all tests."""
+    from integrationsandbox.security.models import User
+    from integrationsandbox.security.service import get_current_active_user
+
+    def mock_get_current_active_user():
+        return User(username="testuser", disabled=False)
+
+    # Override the dependency in the app
+    app.dependency_overrides[get_current_active_user] = mock_get_current_active_user
+    yield
+    # Clean up
+    app.dependency_overrides.clear()

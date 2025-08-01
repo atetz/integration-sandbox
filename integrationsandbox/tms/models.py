@@ -91,12 +91,21 @@ class CreateTmsShipmentEvent(BaseModel):
     created_at: datetime
     event_type: TmsEventType
     occured_at: datetime
+    external_order_reference: str | None
     source: str
     location: TmsLocation | None = None
 
 
-class TmsShipmentEvent(CreateTmsShipmentEvent):
+# I like ID at top.
+class TmsShipmentEvent(BaseModel):
     id: str
+    external_order_reference: str | None
+    created_at: datetime
+    event_type: TmsEventType
+    occured_at: datetime
+    external_order_reference: str | None
+    source: str
+    location: TmsLocation | None = None
 
 
 class CreateTmsShipment(BaseModel):
@@ -121,6 +130,15 @@ class TmsShipment(BaseModel):
     line_items: List[TmsLineItem] = Field(min_length=1)
     stops: List[TmsStop] = Field(min_length=2)
     timeline_events: List[TmsShipmentEvent] | None = None
+
+    def update_timeline_events(self, new_event: TmsShipmentEvent) -> None:
+        if self.timeline_events is None:
+            self.timeline_events = []
+        for i, event in enumerate(self.timeline_events):
+            if event.event_type == new_event.event_type:
+                self.timeline_events[i] = new_event
+                return
+        self.timeline_events.append(new_event)
 
 
 class TmsShipmentSeedRequest(BaseModel):
