@@ -14,7 +14,9 @@ from integrationsandbox.tms.models import (
 )
 from integrationsandbox.validation import service as validation_service
 
-router = APIRouter(prefix="/tms", dependencies=[Depends(get_current_active_user)])
+router = APIRouter(
+    prefix="/tms", dependencies=[Depends(get_current_active_user)], tags=["TMS"]
+)
 logger = logging.getLogger(__name__)
 
 

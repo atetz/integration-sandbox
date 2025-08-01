@@ -16,7 +16,11 @@ from integrationsandbox.security.service import get_current_active_user
 from integrationsandbox.tms.service import get_shipments_by_id_list
 from integrationsandbox.validation import service as validation_service
 
-router = APIRouter(prefix="/broker", dependencies=[Depends(get_current_active_user)])
+router = APIRouter(
+    prefix="/broker",
+    dependencies=[Depends(get_current_active_user)],
+    tags=["Broker"],
+)
 logger = logging.getLogger(__name__)
 
 
@@ -59,7 +63,7 @@ def create_event_endpoint(new_event: CreateBrokerEventMessage) -> BrokerEventMes
     description="""
       Receives a count and then proceeds to generate and save events for given count. 
       """,
-    response_description="List of generated events sent to target URL",
+    response_description="List of generated events saved to DB",
     status_code=status.HTTP_201_CREATED,
 )
 def seed_events(seed_request: BrokerEventSeedRequest) -> List[BrokerEventMessage]:

@@ -7,7 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from integrationsandbox.broker import controller as broker_controller
 from integrationsandbox.common.exceptions import NotFoundError, ValidationError
-from integrationsandbox.config import get_settings
+from integrationsandbox.config import get_settings, tags_metadata
 from integrationsandbox.infrastructure import database
 from integrationsandbox.infrastructure.exceptions import RepositoryError
 from integrationsandbox.security import controller as security_controller
@@ -36,6 +36,7 @@ app = FastAPI(
     title=APP_TITLE,
     description=APP_DESCRIPTION,
     version=APP_VERSION,
+    openapi_tags=tags_metadata,
 )
 
 # CORS configuration
@@ -73,6 +74,6 @@ async def repository_error_handler(request, exc):
 
 
 # Health check endpoint
-@app.get("/health")
+@app.get("/health", tags=["System"])
 async def health_check():
     return {"status": "healthy"}

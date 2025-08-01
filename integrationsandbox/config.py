@@ -78,3 +78,23 @@ class Settings(BaseSettings):
                 },
             },
         }
+
+
+tags_metadata = [
+    {
+        "name": "Broker",
+        "description": "Interact with the Broker sandbox.",
+    },
+    {
+        "name": "TMS",
+        "description": "Interact with the TMS sandbox.",
+    },
+    {
+        "name": "Trigger",
+        "description": "Send TMS shipments or Broker events to a webhook.",
+    },
+    {
+        "name": "System",
+        "description": "Operations with sys health and users. The **login** logic is also here.",
+    },
+]
