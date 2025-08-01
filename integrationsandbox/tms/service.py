@@ -96,7 +96,10 @@ def list_shipments(filters: TmsShipmentFilters) -> List[TmsShipment]:
     logger.info("Listing TMS shipments with filters")
     logger.debug("Filters: %s", filters.model_dump() if filters else None)
     shipments = repository.get_all(filters)
-    logger.info("Retrieved %d shipments from database", len(shipments))
+    if shipments:
+        logger.info("Retrieved %d shipments from database", len(shipments))
+    else:
+        logger.info("No shipments retreived from database")
     return shipments
 
 

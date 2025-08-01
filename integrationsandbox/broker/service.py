@@ -178,7 +178,11 @@ def list_events(filters: BrokerEventFilters) -> List[BrokerEventMessage]:
     logger.info("Listing broker events with filters")
     logger.debug("Filters: %s", filters.model_dump() if filters else None)
     events = repository.get_all(filters)
-    logger.info("Retrieved %d events from database", len(events))
+    if events:
+        logger.info("Retrieved %d events from database", len(events))
+    else:
+        logger.info("No events retreived from database")
+
     return events
 
 

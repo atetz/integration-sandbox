@@ -5,6 +5,7 @@ from integrationsandbox.main import app
 client = TestClient(app)
 
 
+
 def test_create_event_endpoint():
     event_data = {
         "shipmentId": "SH001",
