@@ -85,3 +85,20 @@ def get_shipments(filters: TmsShipmentFilters = Depends()) -> List[TmsShipment] 
     count = len(shipments) if shipments else 0
     logger.info("Retrieved %d TMS shipments", count)
     return shipments
+
+
+@router.get(
+    "/shipments/new",
+    summary="Get new shipments",
+    description="""
+      Retreives a list of all the new shipments.
+      """,
+    response_description="List of new shipments",
+    status_code=status.HTTP_200_OK,
+)
+def get_new_shipments() -> List[TmsShipment] | None:
+    logger.info("Retrieving TMS new shipments")
+    shipments = tms_service.list_new_shipments()
+    count = len(shipments) if shipments else 0
+    logger.info("Retrieved %d TMS shipments", count)
+    return shipments
