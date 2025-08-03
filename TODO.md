@@ -31,6 +31,7 @@
   - [x] Explain what project does and what it does not do
     - [x] for example not enforcing order of events. First event creates external ref.
 - [ ] Containerize
+  - [ ] Add to readme / quickstart.
 
 ## nice to have
 - [ ] rate limiting
