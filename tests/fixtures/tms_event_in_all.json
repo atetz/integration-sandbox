@@ -3,12 +3,14 @@
     "created_at": "2025-07-22T17:38:50.325628",
     "event_type": "BOOKED",
     "occured_at": "2025-07-22T16:45:50.325628",
+    "external_order_refere": "ORD-123",
     "source": "broker"
   },
   {
     "created_at": "2025-07-22T17:38:22.339472",
     "event_type": "DISPATCHED",
     "occured_at": "2025-07-22T18:31:22.339472",
+    "external_order_refere": "ORD-123",
     "source": "broker",
     "location": {
       "code": "LOC-2813",
@@ -19,6 +21,7 @@
   {
     "created_at": "2025-07-22T17:39:41.388650",
     "event_type": "PICKED_UP",
+    "external_order_refere": "ORD-123",
     "occured_at": "2025-07-22T17:46:41.388650",
     "source": "broker",
     "location": {
@@ -30,6 +33,7 @@
   {
     "created_at": "2025-07-22T17:40:32.004179",
     "event_type": "ETA_CHANGED",
+    "external_order_refere": "ORD-123",
     "occured_at": "2025-07-22T17:47:32.004179",
     "source": "broker",
     "location": {
@@ -41,6 +45,7 @@
   {
     "created_at": "2025-07-22T17:41:16.228994",
     "event_type": "DELIVERED",
+    "external_order_refere": "ORD-123",
     "occured_at": "2025-07-22T16:54:16.228994",
     "source": "broker",
     "location": {
@@ -52,6 +57,7 @@
   {
     "created_at": "2025-07-22T17:42:25.176733",
     "event_type": "CANCELLED",
+    "external_order_refere": "ORD-123",
     "occured_at": "2025-07-22T17:34:25.176733",
     "source": "broker"
   }

@@ -1,4 +1,4 @@
-# Visibility Platform to TMS Integration
+# Broker event to TMS event Integration
 
 This document describes the mapping between the broker (visibility platform) event message and the TMS (Transport Management System) shipment event.
 
@@ -6,13 +6,23 @@ This document describes the mapping between the broker (visibility platform) eve
 - Location references in broker events should match the `location.code` field from original TMS stops
 - Event sequence is not strictly enforced - events may arrive out of order
 - At the moment only 1 occurrence per event type allowed per shipment. A new trigger overwrites event data.
+  
+
+## Mapping table legend
+
+| Target                   | Source      |
+| ------------------------ | ----------- |
+| CreateTmsShipmentEvent | BrokerEventMessage |
+
+See bottom of page for example payloads.
 
 ## Event Metadata
 | Field | Source | Notes |
 |-------|--------|-------|
 | created_at | situation.registrationDate | Date-time when event was registered in broker system |
 | occured_at | situation.actualDate | Date-time when event actually occurred |
-| source | N/A | Fixed value "broker" - identifies originating system |
+| source | N/A | Fixed value "broker". Identifies originating system |
+|external_order_reference|order.reference|Broker order reference. 
 | event_type | situation.event | See event type mapping below |
 
 ## Location Details (when applicable)
@@ -50,4 +60,43 @@ This document describes the mapping between the broker (visibility platform) eve
 | 5 | ORDER_DELIVERED | DELIVERED | Goods delivered successfully |
 | * | CANCEL_ORDER | CANCELLED | Order cancelled (can occur anytime) |
 
+## BrokerEventMessage example
+```
+{
+    "id": "9c1ffc89-e730-46ee-b470-b685a1380e52",
+    "shipmentId": "3f9e69bf-58c1-4216-b23e-23de0e33727a",
+    "dateTransmission": "2025-07-22T18:38:22",
+    "owner": "Adam's logistics",
+    "order": {
+      "reference": "ORD-85494",
+      "eta": "2025-08-04T19:00:43.342250"
+    },
+    "situation": {
+      "event": "DRIVING_TO_LOAD",
+      "registrationDate": "2025-07-22T18:38:22",
+      "actualDate": "2025-07-22T10:00:00",
+      "position": {
+        "locationReference": "LOC-6148",
+        "latitude": 4.50606,
+        "longitude": 8.833057
+      }
+    },
+    "carrier": "Russell, Pugh and Thomas Transport"
+  }
+```
 
+## CreateTmsShipmentEvent
+```
+{
+    "created_at": "2025-07-22T18:38:22",
+    "event_type": "DISPATCHED",
+    "occured_at": "2025-07-22T10:00:00",
+    "external_order_refere": "ORD-85494",
+    "source": "broker",
+    "location": {
+      "code": "LOC-2813",
+      "latitude": 4.50606,
+      "longitude": 8.833057
+    }
+}
+```

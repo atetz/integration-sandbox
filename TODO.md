@@ -24,8 +24,14 @@
 - [x] Add security
 - [x] Event validation should add event to shipment
   - [x] Enable filtering for new / concept shipment
-- [ ] Improve FastAPI auto-generated documentation (descriptions, examples, tags)
+- [ ] `/api/v1/tms/events/new`.
+- [ ] Add `X-API-KEY` header to outgoing call to webhook
+- [x] Improve FastAPI auto-generated documentation (descriptions, examples, tags)
   - [ ] Explain some assumptions
   - [ ] Explain what project does and what it does not do
     - [ ] for example not enforcing order of events. First event creates external ref.
 - [ ] Containerize
+
+## nice to have
+- [ ] rate limiting
+- [ ] handle files like POD's
