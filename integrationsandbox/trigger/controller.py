@@ -12,7 +12,11 @@ from integrationsandbox.trigger.service import (
     create_and_dispatch_shipments,
 )
 
-router = APIRouter(prefix="/trigger", dependencies=[Depends(get_current_active_user)])
+router = APIRouter(
+    prefix="/trigger",
+    dependencies=[Depends(get_current_active_user)],
+    tags=["Trigger"],
+)
 logger = logging.getLogger(__name__)
 
 

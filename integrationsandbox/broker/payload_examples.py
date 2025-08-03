@@ -1,4 +1,4 @@
-create_broker_message = {
+create_broker_order = {
     "json_schema_extra": {
         "examples": [
             {
@@ -40,7 +40,7 @@ create_broker_message = {
                             "consignee": {
                                 "identification": "LOC-8521",
                                 "name": "Williams-Patel",
-                                "address1": "Studio 6\nGill courts",
+                                "address1": "Studio 6 Gill courts",
                                 "address2": "",
                                 "country": "GB",
                                 "postalCode": "WA7 6JT",
@@ -128,4 +128,72 @@ create_broker_message = {
             }
         ]
     },
+}
+
+
+create_broker_event = {
+    "json_schema_extra": {
+        "examples": [
+            {
+                "id": "9c1ffc89-e730-46ee-b470-b685a1380e52",
+                "shipmentId": "3f9e69bf-58c1-4216-b23e-23de0e33727a",
+                "dateTransmission": "2025-08-01T16:18:53.279401",
+                "owner": "Adam's logistics",
+                "order": {
+                    "reference": "ORD-85494",
+                    "eta": "2025-08-04T19:00:43.342250",
+                },
+                "situation": {
+                    "event": "DRIVING_TO_LOAD",
+                    "registrationDate": "2025-08-01T16:28:44.637944",
+                    "actualDate": "2025-08-01T17:12:44.637944",
+                    "position": {
+                        "locationReference": "LOC-6148",
+                        "latitude": 4.50606,
+                        "longitude": 8.833057,
+                    },
+                },
+                "carrier": "Russell, Pugh and Thomas Transport",
+            }
+        ]
+    }
+}
+
+broker_event = {
+    "json_schema_extra": {
+        "examples": [
+            {
+                "id": "9c1ffc89-e730-46ee-b470-b685a1380e52",
+                "shipmentId": "3f9e69bf-58c1-4216-b23e-23de0e33727a",
+                "dateTransmission": "2025-08-01T16:18:53.279401",
+                "owner": "Adam's logistics",
+                "order": {
+                    "reference": "ORD-85494",
+                    "eta": "2025-08-04T19:00:43.342250",
+                },
+                "situation": {
+                    "event": "DRIVING_TO_LOAD",
+                    "registrationDate": "2025-08-01T16:28:44.637944",
+                    "actualDate": "2025-08-01T17:12:44.637944",
+                    "position": {
+                        "locationReference": "LOC-6148",
+                        "latitude": 4.50606,
+                        "longitude": 8.833057,
+                    },
+                },
+                "carrier": "Russell, Pugh and Thomas Transport",
+            }
+        ]
+    }
+}
+
+broker_event_seed = {
+    "json_schema_extra": {
+        "examples": [
+            {
+                "event": "DRIVING_TO_LOAD",
+                "shipment_ids": ["3f9e69bf-58c1-4216-b23e-23de0e33727a"],
+            }
+        ]
+    }
 }

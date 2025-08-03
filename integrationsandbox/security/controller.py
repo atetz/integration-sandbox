@@ -7,7 +7,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from integrationsandbox.security.models import Token, User
 from integrationsandbox.security.service import get_current_active_user, login_user
 
-router = APIRouter()
+router = APIRouter(tags=["System"])
 logger = logging.getLogger(__name__)
 
 

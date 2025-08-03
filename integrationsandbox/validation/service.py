@@ -48,25 +48,30 @@ def serialize_value(value):
     return value
 
 
-def compare_mappings(tms_data: Dict[str, Any], broker_data: Dict[str, Any]) -> bool:
+def compare_mappings(
+    expected_data: Dict[str, Any], transformed_data: Dict[str, Any]
+) -> bool:
     logger.info(
         "Comparing %d fields between TMS and broker data",
-        len(set(tms_data.keys()) | set(broker_data.keys())),
+        len(set(expected_data.keys()) | set(transformed_data.keys())),
     )
     errors = []
-    all_keys = set(tms_data.keys()) | set(broker_data.keys())
+    all_keys = set(expected_data.keys()) | set(transformed_data.keys())
 
     for key in all_keys:
-        if key not in tms_data:
+        if key not in expected_data:
             errors.append({"field": key, "error": "missing in tms_data"})
-        elif key not in broker_data:
+        elif key not in transformed_data:
             errors.append({"field": key, "error": "missing in broker_data"})
         else:
-            tms_serialized = serialize_value(tms_data[key])
-            broker_serialized = serialize_value(broker_data[key])
+            tms_serialized = serialize_value(expected_data[key])
+            broker_serialized = serialize_value(transformed_data[key])
 
             diff = DeepDiff(
-                tms_serialized, broker_serialized, ignore_order=True, verbose_level=1
+                tms_serialized,
+                broker_serialized,
+                ignore_order=True,
+                verbose_level=1,
             )
 
             if diff:

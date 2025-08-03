@@ -4,7 +4,12 @@ from typing import List
 
 from pydantic import BaseModel, Field
 
-from integrationsandbox.broker.payload_examples import create_broker_message
+from integrationsandbox.broker.payload_examples import (
+    broker_event,
+    broker_event_seed,
+    create_broker_event,
+    create_broker_order,
+)
 from integrationsandbox.config import get_settings
 
 
@@ -92,7 +97,7 @@ class CreateBrokerOrderMessage(BaseModel):
     meta: BrokerOrderMeta
     shipment: CreateBrokerShipment
 
-    model_config = create_broker_message
+    model_config = create_broker_order
 
 
 class BrokerShipment(BaseModel):
@@ -135,6 +140,8 @@ class BrokerEventMessage(BaseModel):
     situation: BrokerEventSituation
     carrier: str
 
+    model_config = broker_event
+
 
 class CreateBrokerEventMessage(BaseModel):
     shipmentId: str
@@ -143,6 +150,8 @@ class CreateBrokerEventMessage(BaseModel):
     order: BrokerEventOrder
     situation: BrokerEventSituation
     carrier: str
+
+    model_config = create_broker_event
 
 
 class BrokerEventSeedRequest(BaseModel):
@@ -153,6 +162,8 @@ class BrokerEventSeedRequest(BaseModel):
         description="List of shipment IDs to generate events for. Supports multiple shipments for bulk testing.",
         max_length=get_settings().max_bulk_size,
     )
+
+    model_config = broker_event_seed
 
 
 class BrokerEventFilters(BaseModel):

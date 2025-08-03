@@ -5,7 +5,13 @@ from typing import List
 from pydantic import BaseModel, Field, PositiveInt
 
 from integrationsandbox.config import get_settings
-from integrationsandbox.tms.payload_examples import tms_shipment_seed
+from integrationsandbox.tms.payload_examples import (
+    tms_create_event_example,
+    tms_create_shipment_example,
+    tms_event_example,
+    tms_shipment_example,
+    tms_shipment_seed_example,
+)
 
 
 class PackageType(str, Enum):
@@ -95,6 +101,8 @@ class CreateTmsShipmentEvent(BaseModel):
     source: str
     location: TmsLocation | None = None
 
+    model_config = tms_create_event_example
+
 
 # I like ID at top.
 class TmsShipmentEvent(BaseModel):
@@ -107,6 +115,8 @@ class TmsShipmentEvent(BaseModel):
     source: str
     location: TmsLocation | None = None
 
+    model_config = tms_event_example
+
 
 class CreateTmsShipment(BaseModel):
     external_reference: str | None
@@ -117,6 +127,8 @@ class CreateTmsShipment(BaseModel):
     line_items: List[TmsLineItem] = Field(min_length=1)
     stops: List[TmsStop] = Field(min_length=2)
     timeline_events: List[TmsShipmentEvent] | None = None
+
+    model_config = tms_create_shipment_example
 
 
 # duplicated because I want ID on top
@@ -140,13 +152,15 @@ class TmsShipment(BaseModel):
                 return
         self.timeline_events.append(new_event)
 
+    model_config = tms_shipment_example
+
 
 class TmsShipmentSeedRequest(BaseModel):
     count: PositiveInt = Field(
         description="Number of broker events to generate and save.",
         le=get_settings().max_bulk_size,
     )
-    model_config = tms_shipment_seed
+    model_config = tms_shipment_seed_example
 
 
 class TmsShipmentFilters(BaseModel):
