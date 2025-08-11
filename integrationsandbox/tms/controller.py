@@ -35,7 +35,7 @@ def incoming_event(event: CreateTmsShipmentEvent, shipment_id: str) -> None:
     validation_service.validate_tms_event(event, shipment_id)
     logger.info("TMS event validation successful")
     tms_service.update_shipment_event(event, shipment_id)
-    logger.info("TMS event udpate successful")
+    logger.info("TMS shipment event update successful")
 
 
 @router.post(
@@ -103,4 +103,5 @@ def get_new_shipments() -> List[TmsShipment] | None:
     shipments = tms_service.list_new_shipments()
     count = len(shipments) if shipments else 0
     logger.info("Retrieved %d TMS shipments", count)
+    return shipments
     return shipments

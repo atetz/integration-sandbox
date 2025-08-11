@@ -233,3 +233,13 @@ def list_new_events() -> List[BrokerEventMessage]:
     event_count = len(events) if events else 0
     logger.info("Retrieved %d events from database", event_count)
     return events
+
+
+def mark_event_processed(event_id: str) -> bool:
+    logger.info("Marking broker event as processed: %s", event_id)
+    success = repository.mark_as_processed(event_id)
+    if success:
+        logger.info("Successfully marked event as processed: %s", event_id)
+    else:
+        logger.warning("Failed to mark event as processed: %s", event_id)
+    return success

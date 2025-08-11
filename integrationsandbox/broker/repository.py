@@ -1,4 +1,5 @@
 import logging
+from datetime import datetime
 from typing import Any, List, Tuple
 
 from integrationsandbox.broker.models import BrokerEventFilters, BrokerEventMessage
@@ -126,3 +127,23 @@ def get_all_new() -> List[BrokerEventMessage] | None:
 
         logger.info("No new events found")
         return None
+
+
+@handle_db_errors
+def mark_as_processed(event_id: str) -> bool:
+    processed_at = datetime.now().isoformat()
+
+    logger.info("Marking broker event as processed: %s", event_id)
+
+    with create_connection() as con:
+        cursor = con.execute(
+            "UPDATE broker_event SET processed_at = ? WHERE id = ?",
+            (processed_at, event_id),
+        )
+
+        if cursor.rowcount > 0:
+            logger.info("Successfully marked event as processed: %s", event_id)
+            return True
+        else:
+            logger.warning("No event found with id: %s", event_id)
+            return False
