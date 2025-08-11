@@ -81,7 +81,7 @@ Looking at the diagram of the use case you will first need new shipments.
 
 You have two options to create shipments depending on the type of integration you want to make:
 - For __push based__ integrations you can use the `/api/v1/trigger/shipments` endpoint. This endpoint takes in a target URL (your integration platform webhook) and a count and will send 1 payload with the requested number of shipments. 
-  - It will also send a `X-API-KEY` header that you can use to secure the endpoint with. Seen the config section on how to change the default key.
+  - It will also send a `X-API-KEY` header that you can use to secure the endpoint with. See the config section on how to change the default key.
 - For __pull based__ integrations you first must seed shipments using `/api/v1/tms/shipments/seed`, then your integration platform can fetch them from `/api/v1/tms/shipments/new`.
   - _Note: It's also possible to request a limit of results so that you can test scheduled based retrieval._  
 - The default maximum of shipments per call to seed/trigger is 1000. 

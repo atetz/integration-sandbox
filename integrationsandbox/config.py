@@ -15,7 +15,7 @@ class Settings(BaseSettings):
     jwt_algorithm: str = "HS256"
     jwt_expire_minutes: int = 15
     jwt_secret_key: str = secrets.token_hex(32)
-    trigger_api_key: str = secrets.token_hex(32)
+    webhook_api_key: str = secrets.token_hex(32)
     max_bulk_size: int = 1000
     float_precision: int = 2
     database_path: str = "integrationsandbox/infrastructure/db.sqlite3"

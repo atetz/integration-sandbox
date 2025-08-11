@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 def dispatch_shipments_to_url(shipments: List[TmsShipment], url: str) -> None:
     logger.info("Dispatching %d shipments to %s", len(shipments), url)
     # model_dump(mode="json") prevents escaped json being sent.
-    headers = {"X-API-KEY": get_settings().trigger_api_key}
+    headers = {"X-API-KEY": get_settings().webhook_api_key}
     data = [shipment.model_dump(mode="json") for shipment in shipments]
     r = httpx.post(url, json=data, headers=headers)
     r.raise_for_status()
@@ -40,7 +40,7 @@ def create_and_dispatch_shipments(trigger: ShipmentTrigger):
 # dedup later if needed.
 def dispatch_events_to_url(events: List[BrokerEventMessage], url: str) -> None:
     logger.info("Dispatching %d events to %s", len(events), url)
-    headers = {"X-API-KEY": get_settings().trigger_api_key}
+    headers = {"X-API-KEY": get_settings().webhook_api_key}
     data = [event.model_dump(mode="json") for event in events]
     r = httpx.post(url, json=data, headers=headers)
     r.raise_for_status()
