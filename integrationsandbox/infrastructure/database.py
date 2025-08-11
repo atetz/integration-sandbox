@@ -29,6 +29,7 @@ def setup() -> None:
                 shipment_id TEXT,
                 event_type TEXT,
                 data JSON,
+                processed_at TEXT,
                 UNIQUE(shipment_id,event_type))
             """
         )

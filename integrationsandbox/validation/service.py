@@ -19,6 +19,7 @@ from integrationsandbox.broker.service import (
     apply_shipment_mapping_rules,
     get_event,
     get_transformed_shipment_data,
+    mark_event_processed,
 )
 from integrationsandbox.common.exceptions import ValidationError
 from integrationsandbox.config import get_settings
@@ -112,4 +113,11 @@ def validate_tms_event(
     broker_event = get_event(event_filter)
     expected_data = apply_event_mapping_rules(broker_event)
     transformed_data = get_transformed_event_data(event)
-    return compare_mappings(expected_data, transformed_data)
+    validation_result = compare_mappings(expected_data, transformed_data)
+    
+    # Mark the broker event as processed after successful validation
+    if validation_result:
+        mark_event_processed(broker_event.id)
+        logger.info("Marked broker event %s as processed after validation", broker_event.id)
+    
+    return validation_result
