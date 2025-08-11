@@ -24,8 +24,8 @@
 - [x] Add security
 - [x] Event validation should add event to shipment
   - [x] Enable filtering for new / concept shipment
-- [ ] Enable filtering for new events 
-  - [ ] `/api/v1/broker/events/new`.
+- [x] Enable filtering for new events 
+  - [x] `/api/v1/broker/events/new`.
 - [x] Add `X-API-KEY` header to outgoing call to webhook
 - [x] Improve FastAPI auto-generated documentation (descriptions, examples, tags)
   - [x] Explain some assumptions
