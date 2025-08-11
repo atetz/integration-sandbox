@@ -100,3 +100,29 @@ def get(filters: BrokerEventFilters | None) -> BrokerEventMessage | None:
             return event
         logger.info("No event found matching filters")
         return None
+
+
+@handle_db_errors
+def get_all_new() -> List[BrokerEventMessage] | None:
+    query = """
+    SELECT
+       data
+    FROM
+        broker_event
+    where
+        processed_at is null
+        """
+
+    logger.info("Querying new broker events from database")
+    logger.debug("Query: %s", query)
+
+    with create_connection() as con:
+        res = con.execute(query)
+        rows = res.fetchall()
+        if rows:
+            events = [BrokerEventMessage.model_validate_json(row[0]) for row in rows]
+            logger.info("Retrieved %d events from database", len(events))
+            return events
+
+        logger.info("No new events found")
+        return None

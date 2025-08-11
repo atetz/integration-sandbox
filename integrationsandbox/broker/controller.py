@@ -11,7 +11,7 @@ from integrationsandbox.broker.models import (
     CreateBrokerEventMessage,
     CreateBrokerOrderMessage,
 )
-from integrationsandbox.broker.service import list_events
+from integrationsandbox.broker.service import list_events, list_new_events
 from integrationsandbox.security.service import get_current_active_user
 from integrationsandbox.tms.service import get_shipments_by_id_list
 from integrationsandbox.validation import service as validation_service
@@ -94,6 +94,23 @@ def get_events(
     logger.info("Retrieving broker events with filters")
     logger.debug("Filters: %s", filters.model_dump() if filters else None)
     events = list_events(filters)
+    count = len(events) if events else 0
+    logger.info("Retrieved %d broker events", count)
+    return events
+
+
+@router.get(
+    "/events/new/",
+    summary="Get new events",
+    description="""
+      Retreives a list of all the events that have not yet been processed by the tms.
+      """,
+    response_description="List of new events",
+    status_code=status.HTTP_200_OK,
+)
+def get_new_events() -> List[BrokerEventMessage] | None:
+    logger.info("Retrieving new broker events")
+    events = list_new_events()
     count = len(events) if events else 0
     logger.info("Retrieved %d broker events", count)
     return events

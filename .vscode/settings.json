@@ -24,7 +24,7 @@
         {
             "previewLimit": 50,
             "driver": "SQLite",
-            "database": "${workspaceFolder:integration-sandbox}/integrationsandbox/infrastructure/db.sqlite3",
+            "database": "integrationsandbox/infrastructure/db.sqlite3",
             "name": "db"
         }
     ],

@@ -225,3 +225,11 @@ def create_seed_events(
     create_events(events)
     logger.info("Successfully created %d seed events", len(events))
     return events
+
+
+def list_new_events() -> List[BrokerEventMessage]:
+    logger.info("Listing new broker events")
+    events = repository.get_all_new()
+    event_count = len(events) if events else 0
+    logger.info("Retrieved %d events from database", event_count)
+    return events
