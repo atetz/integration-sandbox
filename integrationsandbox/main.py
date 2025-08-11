@@ -27,6 +27,7 @@ logger = logging.getLogger(__name__)
 async def lifespan(app: FastAPI):
     database.setup()
     dictConfig(settings.log_config)
+    logger.info('Your trigger incoming API Key:"%s"', get_settings().trigger_api_key)
     yield
     pass
 

@@ -25,7 +25,7 @@
 - [x] Event validation should add event to shipment
   - [x] Enable filtering for new / concept shipment
 - [ ] `/api/v1/tms/events/new`.
-- [ ] Add `X-API-KEY` header to outgoing call to webhook
+- [x] Add `X-API-KEY` header to outgoing call to webhook
 - [x] Improve FastAPI auto-generated documentation (descriptions, examples, tags)
   - [x] Explain some assumptions
   - [x] Explain what project does and what it does not do
