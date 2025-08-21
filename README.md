@@ -32,7 +32,7 @@ sequenceDiagram
 ```
 
 ## Features
-If you run this API you will have access the following endpoints:
+If you run this API you will have access to the following endpoints:
 ### Broker
 | Method | Endpoint                     | Description                       |
 | ------ | ---------------------------- | --------------------------------- |
@@ -89,7 +89,7 @@ You have two options to create shipments depending on the type of integration yo
 ### Validating the TMS shipment to Broker order transformation
 It's as simple as sending the transformed message to the  `/api/v1/broker/order/` endpoint. 
 - If the validation is successful the API will respond with a `HTTP 202 ACCEPTED`.
-- If there is something wrong with the transformation the API will respond with a `HTTP 422 UNPROCESSIBLE ENTITY`. 
+- If there is something wrong with the transformation the API will respond with a `HTTP 422 UNPROCESSABLE ENTITY`. 
   - In that case the details section of the response should indicate which fields are invalid.
 - `HTTP 500 INTERNAL SERVER ERROR` can occur if something is wrong with the database file or a constraint in the database. Or I have introduced a bug ;)
   
@@ -99,7 +99,7 @@ The same applies here as for creating shipments. But keep in mind that events ar
   
 - For __pull based__ integrations you first must seed events using `/api/v1/broker/events/seed`, then your integration platform can fetch them from `/api/v1/broker/events/new`.
 
-Once a event is validated, the event is added to the TMS shipment payload in the `timeline_events` object and the external order number `external_reference` is referenced.
+Once an event is validated, the event is added to the TMS shipment payload in the `timeline_events` object and the external order number `external_reference` is referenced.
 Note: Duplicate events are overwritten!!
 
 ### Validating the broker event to shipment event transformation
@@ -132,22 +132,33 @@ Since we're handling dummy data that is generated there are obviously some short
 
 
 ## Quick Start
+### Local Python env managed by [uv](https://docs.astral.sh/uv/).
 
 1. **Install dependencies**
    ```bash
    uv install
    ```
 
-2. **Run the application**
+1. **Run the application**
    ```bash
    uv run fastapi dev integrationsandbox/main.py
    ```
+### Using the [Docker](https://docs.docker.com/get-docker/) container
+1. **Build image**
+    ```bash
+    docker build -t atetz/integration-sandbox .
+    ```
+1. **Run container**
+    ```bash
+    docker run -d -p 8000:8000 --name integration-sandbox atetz/integration-sandbox   
+    ```
+If you want to use an env file, simply add: --env-file .env 
 
-3. **Access API documentation**
+1. **Access API documentation**
    - Swagger UI: http://localhost:8000/docs
    - ReDoc: http://localhost:8000/redoc
 
-4. **Test the health endpoint**
+1. **Test the health endpoint**
    ```bash
    curl http://localhost:8000/health
    ```
