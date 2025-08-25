@@ -143,16 +143,16 @@ Since we're handling dummy data that is generated there are obviously some short
    ```bash
    uv run fastapi dev integrationsandbox/main.py
    ```
-### Using the [Docker](https://docs.docker.com/get-docker/) container
-1. **Build image**
+### Using the [Docker](https://docs.docker.com/get-docker/) image
+1. **pull image**
     ```bash
-    docker build -t atetz/integration-sandbox .
+    docker pull atetz/integration-sandbox:latest
     ```
 1. **Run container**
     ```bash
-    docker run -d -p 8000:8000 --name integration-sandbox atetz/integration-sandbox   
+    docker run -d -p 8000:8000 --name integration-sandbox atetz/integration-sandbox:latest
     ```
-If you want to use an env file, simply add: --env-file .env 
+If you want to use an env file, simply add: `--env-file .env` e.g.  `docker run -d -p 8000:8000 --name integration-sandbox --env-file .env atetz/integration-sandbox:latest`
 
 1. **Access API documentation**
    - Swagger UI: http://localhost:8000/docs
