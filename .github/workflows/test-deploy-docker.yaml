@@ -38,4 +38,4 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           push: true
-          tags: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}/${{ github.event.repository.name }}:latest,${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}/${{ github.event.repository.name }}:${{ github.ref_name }} # include as latest but also verison no.
+          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/${{ github.event.repository.name }}:latest,${{ secrets.DOCKER_HUB_USERNAME }}/${{ github.event.repository.name }}:${{ github.ref_name }} # include as latest but also verison no.
