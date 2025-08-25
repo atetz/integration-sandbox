@@ -42,5 +42,6 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
+          platforms: linux/amd64,linux/arm64
           push: true
           tags: ${{ github.repository_owner }}/${{ github.event.repository.name }}:latest,${{ github.repository_owner }}/${{ github.event.repository.name }}:${{ github.ref_name }}
