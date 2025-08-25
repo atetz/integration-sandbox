@@ -167,3 +167,13 @@ def create_shipments(shipments: List[TmsShipment]) -> List[TmsShipment]:
     repository.create_many(shipments)
     logger.info("Successfully created %d shipments", len(shipments))
     return shipments
+
+
+def mark_shipment_processed(shipment_id: str) -> bool:
+    logger.info("Marking shipment as processed: %s", shipment_id)
+    success = repository.mark_as_processed(shipment_id)
+    if success:
+        logger.info("Successfully marked shipment as processed: %s", shipment_id)
+    else:
+        logger.warning("Failed to mark shipment as processed: %s", shipment_id)
+    return success

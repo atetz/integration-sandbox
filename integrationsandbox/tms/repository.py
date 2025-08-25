@@ -1,4 +1,5 @@
 import logging
+from datetime import datetime
 from typing import Any, List, Optional, Tuple
 
 from integrationsandbox.infrastructure.database import create_connection
@@ -21,7 +22,7 @@ def build_where_clause(filters: TmsShipmentFilters) -> Tuple[str, List[Any]]:
             col = "json_extract(data, '$.external_reference')"
         if field == "new":
             if value:
-                conditions.append("json_extract(data, '$.external_reference') is null")
+                conditions.append("processed_at is null")
             continue
         conditions.append(f"{col} {operator} ?")
         params.append(value)
@@ -137,3 +138,23 @@ def get_all(filters: TmsShipmentFilters) -> List[TmsShipment] | None:
 
         logger.info("No shipments found matching filters")
         return None
+
+
+@handle_db_errors
+def mark_as_processed(shipment_id: str) -> bool:
+    processed_at = datetime.now().isoformat()
+
+    logger.info("Marking shipment as processed: %s", shipment_id)
+
+    with create_connection() as con:
+        cursor = con.execute(
+            "UPDATE tms_shipment SET processed_at = ? WHERE id = ?",
+            (processed_at, shipment_id),
+        )
+
+        if cursor.rowcount > 0:
+            logger.info("Successfully marked shipment as processed: %s", shipment_id)
+            return True
+        else:
+            logger.warning("No shipment found with id: %s", shipment_id)
+            return False
