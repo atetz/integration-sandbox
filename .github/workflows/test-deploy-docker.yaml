@@ -18,8 +18,11 @@ jobs:
         uses: astral-sh/setup-uv@v6
         with:
           enable-cache: true
+      - name: Export PYTHONPATH
+        run: echo "PYTHONPATH=$(pwd)" >> $GITHUB_ENV
+
       - name: Test
-        run: export PYTHONPATH=$(pwd) && uv run --frozen pytest
+        run: uv run --frozen pytest
 
   build_and_push:
     runs-on: ubuntu-latest
