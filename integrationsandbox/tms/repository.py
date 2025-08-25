@@ -12,26 +12,30 @@ logger = logging.getLogger(__name__)
 def build_where_clause(filters: TmsShipmentFilters) -> Tuple[str, List[Any]]:
     conditions = []
     params = []
-
     for field, value in filters.model_dump(exclude_none=True).items():
-        if field == "limit":
+        if field in ["limit", "skip"]:
             continue
         operator = "="
         col = field
-        if field == "start":
-            col = "row_id"
-            operator = ">="
+        if field == "external_reference":
+            col = "json_extract(data, '$.external_reference')"
+        if field == "new":
+            if value:
+                conditions.append("json_extract(data, '$.external_reference') is null")
+            continue
         conditions.append(f"{col} {operator} ?")
         params.append(value)
 
     clause = ""
     if conditions:
         clause = " WHERE " + " AND ".join(conditions)
-
+    clause += " ORDER BY row_id"
     if filters.limit:
         params.append(filters.limit)
         clause += " LIMIT ?"
-
+    if filters.skip:
+        params.append(filters.skip)
+        clause += " OFFSET ?"
     return clause, params
 
 
@@ -132,30 +136,4 @@ def get_all(filters: TmsShipmentFilters) -> List[TmsShipment] | None:
             return shipments
 
         logger.info("No shipments found matching filters")
-        return None
-
-
-@handle_db_errors
-def get_all_new() -> List[TmsShipment] | None:
-    query = """
-    SELECT
-       data
-    FROM
-        tms_shipment
-    where
-        json_extract(data, '$.external_reference') is null
-        """
-
-    logger.info("Querying TMS shipments from database")
-    logger.debug("Query: %s", query)
-
-    with create_connection() as con:
-        res = con.execute(query)
-        rows = res.fetchall()
-        if rows:
-            shipments = [TmsShipment.model_validate_json(row[0]) for row in rows]
-            logger.info("Retrieved %d shipments from database", len(shipments))
-            return shipments
-
-        logger.info("No new shipments found")
         return None

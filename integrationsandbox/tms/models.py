@@ -165,5 +165,10 @@ class TmsShipmentSeedRequest(BaseModel):
 
 class TmsShipmentFilters(BaseModel):
     id: str | None = None
-    start: int | None = 0
-    limit: int | None = 50
+    skip: int | None = 0
+    external_reference: str | None = Field(None)
+    limit: PositiveInt = Field(
+        default=50,
+        description="Limit of records to get.",
+    )
+    new: bool | None = None
