@@ -21,6 +21,8 @@ jobs:
       - name: Export PYTHONPATH
         run: echo "PYTHONPATH=$(pwd)" >> $GITHUB_ENV
 
+      - name: Validate lockfile
+        run: uv lock --check
       - name: Test
         run: uv run --frozen pytest
 
