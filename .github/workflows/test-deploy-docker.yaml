@@ -19,7 +19,7 @@ jobs:
         with:
           enable-cache: true
       - name: Test
-        run: uv run --frozen pytest
+        run: export PYTHONPATH=$(pwd) && uv run --frozen pytest
 
   build_and_push:
     runs-on: ubuntu-latest
