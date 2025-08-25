@@ -1,7 +1,7 @@
 [project]
 name = "integration-sandbox"
-version = "0.1.0"
-description = "Add your description here"
+version = "1.0.0"
+description = " A integration sandbox that provides mock endpoints to test against."
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
@@ -17,6 +17,4 @@ dependencies = [
 ]
 
 [dependency-groups]
-dev = [
-    "pytest>=8.4.1",
-]
+dev = ["pytest>=8.4.1"]
