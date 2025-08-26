@@ -5,12 +5,12 @@ from typing import List
 import pytest
 
 os.environ["DATABASE_PATH"] = "tests/test.db"
-
-
 from integrationsandbox.broker.models import (
+    BrokerEventType,
     BrokerHandlingUnit,
     BrokerPackagingQualifier,
 )
+from integrationsandbox.broker.service import create_seed_events
 from integrationsandbox.infrastructure import database
 from integrationsandbox.main import app
 from integrationsandbox.tms.models import (
@@ -20,6 +20,11 @@ from integrationsandbox.tms.models import (
     TmsLineItem,
     TmsLocation,
     TmsStop,
+)
+from integrationsandbox.tms.service import (
+    build_shipments,
+    create_seed_shipments,
+    mark_shipment_processed,
 )
 
 
@@ -176,3 +181,26 @@ def mock_auth():
     yield
     # Clean up
     app.dependency_overrides.clear()
+
+
+@pytest.fixture(params=[1, 5])
+def persisted_shipments(request):
+    return create_seed_shipments(request.param)
+
+
+@pytest.fixture(params=[1, 5])
+def persisted_processed_shipments(request):
+    shipments = create_seed_shipments(request.param)
+    for shipment in shipments:
+        mark_shipment_processed(shipment.id)
+    return shipments
+
+
+@pytest.fixture(params=[1, 5])
+def mock_shipments(request):
+    return build_shipments(request.param)
+
+
+@pytest.fixture
+def persisted_broker_events(persisted_shipments):
+    return create_seed_events(persisted_shipments, BrokerEventType.ORDER_CREATED)
