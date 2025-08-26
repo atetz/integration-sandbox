@@ -35,11 +35,12 @@ def test_seed_shipments():
     assert all(shipment["id"] for shipment in data)
 
 
-def test_get_shipments():
+def test_get_shipments(persisted_shipments):
     response = client.get("/api/v1/tms/shipments/")
 
     assert response.status_code == 200
     data = response.json()
+    assert data is not None
     assert all(
         isinstance(TmsShipment.model_validate(shipment), TmsShipment)
         for shipment in data
@@ -63,29 +64,46 @@ def test_get_shipments_by_nonexistent_id():
     assert response.json() is None
 
 
-def test_get_shipments_by_limit():
+def test_get_shipments_by_limit(persisted_shipments):
+    # Ensure we have at least 2 shipments
+    expected_count = min(2, len(persisted_shipments))
     response = client.get("/api/v1/tms/shipments/", params={"limit": 2})
     assert response.status_code == 200
     data = response.json()
-    assert len(data) == 2
+    assert data is not None
+    assert len(data) == expected_count
 
 
-def test_get_shipments_by_skip():
-    response = client.get("/api/v1/tms/shipments/")
+def test_get_shipments_by_skip(persisted_shipments):
+    total_persisted = len(persisted_shipments)
+    
+    # Get all shipments with limit equal to persisted count
+    response = client.get("/api/v1/tms/shipments/", params={"limit": total_persisted})
     assert response.status_code == 200
     data = response.json()
-    count = len(data)
-    response = client.get("/api/v1/tms/shipments/", params={"skip": 2})
+    count = len(data) if data else 0
+    
+    # Skip 2 shipments
+    skip_count = min(2, total_persisted)  # Don't skip more than we have
+    response = client.get("/api/v1/tms/shipments/", params={"skip": skip_count, "limit": total_persisted})
     skipped_data = response.json()
-    skipped_count = len(skipped_data)
-    assert (count - 2) == skipped_count
+    skipped_count = len(skipped_data) if skipped_data else 0
+    
+    # Should have skip_count fewer records
+    expected_count = max(0, count - skip_count)
+    assert expected_count == skipped_count
 
 
 def test_get_new_shipments(persisted_processed_shipments):
+    # Also create some unprocessed shipments
+    seed_data = {"count": 2}
+    client.post("/api/v1/tms/shipments/seed", json=seed_data)
+    
     response = client.get("/api/v1/tms/shipments/new/")
 
     assert response.status_code == 200
     data = response.json()
+    assert data is not None
 
     processed_ids = {s.id for s in persisted_processed_shipments}
     new_ids = {s["id"] for s in data}
@@ -149,7 +167,6 @@ def test_seed_shipments_invalid_count():
 def test_create_shipment_missing_required_fields():
     incomplete_data = {
         "mode": "FTL",
-        # Missing required fields like customer, stops, etc.
     }
 
     response = client.post("/api/v1/tms/shipments/", json=incomplete_data)

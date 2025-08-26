@@ -10,7 +10,7 @@ from integrationsandbox.broker.models import (
     BrokerHandlingUnit,
     BrokerPackagingQualifier,
 )
-from integrationsandbox.broker.service import create_seed_events
+from integrationsandbox.broker.service import build_events, create_seed_events
 from integrationsandbox.infrastructure import database
 from integrationsandbox.main import app
 from integrationsandbox.tms.models import (
@@ -28,7 +28,7 @@ from integrationsandbox.tms.service import (
 )
 
 
-@pytest.fixture(scope="session", autouse=True)
+@pytest.fixture(autouse=True)
 def setup_database():
     """Ensure database is set up before any tests run."""
     database.setup()
@@ -201,6 +201,11 @@ def mock_shipments(request):
     return build_shipments(request.param)
 
 
-@pytest.fixture
+@pytest.fixture(params=[1, 5])
 def persisted_broker_events(persisted_shipments):
     return create_seed_events(persisted_shipments, BrokerEventType.ORDER_CREATED)
+
+
+@pytest.fixture(params=[1, 5])
+def mock_events(persisted_shipments):
+    return build_events(persisted_shipments, BrokerEventType.ORDER_CREATED)
