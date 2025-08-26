@@ -53,6 +53,12 @@ def build_where_clause(filters: BrokerEventFilters) -> Tuple[str, List[Any]]:
     params = []
 
     for field, value in filters.model_dump(exclude_none=True).items():
+        if field in ["limit", "skip"]:
+            continue
+        if field == "new":
+            if value:
+                conditions.append("processed_at is null")
+            continue
         col = "event_type" if field == "event" else field
         conditions.append(f"{col} = ?")
         params.append(value)
@@ -60,6 +66,14 @@ def build_where_clause(filters: BrokerEventFilters) -> Tuple[str, List[Any]]:
     clause = ""
     if conditions:
         clause = " WHERE " + " AND ".join(conditions)
+
+    clause += " ORDER BY rowid"
+    if filters.limit:
+        params.append(filters.limit)
+        clause += " LIMIT ?"
+    if filters.skip:
+        params.append(filters.skip)
+        clause += " OFFSET ?"
 
     return clause, params
 
@@ -87,8 +101,9 @@ def get_all(filters: BrokerEventFilters | None) -> List[BrokerEventMessage] | No
 @handle_db_errors
 def get(filters: BrokerEventFilters | None) -> BrokerEventMessage | None:
     base_query = "SELECT data from broker_event"
+    filters.limit = 1
     where_clause, params = build_where_clause(filters)
-    query = base_query + where_clause + " LIMIT 1"
+    query = base_query + where_clause
     logger.info("Querying single broker event from database")
     logger.debug("Query: %s with params: %s", query, params)
 
@@ -100,32 +115,6 @@ def get(filters: BrokerEventFilters | None) -> BrokerEventMessage | None:
             logger.info("Retrieved event from database: %s", event.id)
             return event
         logger.info("No event found matching filters")
-        return None
-
-
-@handle_db_errors
-def get_all_new() -> List[BrokerEventMessage] | None:
-    query = """
-    SELECT
-       data
-    FROM
-        broker_event
-    where
-        processed_at is null
-        """
-
-    logger.info("Querying new broker events from database")
-    logger.debug("Query: %s", query)
-
-    with create_connection() as con:
-        res = con.execute(query)
-        rows = res.fetchall()
-        if rows:
-            events = [BrokerEventMessage.model_validate_json(row[0]) for row in rows]
-            logger.info("Retrieved %d events from database", len(events))
-            return events
-
-        logger.info("No new events found")
         return None
 
 

@@ -2,7 +2,7 @@ from datetime import datetime
 from enum import Enum
 from typing import List
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, PositiveInt
 
 from integrationsandbox.broker.payload_examples import (
     broker_event,
@@ -170,3 +170,9 @@ class BrokerEventFilters(BaseModel):
     id: str | None = None
     event: BrokerEventType | None = None
     shipment_id: str | None = None
+    skip: int | None = 0
+    limit: PositiveInt = Field(
+        default=50,
+        description="Limit of records to get.",
+    )
+    new: bool | None = None

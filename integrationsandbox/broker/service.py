@@ -227,9 +227,11 @@ def create_seed_events(
     return events
 
 
-def list_new_events() -> List[BrokerEventMessage]:
-    logger.info("Listing new broker events")
-    events = repository.get_all_new()
+def list_new_events(filters: BrokerEventFilters) -> List[BrokerEventMessage]:
+    logger.info("Listing new broker events with filters")
+    logger.debug("Filters: %s", filters.model_dump() if filters else None)
+    filters.new = True
+    events = repository.get_all(filters)
     event_count = len(events) if events else 0
     logger.info("Retrieved %d events from database", event_count)
     return events
