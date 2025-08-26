@@ -107,7 +107,7 @@ See bottom of page for example payloads.
 ## TmsShipment Example
 ```
 {
-  "id": "976eb041-b766-4286-a378-0938c65e7050",
+  "id": "67f055d4-25fe-47ef-a7cf-4c369c406a05",
   "external_reference": null,
   "mode": "LTL",
   "equipment_type": "MOVING_VAN",
@@ -203,16 +203,16 @@ See bottom of page for example payloads.
   "meta": {
     "senderId": "75831ed4-7d29-44a6-953f-066c2e3cd609",
     "messageDate": "2025-07-20T11:35:47.461Z",
-    "messageReference": "976eb041-b766-4286-a378-0938c65e7050",
+    "messageReference": "67f055d4-25fe-47ef-a7cf-4c369c406a05",
     "messageFunction": 9
   },
   "shipment": {
-    "reference": "976eb041-b766-4286-a378-0938c65e7050",
+    "reference": "67f055d4-25fe-47ef-a7cf-4c369c406a05",
     "carrier": "Cole Ltd Transport",
     "transportMode": "ROAD",
     "orders": [
       {
-        "reference": "976eb041-b766-4286-a378-0938c65e7050",
+        "reference": "67f055d4-25fe-47ef-a7cf-4c369c406a05",
         "pickUp": {
           "identification": "LOC-9973",
           "name": "Scamarcio e figli",
@@ -257,10 +257,10 @@ See bottom of page for example payloads.
             }
           ]
         },
-        "goodsDescription": "Commercial grade floor mats for high-traffic areas, 
-        Heavy-duty truck tires, new and retreaded options, Industrial conveyor belt sections",
+                "goodsDescription": "Industrial conveyor belt sections|Heavy-duty truck tires, new and retreaded options|Commercial grade floor mats for high-traffic areas",
+
         "quantity": {
-          "grossWeight": 30605.77,
+          "grossWeight": 33286.01,
           "loadingMeters": 14.8
         },
         "handlingUnits": [
@@ -325,4 +325,5 @@ See bottom of page for example payloads.
     ]
   }
 }
+
 ```
