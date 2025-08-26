@@ -108,9 +108,11 @@ def get_events(
     response_description="List of new events",
     status_code=status.HTTP_200_OK,
 )
-def get_new_events() -> List[BrokerEventMessage] | None:
+def get_new_events(
+    filters: BrokerEventFilters = Depends(),
+) -> List[BrokerEventMessage] | None:
     logger.info("Retrieving new broker events")
-    events = list_new_events()
+    events = list_new_events(filters)
     count = len(events) if events else 0
     logger.info("Retrieved %d broker events", count)
     return events

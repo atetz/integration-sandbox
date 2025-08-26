@@ -98,10 +98,12 @@ def get_shipments(filters: TmsShipmentFilters = Depends()) -> List[TmsShipment] 
     response_description="List of new shipments",
     status_code=status.HTTP_200_OK,
 )
-def get_new_shipments() -> List[TmsShipment] | None:
-    logger.info("Retrieving TMS new shipments")
-    shipments = tms_service.list_new_shipments()
+def get_new_shipments(
+    filters: TmsShipmentFilters = Depends(),
+) -> List[TmsShipment] | None:
+    logger.info("Retrieving TMS new shipments with filters")
+    logger.debug("Filters: %s", filters.model_dump() if filters else None)
+    shipments = tms_service.list_new_shipments(filters)
     count = len(shipments) if shipments else 0
     logger.info("Retrieved %d TMS shipments", count)
-    return shipments
     return shipments

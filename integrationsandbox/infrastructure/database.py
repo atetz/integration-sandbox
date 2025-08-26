@@ -17,7 +17,8 @@ def setup() -> None:
             CREATE TABLE IF NOT EXISTS tms_shipment(
                 row_id INTEGER PRIMARY KEY AUTOINCREMENT,
                 id TEXT UNIQUE NOT NULL,
-                data JSON)
+                data JSON,
+                processed_at TEXT)
             """
         )
 

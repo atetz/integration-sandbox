@@ -102,9 +102,11 @@ def list_shipments(filters: TmsShipmentFilters) -> List[TmsShipment]:
     return shipments
 
 
-def list_new_shipments() -> List[TmsShipment]:
-    logger.info("Listing TMS new shipments")
-    shipments = repository.get_all_new()
+def list_new_shipments(filters: TmsShipmentFilters) -> List[TmsShipment]:
+    logger.info("Listing TMS new shipments with filters")
+    logger.debug("Filters: %s", filters.model_dump() if filters else None)
+    filters.new = True
+    shipments = repository.get_all(filters)
     shipment_count = len(shipments) if shipments else 0
     logger.info("Retrieved %d shipments from database", shipment_count)
     return shipments
@@ -165,3 +167,13 @@ def create_shipments(shipments: List[TmsShipment]) -> List[TmsShipment]:
     repository.create_many(shipments)
     logger.info("Successfully created %d shipments", len(shipments))
     return shipments
+
+
+def mark_shipment_processed(shipment_id: str) -> bool:
+    logger.info("Marking shipment as processed: %s", shipment_id)
+    success = repository.mark_as_processed(shipment_id)
+    if success:
+        logger.info("Successfully marked shipment as processed: %s", shipment_id)
+    else:
+        logger.warning("Failed to mark shipment as processed: %s", shipment_id)
+    return success

@@ -29,6 +29,7 @@ from integrationsandbox.tms.service import (
     apply_event_mapping_rules,
     get_shipment_by_id,
     get_transformed_event_data,
+    mark_shipment_processed,
 )
 
 logger = logging.getLogger(__name__)
@@ -101,7 +102,15 @@ def validate_broker_order(
     tms_shipment = get_shipment_by_id(shipment_reference)
     expected_data = apply_shipment_mapping_rules(tms_shipment)
     transformed_data = get_transformed_shipment_data(order)
-    return compare_mappings(expected_data, transformed_data)
+    validation_result = compare_mappings(expected_data, transformed_data)
+
+    # Mark the shipment as processed after successful validation
+
+    if validation_result:
+        mark_shipment_processed(shipment_reference)
+        logger.info(
+            "Marked shipment order %s as processed after validation", shipment_reference
+        )
 
 
 def validate_tms_event(
@@ -114,10 +123,12 @@ def validate_tms_event(
     expected_data = apply_event_mapping_rules(broker_event)
     transformed_data = get_transformed_event_data(event)
     validation_result = compare_mappings(expected_data, transformed_data)
-    
+
     # Mark the broker event as processed after successful validation
     if validation_result:
         mark_event_processed(broker_event.id)
-        logger.info("Marked broker event %s as processed after validation", broker_event.id)
-    
+        logger.info(
+            "Marked broker event %s as processed after validation", broker_event.id
+        )
+
     return validation_result

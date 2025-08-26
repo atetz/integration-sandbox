@@ -1,4 +1,5 @@
 import logging
+from datetime import datetime
 from typing import Any, List, Optional, Tuple
 
 from integrationsandbox.infrastructure.database import create_connection
@@ -12,26 +13,30 @@ logger = logging.getLogger(__name__)
 def build_where_clause(filters: TmsShipmentFilters) -> Tuple[str, List[Any]]:
     conditions = []
     params = []
-
     for field, value in filters.model_dump(exclude_none=True).items():
-        if field == "limit":
+        if field in ["limit", "skip"]:
             continue
         operator = "="
         col = field
-        if field == "start":
-            col = "row_id"
-            operator = ">="
+        if field == "external_reference":
+            col = "json_extract(data, '$.external_reference')"
+        if field == "new":
+            if value:
+                conditions.append("processed_at is null")
+            continue
         conditions.append(f"{col} {operator} ?")
         params.append(value)
 
     clause = ""
     if conditions:
         clause = " WHERE " + " AND ".join(conditions)
-
+    clause += " ORDER BY row_id"
     if filters.limit:
         params.append(filters.limit)
         clause += " LIMIT ?"
-
+    if filters.skip:
+        params.append(filters.skip)
+        clause += " OFFSET ?"
     return clause, params
 
 
@@ -136,26 +141,20 @@ def get_all(filters: TmsShipmentFilters) -> List[TmsShipment] | None:
 
 
 @handle_db_errors
-def get_all_new() -> List[TmsShipment] | None:
-    query = """
-    SELECT
-       data
-    FROM
-        tms_shipment
-    where
-        json_extract(data, '$.external_reference') is null
-        """
+def mark_as_processed(shipment_id: str) -> bool:
+    processed_at = datetime.now().isoformat()
 
-    logger.info("Querying TMS shipments from database")
-    logger.debug("Query: %s", query)
+    logger.info("Marking shipment as processed: %s", shipment_id)
 
     with create_connection() as con:
-        res = con.execute(query)
-        rows = res.fetchall()
-        if rows:
-            shipments = [TmsShipment.model_validate_json(row[0]) for row in rows]
-            logger.info("Retrieved %d shipments from database", len(shipments))
-            return shipments
+        cursor = con.execute(
+            "UPDATE tms_shipment SET processed_at = ? WHERE id = ?",
+            (processed_at, shipment_id),
+        )
 
-        logger.info("No new shipments found")
-        return None
+        if cursor.rowcount > 0:
+            logger.info("Successfully marked shipment as processed: %s", shipment_id)
+            return True
+        else:
+            logger.warning("No shipment found with id: %s", shipment_id)
+            return False
