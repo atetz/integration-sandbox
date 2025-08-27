@@ -1,6 +1,6 @@
 [project]
 name = "integration-sandbox"
-version = "1.0.0"
+version = "v1.0.3"
 description = " A integration sandbox that provides mock endpoints to test against."
 readme = "README.md"
 requires-python = ">=3.13"

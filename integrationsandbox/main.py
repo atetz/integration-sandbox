@@ -13,10 +13,12 @@ from integrationsandbox.infrastructure.exceptions import RepositoryError
 from integrationsandbox.security import controller as security_controller
 from integrationsandbox.tms import controller as tms_controller
 from integrationsandbox.trigger import controller as trigger_controller
+from integrationsandbox.utils.metadata import load_project_metadata
 
-APP_TITLE = "Integration Sandbox"
-APP_DESCRIPTION = "API for integration sandbox services"
-APP_VERSION = "1.0.0"
+metadata = load_project_metadata()
+APP_TITLE = metadata["title"]
+APP_DESCRIPTION = metadata["description"]
+APP_VERSION = metadata["version"]
 
 API_PREFIX = "/api/v1"
 settings = get_settings()
