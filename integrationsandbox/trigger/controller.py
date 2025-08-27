@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 
 @router.post(
-    "/shipments/",
+    "/shipments",
     summary="Generate a request with multiple new shipments",
     description="""
       Creates and sends multiple new shipments. 
@@ -43,7 +43,7 @@ def trigger_shipments(trigger: ShipmentTrigger) -> List[TmsShipment]:
 
 
 @router.post(
-    "/events/",
+    "/events",
     summary="Generate tracking events for multiple shipments",
     description="""
       Creates and sends tracking events for multiple existing shipments.

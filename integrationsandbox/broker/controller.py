@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 
 
 @router.post(
-    "/order/",
+    "/order",
     summary="Receive and validate broker order.",
     description="""
       Receives an order in broker format and validates the transformations based on the tms shipment data and mapping rules. 
@@ -41,7 +41,7 @@ def incoming_order(order: CreateBrokerOrderMessage) -> None:
 
 
 @router.post(
-    "/events/",
+    "/events",
     summary="Create new broker event",
     description="""
       Receives a broker event message and stores it in the database. 
@@ -80,7 +80,7 @@ def seed_events(seed_request: BrokerEventSeedRequest) -> List[BrokerEventMessage
 
 
 @router.get(
-    "/events/",
+    "/events",
     summary="Get events",
     description="""
       Retreives a list of all the events.
@@ -100,7 +100,7 @@ def get_events(
 
 
 @router.get(
-    "/events/new/",
+    "/events/new",
     summary="Get new events",
     description="""
       Retreives a list of all the events that have not yet been processed by the tms.

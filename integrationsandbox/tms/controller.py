@@ -39,7 +39,7 @@ def incoming_event(event: CreateTmsShipmentEvent, shipment_id: str) -> None:
 
 
 @router.post(
-    "/shipments/",
+    "/shipments",
     summary="Create new TMS Shipment",
     description="""
       Receives an TMS shipment message and stores it in the database. 
@@ -72,7 +72,7 @@ def seed_shipments(seed_request: TmsShipmentSeedRequest) -> List[TmsShipment]:
 
 
 @router.get(
-    "/shipments/",
+    "/shipments",
     summary="Get shipments",
     description="""
       Retreives a list of all the shipments.
