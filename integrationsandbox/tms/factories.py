@@ -7,6 +7,7 @@ from typing import List
 from faker import Faker
 
 from integrationsandbox.tms.models import (
+    CreateTmsShipment,
     EquipmentType,
     ModeType,
     PackageType,
@@ -246,6 +247,21 @@ class TmsShipmentFactory:
     def create_shipment(self) -> TmsShipment:
         return TmsShipment(
             id=str(uuid.uuid4()),
+            external_reference=None,
+            mode=get_random_enum_choice(ModeType),
+            equipment_type=get_random_enum_choice(EquipmentType),
+            loading_meters=self.get_random_loadingmeters(),
+            customer=self.create_customer(),
+            line_items=[
+                self.create_line_item()
+                for i in range(random.randint(MIN_LINE_ITEMS, MAX_LINE_ITEMS))
+            ],
+            stops=self.create_stops(),
+            timeline_events=None,
+        )
+
+    def create_new_shipment(self) -> TmsShipment:
+        return CreateTmsShipment(
             external_reference=None,
             mode=get_random_enum_choice(ModeType),
             equipment_type=get_random_enum_choice(EquipmentType),
