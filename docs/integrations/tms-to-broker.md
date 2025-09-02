@@ -32,7 +32,7 @@ See bottom of page for example payloads.
 |-------|--------|-------|
 | shipment.orders[].reference | id | ShipmentId of TMS since the TMS shipment only has 1 order |
 | shipment.orders[].goodsDescription | line_items[].description | Concatenated from all line items with a pipe separator '\|' |
-| shipment.orders[].quantity.grossWeight | line_items[].package_weight + total_packages | Sum of (weight × quantity) |
+| shipment.orders[].quantity.grossWeight | line_items[].package_weight * total_packages | Sum of (weight × quantity) |
 | shipment.orders[].quantity.loadingMeters | loading_meters ||
 
 ## Pickup Location
@@ -68,6 +68,8 @@ See bottom of page for example payloads.
 | shipment.orders[].consignee.dates[].dateTime | stops[type=DELIVERY].planned_date + planned_time_window_start or stops[type=DELIVERY].planned_date + planned_time_window_end | |
 
 ## Handling Units
+**Note: handlingUnits[] is a repeating data structure mapping per line_items[].total_packages.**
+
 | Target | Source | Notes |
 |-------|--------|-------|
 | shipment.orders[].handlingUnits[].packagingQualifier | line_items[].package_type | See package mapping below |
