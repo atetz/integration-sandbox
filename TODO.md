@@ -34,6 +34,14 @@
 - [x] Containerize
   - [x] Add to readme / quickstart.
 
+- [ ] add get broker/order for received broker order payload
+- [ ] add get tms/event for received tms event payload
+- [ ] Minimalistic ui
+  - [ ] Management
+    - [ ] Seed & Trigger objects
+  - [ ] View
+    - [ ] Objects
+
 ## nice to have
 - [ ] rate limiting
 - [ ] handle files like POD's
