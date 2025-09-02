@@ -19,7 +19,13 @@ from integrationsandbox.broker.models import (
 )
 from integrationsandbox.broker.service import apply_shipment_mapping_rules, build_events
 from integrationsandbox.tms.factories import TmsShipmentFactory
-from integrationsandbox.tms.models import TmsEventType, TmsShipment, TmsShipmentEvent
+from integrationsandbox.tms.models import (
+    TmsEventType,
+    TmsLocation,
+    TmsShipment,
+    TmsShipmentEvent,
+)
+from integrationsandbox.tms.service import apply_event_mapping_rules
 
 # Mapping between broker events and corresponding TMS events
 BROKER_TO_TMS_EVENT_MAP = {
@@ -84,22 +90,16 @@ def generate_complete_flow(
 
     # Generate broker event and TMS event from the same shipment
     events = build_events([shipment], event_type)
-    broker_event = events[0] if events else None
+    broker_event = events[0]
 
-    # Generate the corresponding TMS event
-    tms_event_type = BROKER_TO_TMS_EVENT_MAP.get(event_type, TmsEventType.BOOKED)
-    now = datetime.now()
-
-    tms_event = TmsShipmentEvent(
-        id=str(uuid.uuid4()),
-        external_order_reference="EXT001",
-        created_at=now,
-        event_type=tms_event_type,
-        occured_at=now,
-        source="MANUAL_GENERATION",
-        location=shipment.stops[0].location if shipment.stops else None,
-    )
-
+    tms_event_mapping = apply_event_mapping_rules(broker_event)
+    tms_event = TmsShipmentEvent(id=str(uuid.uuid4()), **tms_event_mapping)
+    if tms_event_mapping.get("location_code", False):
+        tms_event.location = TmsLocation(
+            code=tms_event_mapping["location_code"],
+            latitude=tms_event_mapping["location_latitude"],
+            longitude=tms_event_mapping["location_longitude"],
+        )
     return {
         "shipment": shipment.model_dump(mode="json"),
         "broker_order": broker_order.model_dump(mode="json"),
@@ -108,7 +108,7 @@ def generate_complete_flow(
     }
 
 
-def print_complete_flow(event_type: BrokerEventType = BrokerEventType.ORDER_CREATED):
+def print_complete_flow(event_type: BrokerEventType = BrokerEventType.DRIVING_TO_LOAD):
     """Print a formatted complete flow for manual inspection."""
     data = generate_complete_flow(event_type)
 
