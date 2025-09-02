@@ -118,7 +118,7 @@ def validate_tms_event(
 ) -> Tuple[bool, List[str | None]]:
     event_type = REVERSE_EVENT_TYPE_MAP[event.event_type]
     logger.info("Validating TMS event %s for shipment: %s", event_type, shipment_id)
-    event_filter = BrokerEventFilters(shipment_id=shipment_id, event_type=event_type)
+    event_filter = BrokerEventFilters(shipment_id=shipment_id, event=event_type)
     broker_event = get_event(event_filter)
     expected_data = apply_event_mapping_rules(broker_event)
     transformed_data = get_transformed_event_data(event)
