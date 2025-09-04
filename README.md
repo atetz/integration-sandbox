@@ -3,33 +3,63 @@
 ## Intro
 Integration platforms need real systems to test against. Setting up these systems is expensive and slow. This sandbox provides the mock endpoints to test against, so you can test integration flows immediately.
 You should be able to test the following features in integration platforms: 
-  - receive messages via an API/web-hook
-  - interact with an API
-  - transform messages / perform a data mapping
-  - conditional routing
-  - batch processing
-  - scheduling
-  - error handling
-  - authentication
+- Receiving and sending messages via APIs/webhooks
+- Data transformation and mapping
+- Conditional routing
+- Batch processing
+- Scheduling
+- Error handling
+- Authentication
   
 ## Use case
-The sandbox's theme is _Transport and Logistics_. Specifically the integration between a __Shipper__ and a __Broker__. 
+To test these features in a real world (but somewhat simplified) example, I thought of a use case in _Transport and Logistics_. Specifically the integration between a __Shipper__ and a __Broker__.  
 
-Imagine you are a Shipper with a TMS that needs to send orders to a Carrier. The Carrier requires all communication to go through their preferred Broker (visibility platform).
-Your integration platform sits in the middle, transforming TMS data to the Broker format and handling events back.
-
+Imagine you are a Shipper with a TMS that needs to send orders to a Carrier. The Carrier requires all communication to go through their preferred Broker (visibility platform). The integration platform sits in the middle, translating the TMS data to the Broker and vice versa.
 
 ```mermaid
-sequenceDiagram
-    participant TMS as TMS / Shipper
-    participant IP as Integration platform
-    participant VP as Broker / Visibility platform
-    
-    TMS->>IP: New shipment
-    IP->>VP: Transformed shipment to order
-    VP->>IP: Tracking events
-    IP->>TMS: Transformed events
+	sequenceDiagram
+	participant TMS as TMS / Shipper
+	participant IP as Integration platform
+	participant VP as Broker / Visibility platform
+	
+	box transparent Sandbox
+	participant TMS
+	end
+	box transparent Sandbox
+	participant VP
+	end
+
+	TMS->>IP: New shipment
+	IP->>VP: Create order
+	VP->>IP: New event
+	IP->>TMS: Create event
 ```
+
+
+The sandbox mocks both the TMS and Broker ends of the integration use case and has REST API endpoints to authenticate, seed, trigger, get and create either TMS shipments or Broker events. It's the job of the integrator to make both mock systems work together. Here's an example of a process flow that you can integrate:
+
+```mermaid
+flowchart TD
+A@{ shape: circle, label: "start" } --> B
+B@{ shape: rect, label: "get new shipments" } --> C
+subgraph for each shipment
+	C@{shape: lean-r, label: "transform to order"} --> D
+	D@{shape: rect, label: "post order"} --> E
+	E@{shape: rect, label: "log result"}
+end
+E --> F@{shape: diam, label: "success?"}
+		F --> |Yes| G@{shape: framed-circle, label: "End"}
+		F --> |No| H@{shape: rect, label: "Handle errors"}
+ 
+```
+
+1. Scheduler starts the process
+2. Get new shipments from the /tms/shipments endpoint
+3. Split shipments payload into a sequence of single shipments (for each)
+	1. Perform a data mapping to the broker format
+	2. Create the order with the /broker/order endpoint
+	3. Log the result
+4. Check the aggregated results for errors and handle if necessary.
 
 ## Features
 If you run this API you will have access to the following endpoints:
