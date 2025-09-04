@@ -94,7 +94,7 @@ See bottom of page for example payloads.
     "external_order_refere": "ORD-85494",
     "source": "broker",
     "location": {
-      "code": "LOC-2813",
+      "code": "LOC-6148",
       "latitude": 4.50606,
       "longitude": 8.833057
     }
