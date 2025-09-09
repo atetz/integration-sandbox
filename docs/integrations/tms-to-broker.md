@@ -103,7 +103,7 @@ See bottom of page for example payloads.
 | DRUM | DR | Drum containers |
 | OTHER | OT | Other package types |
 | PLT | PL | Palletized goods |
-| CRATE | BX | Crated items (mapped to box) |
+| CRATE | CR | Crated items |
 
 
 ## TmsShipment Example
