@@ -77,18 +77,18 @@ def map_address_details(
     tms_shipment: TmsShipment, location_type: str
 ) -> BrokerLocation:
     tms_stop = get_tms_stop_by_type(tms_shipment.stops, location_type)
-
+    # address2 and instructions set to none here because fields not used yet.
     return BrokerLocation(
         identification=tms_stop.location.code,
         name=tms_stop.location.name,
         address1=tms_stop.location.address.address,
-        address2="",
+        address2=None,
         country=tms_stop.location.address.country,
         postalCode=tms_stop.location.address.postal_code,
         city=tms_stop.location.address.city,
         latitude=tms_stop.location.latitude,
         longitude=tms_stop.location.longitude,
-        instructions="",
+        instructions=None,
         dates=get_stop_dates(tms_stop),
     )
 
