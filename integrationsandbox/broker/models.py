@@ -54,13 +54,13 @@ class BrokerLocation(BaseModel):
     identification: str
     name: str
     address1: str
-    address2: str
+    address2: str | None = None
     country: str
     postalCode: str
     city: str
     latitude: float
     longitude: float
-    instructions: str
+    instructions: str | None = None
     dates: List[BrokerDate]
 
 
