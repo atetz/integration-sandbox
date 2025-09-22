@@ -123,9 +123,12 @@ def apply_shipment_mapping_rules(tms_shipment: TmsShipment) -> Dict[str, Any]:
     )
     result["order_quantities"] = BrokerQuantity(
         loadingMeters=tms_shipment.loading_meters,
-        grossWeight=sum(
-            item.package_weight * item.total_packages
-            for item in tms_shipment.line_items
+        grossWeight=round(
+            sum(
+                item.package_weight * item.total_packages
+                for item in tms_shipment.line_items
+            ),
+            2,
         ),
     )
     result["order_handling_units"] = map_line_items(tms_shipment)
