@@ -205,7 +205,7 @@ class TmsShipmentFactory:
 
     def create_address(self, localed_faker: Faker) -> TmsAddress:
         return TmsAddress(
-            address=localed_faker.street_address(),
+            address=localed_faker.street_address().replace("\n", " "),
             city=localed_faker.city(),
             postal_code=localed_faker.postcode(),
             country=localed_faker.current_country_code(),
