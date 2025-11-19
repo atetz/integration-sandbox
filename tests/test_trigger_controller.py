@@ -10,21 +10,27 @@ client = TestClient(app)
 @patch("integrationsandbox.trigger.service.httpx.post")
 def test_trigger_shipments_endpoint(mock_post):
     # Mock the external HTTP call
-    mock_post.return_value.raise_for_status.return_value = None
+    mock_post.return_value.return_value = None
+    mock_post.return_value.status_code = 201
 
-    trigger_data = {"count": 2, "target_url": "https://httpbin.org/post"}
+    target_url = "https://httpbin.org/post"
+    trigger_data = {"count": 2, "target_url": target_url}
 
     response = client.post("/api/v1/trigger/shipments/", json=trigger_data)
 
     assert response.status_code == 201
     data = response.json()
-    assert len(data) == 2
-    assert all(shipment["id"] for shipment in data)
+
+    assert data["target_url"] == target_url
+    assert data["target_url_response_status"] == 201
+    assert data["count"] == 2
+    assert len(data["shipments"]) == 2
+    assert all(shipment["id"] for shipment in data["shipments"])
 
     # Verify external call was made
     mock_post.assert_called_once()
     args, kwargs = mock_post.call_args
-    assert args[0] == "https://httpbin.org/post"
+    assert args[0] == target_url
     assert "json" in kwargs
     assert len(kwargs["json"]) == 2
 
@@ -152,5 +158,4 @@ def test_trigger_shipments_zero_count(mock_post):
     assert response.status_code == 422
 
     # No external call should be made when validation fails
-    mock_post.assert_not_called()
     mock_post.assert_not_called()
