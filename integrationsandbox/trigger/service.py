@@ -59,9 +59,7 @@ def dispatch_events_to_url(events: List[BrokerEventMessage], url: str) -> None:
     logger.info("Dispatching %d events to %s", len(events), url)
     headers = {"X-API-KEY": get_settings().webhook_api_key}
     data = [event.model_dump(mode="json") for event in events]
-    r = httpx.post(url, json=data, headers=headers)
-    r.raise_for_status()
-    logger.info("Successfully dispatched events, response status: %d", r.status_code)
+    return post_to_target_url(url, data, headers)
 
 
 def create_and_dispatch_events(trigger: EventTrigger) -> List[BrokerEventMessage]:
@@ -76,5 +74,7 @@ def create_and_dispatch_events(trigger: EventTrigger) -> List[BrokerEventMessage
     events = build_events(shipments, trigger.event)
     create_events(events)
     logger.info("Events created successfully")
-    dispatch_events_to_url(events, trigger.target_url.encoded_string())
-    return events
+    target_response = dispatch_events_to_url(
+        events, trigger.target_url.encoded_string()
+    )
+    return events, target_response

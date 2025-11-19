@@ -2,7 +2,7 @@ from typing import List
 
 from pydantic import AnyUrl, BaseModel, Field, PositiveInt
 
-from integrationsandbox.broker.models import BrokerEventType
+from integrationsandbox.broker.models import BrokerEventMessage, BrokerEventType
 from integrationsandbox.config import get_settings
 from integrationsandbox.tms.models import TmsShipment
 
@@ -190,5 +190,53 @@ class EventTrigger(BaseModel):
                     ],
                 }
             ]
+        }
+    }
+
+
+class EventTriggerResponse(BaseModel):
+    target_url: AnyUrl = Field(description="URL used to send the generated events to")
+    target_url_response_status: PositiveInt = Field(
+        description="HTTP response status code of taret url."
+    )
+
+    count: PositiveInt = Field(
+        description="Number of shipments generated and sent to target",
+        le=get_settings().max_bulk_size,
+    )
+    events: List[BrokerEventMessage]
+
+    model_config = {
+        "json_schema_extra": {
+            "json_schema_extra": {
+                "examples": {
+                    "target_url": "https://api.example.com/events",
+                    "target_url_response_status": 200,
+                    "count": 1,
+                    "events": [
+                        {
+                            "id": "9c1ffc89-e730-46ee-b470-b685a1380e52",
+                            "shipmentId": "3f9e69bf-58c1-4216-b23e-23de0e33727a",
+                            "dateTransmission": "2025-08-01T16:18:53.279401",
+                            "owner": "Adam's logistics",
+                            "order": {
+                                "reference": "ORD-85494",
+                                "eta": "2025-08-04T19:00:43.342250",
+                            },
+                            "situation": {
+                                "event": "DRIVING_TO_LOAD",
+                                "registrationDate": "2025-08-01T16:28:44.637944",
+                                "actualDate": "2025-08-01T17:12:44.637944",
+                                "position": {
+                                    "locationReference": "LOC-6148",
+                                    "latitude": 4.50606,
+                                    "longitude": 8.833057,
+                                },
+                            },
+                            "carrier": "Russell, Pugh and Thomas Transport",
+                        }
+                    ],
+                }
+            }
         }
     }

@@ -13,18 +13,22 @@ def test_trigger_shipments_endpoint(mock_post):
     mock_post.return_value.return_value = None
     mock_post.return_value.status_code = 201
 
+    expected_events_in_response = 2
+
     target_url = "https://httpbin.org/post"
-    trigger_data = {"count": 2, "target_url": target_url}
+    trigger_data = {"count": expected_events_in_response, "target_url": target_url}
 
     response = client.post("/api/v1/trigger/shipments/", json=trigger_data)
+
+    expected_items_in_response = 4
 
     assert response.status_code == 201
     data = response.json()
 
     assert data["target_url"] == target_url
     assert data["target_url_response_status"] == 201
-    assert data["count"] == 2
-    assert len(data["shipments"]) == 2
+    assert data["count"] == expected_events_in_response
+    assert len(data) == expected_items_in_response
     assert all(shipment["id"] for shipment in data["shipments"])
 
     # Verify external call was made
@@ -32,13 +36,14 @@ def test_trigger_shipments_endpoint(mock_post):
     args, kwargs = mock_post.call_args
     assert args[0] == target_url
     assert "json" in kwargs
-    assert len(kwargs["json"]) == 2
+    assert len(kwargs["json"]) == expected_events_in_response
 
 
 @patch("integrationsandbox.trigger.service.httpx.post")
 def test_trigger_events_endpoint(mock_post):
     # Mock the external HTTP call
-    mock_post.return_value.raise_for_status.return_value = None
+    mock_post.return_value.return_value = None
+    mock_post.return_value.status_code = 201
 
     # First create some shipments
     shipment_data = {
@@ -107,28 +112,39 @@ def test_trigger_events_endpoint(mock_post):
 
     shipment_response = client.post("/api/v1/tms/shipments/", json=shipment_data)
     shipment_id = shipment_response.json()["id"]
+    target_url = "https://httpbin.org/post"
+
+    expected_items_in_response = 4
+    expected_events_in_response = 1
 
     # Now trigger events for that shipment
     trigger_data = {
         "event": "ORDER_LOADED",
         "shipment_ids": [shipment_id],
-        "target_url": "https://httpbin.org/post",
+        "target_url": target_url,
     }
 
     response = client.post("/api/v1/trigger/events/", json=trigger_data)
 
     assert response.status_code == 201
     data = response.json()
-    assert len(data) == 1
-    assert data[0]["shipmentId"] == shipment_id
-    assert data[0]["situation"]["event"] == "ORDER_LOADED"
+
+    assert data["target_url"] == target_url
+    assert data["target_url_response_status"] == 201
+    assert data["count"] == expected_events_in_response
+    assert len(data["events"]) == expected_events_in_response
+    assert all(shipment["id"] for shipment in data["events"])
+
+    assert len(data) == expected_items_in_response
+    assert data["events"][0]["shipmentId"] == shipment_id
+    assert data["events"][0]["situation"]["event"] == "ORDER_LOADED"
 
     # Verify external call was made
     mock_post.assert_called_once()
     args, kwargs = mock_post.call_args
-    assert args[0] == "https://httpbin.org/post"
+    assert args[0] == target_url
     assert "json" in kwargs
-    assert len(kwargs["json"]) == 1
+    assert len(kwargs["json"]) == expected_events_in_response
 
 
 @patch("integrationsandbox.trigger.service.httpx.post")

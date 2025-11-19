@@ -1,12 +1,11 @@
 import logging
-from typing import List
 
 from fastapi import APIRouter, Depends, status
 
-from integrationsandbox.broker.models import BrokerEventMessage
 from integrationsandbox.security.service import get_current_active_user
 from integrationsandbox.trigger.models import (
     EventTrigger,
+    EventTriggerResponse,
     ShipmentTrigger,
     ShipmentTriggerResponse,
 )
@@ -61,12 +60,16 @@ def trigger_shipments(trigger: ShipmentTrigger) -> ShipmentTriggerResponse:
     response_description="List of generated events sent to target URL",
     status_code=status.HTTP_201_CREATED,
 )
-def trigger_events(trigger: EventTrigger) -> List[BrokerEventMessage]:
+def trigger_events(trigger: EventTrigger) -> EventTriggerResponse:
+    target_url = trigger.target_url
     logger.info("Received Events trigger.")
     logger.debug("Trigger: %s", trigger.model_dump())
-    events = create_and_dispatch_events(trigger)
-    logger.info(
-        "Generated %d events and dispatched to %s", len(events), trigger.target_url
-    )
+    events, response_status = create_and_dispatch_events(trigger)
+    logger.info("Generated %d events and dispatched to %s", len(events), target_url)
     logger.debug("Returned events: %s", events)
-    return events
+    return EventTriggerResponse(
+        target_url=target_url,
+        target_url_response_status=response_status,
+        count=len(events),
+        events=events,
+    )
