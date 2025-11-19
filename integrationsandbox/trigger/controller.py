@@ -1,12 +1,14 @@
 import logging
-from typing import List
 
 from fastapi import APIRouter, Depends, status
 
-from integrationsandbox.broker.models import BrokerEventMessage
 from integrationsandbox.security.service import get_current_active_user
-from integrationsandbox.tms.models import TmsShipment
-from integrationsandbox.trigger.models import EventTrigger, ShipmentTrigger
+from integrationsandbox.trigger.models import (
+    EventTrigger,
+    EventTriggerResponse,
+    ShipmentTrigger,
+    ShipmentTriggerResponse,
+)
 from integrationsandbox.trigger.service import (
     create_and_dispatch_events,
     create_and_dispatch_shipments,
@@ -29,17 +31,23 @@ logger = logging.getLogger(__name__)
     response_description="List of generated shipments sent to target URL",
     status_code=status.HTTP_201_CREATED,
 )
-def trigger_shipments(trigger: ShipmentTrigger) -> List[TmsShipment]:
+def trigger_shipments(trigger: ShipmentTrigger) -> ShipmentTriggerResponse:
+    target_url = trigger.target_url
     logger.info("Received shipments trigger.")
     logger.debug("Trigger: %s", trigger.model_dump())
-    shipments = create_and_dispatch_shipments(trigger)
+    shipments, response_status = create_and_dispatch_shipments(trigger)
     logger.info(
         "Generated %d shipments and dispatched to %s",
         len(shipments),
-        trigger.target_url,
+        target_url,
     )
     logger.debug("Returned shipments: %s", shipments)
-    return shipments
+    return ShipmentTriggerResponse(
+        target_url=target_url,
+        target_url_response_status=response_status,
+        count=len(shipments),
+        shipments=shipments,
+    )
 
 
 @router.post(
@@ -52,12 +60,16 @@ def trigger_shipments(trigger: ShipmentTrigger) -> List[TmsShipment]:
     response_description="List of generated events sent to target URL",
     status_code=status.HTTP_201_CREATED,
 )
-def trigger_events(trigger: EventTrigger) -> List[BrokerEventMessage]:
+def trigger_events(trigger: EventTrigger) -> EventTriggerResponse:
+    target_url = trigger.target_url
     logger.info("Received Events trigger.")
     logger.debug("Trigger: %s", trigger.model_dump())
-    events = create_and_dispatch_events(trigger)
-    logger.info(
-        "Generated %d events and dispatched to %s", len(events), trigger.target_url
-    )
+    events, response_status = create_and_dispatch_events(trigger)
+    logger.info("Generated %d events and dispatched to %s", len(events), target_url)
     logger.debug("Returned events: %s", events)
-    return events
+    return EventTriggerResponse(
+        target_url=target_url,
+        target_url_response_status=response_status,
+        count=len(events),
+        events=events,
+    )
