@@ -5,17 +5,15 @@ from typing import Annotated
 import bcrypt
 import jwt
 from fastapi import Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer
 from jwt.exceptions import InvalidTokenError
 
 from integrationsandbox.config import get_settings
 from integrationsandbox.security import repository
 from integrationsandbox.security.models import Token, TokenData, User
+from integrationsandbox.security.security import oauth2_client_credentials_scheme
 
 settings = get_settings()
 logger = logging.getLogger(__name__)
-
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 
 def verify_password(plain_password, hashed_password):
@@ -71,7 +69,9 @@ def login_user(username: str, password: str) -> Token | None:
     return Token(access_token=access_token, token_type="bearer")
 
 
-async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
+async def get_current_user(
+    token: Annotated[str, Depends(oauth2_client_credentials_scheme)],
+):
     logger.debug("Validating JWT token")
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -79,6 +79,8 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
         headers={"WWW-Authenticate": "Bearer"},
     )
     try:
+        if not token:
+            raise credentials_exception
         payload = jwt.decode(
             token, settings.jwt_secret_key, algorithms=[settings.jwt_algorithm]
         )

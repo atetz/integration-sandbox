@@ -4,6 +4,8 @@
 .claude
 .pytest_cache
 .ruff_cache
-*.sql
-*.sqlite3
-*.log
+.github
+**/*.sql
+**/*.sqlite3
+**/*.log
+**/.DS_Store

@@ -104,6 +104,7 @@ You can find the specs of the mappings here:
 
 ### Authenticating
 - **Login**: POST to `/token` with credentials (see the chapter on configuration)
+  - Credentials can be used with a `password` grant_type or a `client_credentials` grant_type.
 - **Token**: Include in `Authorization: Bearer <token>` header
 
 ### Creating shipments
@@ -200,12 +201,12 @@ All configuration is handled through environment variables that can be set via `
 ### Authentication
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `DEFAULT_USER` | `sandy` | Default username for token authentication |
-| `DEFAULT_PASSWORD` | `sandbox` | Default password for token authentication |
+| `DEFAULT_USER` | `sandy` | Default username or client_id for Oauth authentication |
+| `DEFAULT_PASSWORD` | `sandbox` | Default password or client_secret for Oauth authentication |
 | `WEBHOOK_API_KEY` | auto-generated | API key for webhook authentication |
 | `JWT_SECRET_KEY` | auto-generated | JWT signing key (randomly generated if not set) |
 | `JWT_ALGORITHM` | `HS256` | JWT signing algorithm |
-| `JWT_EXPIRE_MINUTES` | `15` | JWT token expiration time in minutes |
+| `JWT_EXPIRE_MINUTES` | `15` | JWT expiration time in minutes |
 
 ### Database
 | Variable | Default | Description |
