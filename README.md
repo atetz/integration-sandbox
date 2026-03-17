@@ -100,8 +100,8 @@ When you send a transformed message to the API it will pull the generated mock d
 You can find the specs of the mappings here:
 
 
-- [TMS shipment to broker order ](./tms-to-broker.md) - Mapping between Transport Management System shipments and Broker order messages.
-- [Broker event to TMS event](./broker-to-tms.md) - Mapping between broker events and TMS events.
+- [TMS shipment to broker order ](./docs/integrations/tms-to-broker.md) - Mapping between Transport Management System shipments and Broker order messages.
+- [Broker event to TMS event](./docs/integrations/broker-to-tms.md) - Mapping between broker events and TMS events.
 
 ### Authenticating
 - **Login**: POST to `/token` with credentials (see the chapter on configuration)
