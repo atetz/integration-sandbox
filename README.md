@@ -99,8 +99,9 @@ On a high level, dummy TMS shipments and Broker events are generated and saved i
 When you send a transformed message to the API it will pull the generated mock data from the database and validate the message based on the business logic for that mapping.
 You can find the specs of the mappings here:
 
-- [TMS Shipment to Broker Order](./docs/integrations/tms-to-visibility.md)
-- [Broker Event to TMS Event](./docs/integrations/visibility-to-tms.md) 
+
+- [TMS shipment to broker order ](./tms-to-broker.md) - Mapping between Transport Management System shipments and Broker order messages.
+- [Broker event to TMS event](./broker-to-tms.md) - Mapping between broker events and TMS events.
 
 ### Authenticating
 - **Login**: POST to `/token` with credentials (see the chapter on configuration)
