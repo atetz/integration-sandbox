@@ -1,0 +1,6 @@
+@import "tailwindcss";
+@source not "./daisyui.mjs";
+@plugin "./daisyui.mjs" {
+  themes: bumblebee --default, luxury --prefersdark;
+}
+@source "../templates";

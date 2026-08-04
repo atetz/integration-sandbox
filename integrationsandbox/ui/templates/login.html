@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Login · Integration Sandbox{% endblock %}
+{% block content %}
+<div class="hero min-h-screen">
+  <div class="hero-content w-full max-w-sm">
+    <div class="card w-full bg-base-100 shadow-sm">
+      <div class="card-body">
+        <h1 class="card-title">Integration Sandbox</h1>
+        {% if error %}
+        <div role="alert" class="alert alert-error">
+          <span>{{ error }}</span>
+        </div>
+        {% endif %}
+        <form method="post" action="/ui/login" class="fieldset gap-2">
+          <label class="input w-full">
+            <span class="label">Username</span>
+            <input name="username" type="text" autocomplete="username" required />
+          </label>
+          <label class="input w-full">
+            <span class="label">Password</span>
+            <input name="password" type="password" autocomplete="current-password" required />
+          </label>
+          <button type="submit" class="btn btn-primary mt-2">Log in</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

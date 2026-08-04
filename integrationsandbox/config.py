@@ -15,6 +15,8 @@ class Settings(BaseSettings):
     jwt_algorithm: str = "HS256"
     jwt_expire_minutes: int = 15
     jwt_secret_key: str = secrets.token_hex(32)
+    ui_session_expire_minutes: int = 480
+    ui_cookie_secure: bool = True
     webhook_api_key: str = secrets.token_hex(32)
     max_bulk_size: int = 1000
     float_precision: int = 2
@@ -97,5 +99,9 @@ tags_metadata = [
     {
         "name": "System",
         "description": "Operations with sys health and users. The **login** logic is also here.",
+    },
+    {
+        "name": "UI",
+        "description": "Browser-based dashboard: login, logout and shipment/event views.",
     },
 ]

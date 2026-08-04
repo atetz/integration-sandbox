@@ -9,7 +9,7 @@ from jwt.exceptions import InvalidTokenError
 
 from integrationsandbox.config import get_settings
 from integrationsandbox.security import repository
-from integrationsandbox.security.models import Token, TokenData, User
+from integrationsandbox.security.models import Token, User
 from integrationsandbox.security.security import oauth2_client_credentials_scheme
 
 settings = get_settings()
@@ -54,19 +54,44 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     return encoded_jwt
 
 
-def login_user(username: str, password: str) -> Token | None:
+def login_user(
+    username: str, password: str, expires_minutes: int | None = None
+) -> Token | None:
+    # UI sessions pass expires_minutes to override the default jwt_expire_minutes.
     logger.info("Processing login for user: %s", username)
     user = authenticate_user(username, password)
     if not user:
         logger.info("Login failed for user: %s", username)
         return None
 
-    access_token_expires = timedelta(minutes=settings.jwt_expire_minutes)
+    access_token_expires = timedelta(
+        minutes=expires_minutes or settings.jwt_expire_minutes
+    )
     access_token = create_access_token(
         data={"sub": user.username}, expires_delta=access_token_expires
     )
     logger.info("Login token created for user: %s", username)
     return Token(access_token=access_token, token_type="bearer")
+
+
+def get_user_from_token(token: str) -> User | None:
+    try:
+        payload = jwt.decode(
+            token, settings.jwt_secret_key, algorithms=[settings.jwt_algorithm]
+        )
+        username = payload.get("sub")
+        if username is None:
+            logger.debug("Token missing username")
+            return None
+        logger.debug("Token validated for user: %s", username)
+    except InvalidTokenError:
+        logger.debug("Invalid JWT token")
+        return None
+    user = repository.get_user(username=username)
+    if user is None:
+        logger.debug("Token user not found: %s", username)
+        return None
+    return user
 
 
 async def get_current_user(
@@ -78,24 +103,10 @@ async def get_current_user(
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
-    try:
-        if not token:
-            raise credentials_exception
-        payload = jwt.decode(
-            token, settings.jwt_secret_key, algorithms=[settings.jwt_algorithm]
-        )
-        username = payload.get("sub")
-        if username is None:
-            logger.debug("Token missing username")
-            raise credentials_exception
-        token_data = TokenData(username=username)
-        logger.debug("Token validated for user: %s", username)
-    except InvalidTokenError:
-        logger.debug("Invalid JWT token")
+    if not token:
         raise credentials_exception
-    user = repository.get_user(username=token_data.username)
+    user = get_user_from_token(token)
     if user is None:
-        logger.debug("Token user not found: %s", token_data.username)
         raise credentials_exception
     return user
 
