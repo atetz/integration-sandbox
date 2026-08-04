@@ -12,6 +12,7 @@ from integrationsandbox.config import get_settings, tags_metadata
 from integrationsandbox.infrastructure import database
 from integrationsandbox.infrastructure.exceptions import RepositoryError
 from integrationsandbox.security import controller as security_controller
+from integrationsandbox.system import controller as system_controller
 from integrationsandbox.tms import controller as tms_controller
 from integrationsandbox.trigger import controller as trigger_controller
 from integrationsandbox.ui import controller as ui_controller
@@ -58,6 +59,7 @@ app.add_middleware(
 app.include_router(trigger_controller.router, prefix=API_PREFIX)
 app.include_router(tms_controller.router, prefix=API_PREFIX)
 app.include_router(broker_controller.router, prefix=API_PREFIX)
+app.include_router(system_controller.router, prefix=API_PREFIX)
 app.include_router(security_controller.router)
 app.include_router(ui_controller.router)
 

@@ -171,3 +171,23 @@ def test_create_shipment_missing_required_fields():
 
     response = client.post("/api/v1/tms/shipments/", json=incomplete_data)
     assert response.status_code == 422
+
+
+def test_delete_shipments(persisted_shipments):
+    assert len(persisted_shipments) > 0
+
+    response = client.delete("/api/v1/tms/shipments/")
+
+    assert response.status_code == 204
+
+    get_response = client.get("/api/v1/tms/shipments/")
+    assert get_response.status_code == 200
+    assert get_response.json() is None
+
+
+def test_delete_shipments_requires_auth():
+    app.dependency_overrides.clear()
+
+    response = client.delete("/api/v1/tms/shipments/")
+
+    assert response.status_code == 401

@@ -111,6 +111,26 @@ def test_incoming_order_validation_missing_shipment():
     assert "not found" in response.json()["detail"]
 
 
+def test_delete_events(persisted_broker_events):
+    assert len(persisted_broker_events) > 0
+
+    response = client.delete("/api/v1/broker/events/")
+
+    assert response.status_code == 204
+
+    get_response = client.get("/api/v1/broker/events/")
+    assert get_response.status_code == 200
+    assert get_response.json() is None
+
+
+def test_delete_events_requires_auth():
+    app.dependency_overrides.clear()
+
+    response = client.delete("/api/v1/broker/events/")
+
+    assert response.status_code == 401
+
+
 def test_build_events_integration(mock_events):
     assert len(mock_events) >= 1
     for event in mock_events:

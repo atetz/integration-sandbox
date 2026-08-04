@@ -141,6 +141,14 @@ def get_all(filters: TmsShipmentFilters) -> List[TmsShipment] | None:
 
 
 @handle_db_errors
+def delete_all() -> None:
+    logger.info("Deleting all TMS shipments")
+    with create_connection() as con:
+        con.execute("DELETE FROM tms_shipment")
+    logger.info("Successfully deleted all TMS shipments")
+
+
+@handle_db_errors
 def mark_as_processed(shipment_id: str) -> bool:
     processed_at = datetime.now().isoformat()
 

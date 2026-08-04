@@ -240,6 +240,12 @@ def list_new_events(filters: BrokerEventFilters) -> List[BrokerEventMessage]:
     return events
 
 
+def delete_all_events() -> None:
+    logger.info("Deleting all broker events")
+    repository.delete_all()
+    logger.info("Successfully deleted all broker events")
+
+
 def mark_event_processed(event_id: str) -> bool:
     logger.info("Marking broker event as processed: %s", event_id)
     success = repository.mark_as_processed(event_id)

@@ -169,6 +169,12 @@ def create_shipments(shipments: List[TmsShipment]) -> List[TmsShipment]:
     return shipments
 
 
+def delete_all_shipments() -> None:
+    logger.info("Deleting all TMS shipments")
+    repository.delete_all()
+    logger.info("Successfully deleted all TMS shipments")
+
+
 def mark_shipment_processed(shipment_id: str) -> bool:
     logger.info("Marking shipment as processed: %s", shipment_id)
     success = repository.mark_as_processed(shipment_id)

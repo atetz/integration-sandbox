@@ -119,6 +119,14 @@ def get(filters: BrokerEventFilters | None) -> BrokerEventMessage | None:
 
 
 @handle_db_errors
+def delete_all() -> None:
+    logger.info("Deleting all broker events")
+    with create_connection() as con:
+        con.execute("DELETE FROM broker_event")
+    logger.info("Successfully deleted all broker events")
+
+
+@handle_db_errors
 def mark_as_processed(event_id: str) -> bool:
     processed_at = datetime.now().isoformat()
 
