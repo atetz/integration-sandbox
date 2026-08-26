@@ -1,7 +1,7 @@
 import logging
 import uuid
 from datetime import datetime
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional, Tuple
 
 from integrationsandbox.broker import repository
 from integrationsandbox.broker.factories import BrokerEventMessageFactory
@@ -187,6 +187,16 @@ def list_events(filters: BrokerEventFilters) -> List[BrokerEventMessage]:
     return events
 
 
+def list_events_with_status(
+    filters: BrokerEventFilters,
+) -> List[Tuple[BrokerEventMessage, Optional[str]]]:
+    logger.info("Listing broker events with status")
+    logger.debug("Filters: %s", filters.model_dump() if filters else None)
+    events = repository.get_all_with_status(filters)
+    logger.info("Retrieved %d events from database", len(events))
+    return events
+
+
 def get_event(filters: BrokerEventFilters) -> BrokerEventMessage:
     logger.info("Retrieving broker event with filters")
     logger.debug("Filters: %s", filters.model_dump())
@@ -238,6 +248,12 @@ def list_new_events(filters: BrokerEventFilters) -> List[BrokerEventMessage]:
     event_count = len(events) if events else 0
     logger.info("Retrieved %d events from database", event_count)
     return events
+
+
+def delete_all_events() -> None:
+    logger.info("Deleting all broker events")
+    repository.delete_all()
+    logger.info("Successfully deleted all broker events")
 
 
 def mark_event_processed(event_id: str) -> bool:

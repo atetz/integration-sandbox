@@ -1,6 +1,6 @@
 import logging
 import uuid
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional, Tuple
 
 from integrationsandbox.broker.models import BrokerEventMessage, BrokerEventType
 from integrationsandbox.common.exceptions import NotFoundError, ValidationError
@@ -102,6 +102,16 @@ def list_shipments(filters: TmsShipmentFilters) -> List[TmsShipment]:
     return shipments
 
 
+def list_shipments_with_status(
+    filters: TmsShipmentFilters,
+) -> List[Tuple[TmsShipment, Optional[str]]]:
+    logger.info("Listing TMS shipments with status")
+    logger.debug("Filters: %s", filters.model_dump() if filters else None)
+    shipments = repository.get_all_with_status(filters)
+    logger.info("Retrieved %d shipments from database", len(shipments))
+    return shipments
+
+
 def list_new_shipments(filters: TmsShipmentFilters) -> List[TmsShipment]:
     logger.info("Listing TMS new shipments with filters")
     logger.debug("Filters: %s", filters.model_dump() if filters else None)
@@ -167,6 +177,12 @@ def create_shipments(shipments: List[TmsShipment]) -> List[TmsShipment]:
     repository.create_many(shipments)
     logger.info("Successfully created %d shipments", len(shipments))
     return shipments
+
+
+def delete_all_shipments() -> None:
+    logger.info("Deleting all TMS shipments")
+    repository.delete_all()
+    logger.info("Successfully deleted all TMS shipments")
 
 
 def mark_shipment_processed(shipment_id: str) -> bool:

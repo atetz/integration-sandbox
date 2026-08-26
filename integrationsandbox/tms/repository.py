@@ -141,6 +141,32 @@ def get_all(filters: TmsShipmentFilters) -> List[TmsShipment] | None:
 
 
 @handle_db_errors
+def get_all_with_status(
+    filters: TmsShipmentFilters,
+) -> List[Tuple[TmsShipment, Optional[str]]]:
+    base_query = "SELECT data, processed_at from tms_shipment"
+    where_clause, params = build_where_clause(filters)
+    query = base_query + where_clause
+    logger.info("Querying TMS shipments with status from database")
+    logger.debug("Query: %s with params: %s", query, params)
+
+    with create_connection() as con:
+        res = con.execute(query, params)
+        rows = res.fetchall()
+        shipments = [(TmsShipment.model_validate_json(row[0]), row[1]) for row in rows]
+        logger.info("Retrieved %d shipments from database", len(shipments))
+        return shipments
+
+
+@handle_db_errors
+def delete_all() -> None:
+    logger.info("Deleting all TMS shipments")
+    with create_connection() as con:
+        con.execute("DELETE FROM tms_shipment")
+    logger.info("Successfully deleted all TMS shipments")
+
+
+@handle_db_errors
 def mark_as_processed(shipment_id: str) -> bool:
     processed_at = datetime.now().isoformat()
 

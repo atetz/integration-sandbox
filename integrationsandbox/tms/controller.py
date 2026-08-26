@@ -89,6 +89,21 @@ def get_shipments(filters: TmsShipmentFilters = Depends()) -> List[TmsShipment] 
     return shipments
 
 
+@router.delete(
+    "/shipments",
+    summary="Delete all shipments",
+    description="""
+      Deletes every TMS shipment. Schema and running app are left untouched.
+      """,
+    response_description="HTTP 204 with no body.",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+def delete_shipments() -> None:
+    logger.info("Deleting all TMS shipments")
+    tms_service.delete_all_shipments()
+    logger.info("Successfully deleted all TMS shipments")
+
+
 @router.get(
     "/shipments/new",
     summary="Get new shipments",

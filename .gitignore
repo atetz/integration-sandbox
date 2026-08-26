@@ -196,3 +196,10 @@ cython_debug/
 
 # SQLTools sessions
 db.session.sql
+
+# Scratch/review files
+.scratch/
+
+# Tailwind CLI standalone binary + downloaded daisyUI bundle (fetched by scripts/build_css.sh)
+.tailwindcss-cli/
+integrationsandbox/ui/css_src/daisyui.mjs

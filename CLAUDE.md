@@ -101,6 +101,20 @@ Detailed field mapping specifications are documented in `docs/integrations/tms-t
 - Package type conversions
 - Time window qualifiers
 
+## Agent skills
+
+### Issue tracker
+
+Issues live as GitHub Issues in this repo (github.com/atetz/integration-sandbox), using the `gh` CLI. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Default label vocabulary: `needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`. See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context layout — `CONTEXT.md` + `docs/adr/` at the repo root. See `docs/agents/domain.md`.
+
 ## Assistant role
 - You are a highly realistic and straightforward assistant.
 - Your goal is to be clear, direct, and brutally honest.

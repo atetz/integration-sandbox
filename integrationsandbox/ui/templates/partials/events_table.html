@@ -1,0 +1,79 @@
+<div class="overflow-x-auto">
+  <table class="table table-sm">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Shipment ID</th>
+        <th>Event Type</th>
+        <th>Status</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for event in events %}
+      <tr>
+        <td>{{ event.id }}</td>
+        <td>{{ event.shipment_id }}</td>
+        <td>{{ event.event_type }}</td>
+        <td>
+          {% if event.is_new %}
+          <span class="badge badge-info">New</span>
+          {% else %}
+          <span class="badge badge-ghost">{{ event.status_label }}</span>
+          {% endif %}
+        </td>
+        <td class="text-right">
+          <button
+            type="button"
+            class="btn btn-ghost btn-xs btn-circle"
+            onclick="document.getElementById('event-modal-{{ event.id }}').showModal()"
+            aria-label="View event {{ event.id }}"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+              class="h-4 w-4"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z"
+              />
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
+              />
+            </svg>
+          </button>
+          <dialog id="event-modal-{{ event.id }}" class="modal">
+            <div class="modal-box max-w-2xl">
+              <h3 class="text-lg font-bold">Event {{ event.id }}</h3>
+              <pre
+                class="mt-4 max-h-[60vh] overflow-auto rounded-box bg-base-200 p-4 text-xs"
+              ><code>{{ event.pretty_json }}</code></pre>
+              <div class="modal-action">
+                <form method="dialog">
+                  <button class="btn">Close</button>
+                </form>
+              </div>
+            </div>
+            <form method="dialog" class="modal-backdrop">
+              <button>close</button>
+            </form>
+          </dialog>
+        </td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="5" class="text-center text-base-content/60">
+          No events yet.
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>

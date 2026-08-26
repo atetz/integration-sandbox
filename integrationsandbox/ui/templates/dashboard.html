@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+{% block title %}Dashboard · Integration Sandbox{% endblock %}
+{% block content %}
+<div class="navbar bg-base-200 border-b border-base-300">
+  <div class="navbar-start">
+    <span class="text-lg font-semibold px-2">Integration Sandbox</span>
+  </div>
+  <div class="navbar-end gap-2">
+    <span class="text-sm text-base-content/60">Welcome, {{ user.username }}</span>
+    <button
+      type="button"
+      class="swap swap-rotate btn btn-ghost btn-circle"
+      data-toggle-theme="bumblebee,luxury"
+      data-act-class="swap-active"
+      aria-label="Toggle theme"
+    >
+      <svg class="swap-off h-5 w-5 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+        <path d="M12 4V2m0 20v-2m8-8h2M2 12h2m13.66-6.66l1.41-1.41M4.93 19.07l1.41-1.41M19.07 19.07l-1.41-1.41M4.93 4.93L6.34 6.34M12 7a5 5 0 100 10 5 5 0 000-10z" />
+      </svg>
+      <svg class="swap-on h-5 w-5 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+        <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
+      </svg>
+    </button>
+    <form method="post" action="/ui/logout">
+      <button type="submit" class="btn btn-ghost">Log out</button>
+    </form>
+  </div>
+</div>
+
+<div class="p-4 md:p-6">
+  <div class="card w-full bg-base-100 shadow-sm">
+    <div class="card-body">
+      <h2 class="card-title">Shipments</h2>
+      <div id="shipments-table">
+        {% include "partials/shipments_table.html" %}
+      </div>
+      <form
+        class="mt-4"
+        hx-target="#shipments-table"
+        hx-swap="innerHTML"
+      >
+        <div class="flex flex-wrap items-end gap-3">
+          <label class="input">
+            <span class="label">Count</span>
+            <input type="number" name="count" min="1" value="1" required class="w-24" />
+          </label>
+          <label class="input min-w-64 flex-1">
+            <span class="label">Target URL</span>
+            <input type="url" name="target_url" placeholder="https://example.com/webhook" />
+          </label>
+          <button type="submit" class="btn" hx-post="/ui/shipments/seed">Seed</button>
+          <button type="submit" class="btn" hx-post="/ui/shipments/trigger">Trigger</button>
+        </div>
+        <p class="mt-1 text-xs text-base-content/60">
+          Required for Trigger. Leave blank to Seed without dispatching.
+        </p>
+      </form>
+    </div>
+  </div>
+
+  <div class="card w-full bg-base-100 shadow-sm mt-4">
+    <div class="card-body">
+      <h2 class="card-title">Events</h2>
+      <div id="events-table">
+        {% include "partials/events_table.html" %}
+      </div>
+      <form
+        class="mt-4"
+        hx-target="#events-table"
+        hx-swap="innerHTML"
+        hx-include="#shipments-table input[name='shipment_ids']"
+      >
+        <div class="flex flex-wrap items-end gap-3">
+          <label class="select">
+            <span class="label">Event type</span>
+            <select name="event_type" required>
+              {% for event_type in event_types %}
+              <option value="{{ event_type.value }}">{{ event_type.value }}</option>
+              {% endfor %}
+            </select>
+          </label>
+          <label class="input min-w-64 flex-1">
+            <span class="label">Target URL</span>
+            <input type="url" name="target_url" placeholder="https://example.com/webhook" />
+          </label>
+          <button type="submit" class="btn" hx-post="/ui/events/seed">Seed</button>
+          <button type="submit" class="btn" hx-post="/ui/events/trigger">Trigger</button>
+        </div>
+        <p class="mt-1 text-xs text-base-content/60">
+          Select shipments above. Required for Trigger. Leave Target URL blank to Seed without dispatching.
+        </p>
+      </form>
+    </div>
+  </div>
+
+  <div class="card w-full bg-base-100 shadow-sm mt-4">
+    <div class="card-body">
+      <h2 class="card-title text-error">Danger Zone</h2>
+      <p class="text-base-content/60">
+        Deletes every shipment and event. This cannot be undone.
+      </p>
+      <div class="mt-4">
+        <button
+          type="button"
+          class="btn btn-error"
+          hx-post="/ui/nuke"
+          hx-target="#shipments-table"
+          hx-swap="innerHTML"
+          hx-confirm="Delete all shipments and events? This cannot be undone."
+        >
+          Nuke
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

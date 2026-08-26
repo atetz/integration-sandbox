@@ -4,6 +4,7 @@ from logging.config import dictConfig
 
 from fastapi import FastAPI, responses
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from integrationsandbox.broker import controller as broker_controller
 from integrationsandbox.common.exceptions import NotFoundError, ValidationError
@@ -11,8 +12,11 @@ from integrationsandbox.config import get_settings, tags_metadata
 from integrationsandbox.infrastructure import database
 from integrationsandbox.infrastructure.exceptions import RepositoryError
 from integrationsandbox.security import controller as security_controller
+from integrationsandbox.system import controller as system_controller
 from integrationsandbox.tms import controller as tms_controller
 from integrationsandbox.trigger import controller as trigger_controller
+from integrationsandbox.ui import controller as ui_controller
+from integrationsandbox.ui.exceptions import UIAuthenticationRequired
 from integrationsandbox.utils.metadata import load_project_metadata
 
 metadata = load_project_metadata()
@@ -55,7 +59,15 @@ app.add_middleware(
 app.include_router(trigger_controller.router, prefix=API_PREFIX)
 app.include_router(tms_controller.router, prefix=API_PREFIX)
 app.include_router(broker_controller.router, prefix=API_PREFIX)
+app.include_router(system_controller.router, prefix=API_PREFIX)
 app.include_router(security_controller.router)
+app.include_router(ui_controller.router)
+
+app.mount(
+    "/ui/static",
+    StaticFiles(directory="integrationsandbox/ui/static"),
+    name="ui-static",
+)
 
 
 @app.exception_handler(ValidationError)
@@ -74,6 +86,11 @@ async def not_found_error_handler(request, exc):
 async def repository_error_handler(request, exc):
     logger.exception("Repository error for: %s", request.url)
     return responses.JSONResponse(status_code=500, content={"detail": str(exc)})
+
+
+@app.exception_handler(UIAuthenticationRequired)
+async def ui_authentication_required_handler(request, exc):
+    return responses.RedirectResponse(url="/ui/login", status_code=303)
 
 
 # Health check endpoint

@@ -99,6 +99,21 @@ def get_events(
     return events
 
 
+@router.delete(
+    "/events",
+    summary="Delete all events",
+    description="""
+      Deletes every broker event. Schema and running app are left untouched.
+      """,
+    response_description="HTTP 204 with no body.",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+def delete_events() -> None:
+    logger.info("Deleting all broker events")
+    broker_service.delete_all_events()
+    logger.info("Successfully deleted all broker events")
+
+
 @router.get(
     "/events/new",
     summary="Get new events",
