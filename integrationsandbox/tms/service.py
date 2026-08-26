@@ -1,6 +1,6 @@
 import logging
 import uuid
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional, Tuple
 
 from integrationsandbox.broker.models import BrokerEventMessage, BrokerEventType
 from integrationsandbox.common.exceptions import NotFoundError, ValidationError
@@ -99,6 +99,16 @@ def list_shipments(filters: TmsShipmentFilters) -> List[TmsShipment]:
     shipment_count = len(shipments) if shipments else 0
     logger.info("Retrieved %d shipments from database", shipment_count)
 
+    return shipments
+
+
+def list_shipments_with_status(
+    filters: TmsShipmentFilters,
+) -> List[Tuple[TmsShipment, Optional[str]]]:
+    logger.info("Listing TMS shipments with status")
+    logger.debug("Filters: %s", filters.model_dump() if filters else None)
+    shipments = repository.get_all_with_status(filters)
+    logger.info("Retrieved %d shipments from database", len(shipments))
     return shipments
 
 

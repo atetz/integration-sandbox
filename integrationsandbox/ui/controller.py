@@ -1,13 +1,20 @@
+import json
 import logging
-from typing import Annotated
+from typing import Annotated, List, Optional, Tuple
 
-from fastapi import APIRouter, Depends, Form, Request, status
+from fastapi import APIRouter, Depends, Form, HTTPException, Request, status
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
+from pydantic import ValidationError as PydanticValidationError
 
+from integrationsandbox.common.exceptions import ValidationError
 from integrationsandbox.config import get_settings
 from integrationsandbox.security.models import User
 from integrationsandbox.security.service import get_user_from_token, login_user
+from integrationsandbox.tms import service as tms_service
+from integrationsandbox.tms.models import StopType, TmsShipment, TmsShipmentFilters, TmsStop
+from integrationsandbox.trigger import service as trigger_service
+from integrationsandbox.trigger.models import ShipmentTrigger
 from integrationsandbox.ui.exceptions import UIAuthenticationRequired
 
 router = APIRouter(prefix="/ui", tags=["UI"])
@@ -67,6 +74,101 @@ async def logout():
     return response
 
 
+def _stop_by_type(shipment: TmsShipment, stop_type: StopType) -> Optional[TmsStop]:
+    return next((stop for stop in shipment.stops if stop.type == stop_type), None)
+
+
+def _format_location(stop: Optional[TmsStop]) -> str:
+    if stop is None:
+        return "—"
+    location = stop.location
+    if location.address:
+        return f"{location.name}, {location.address.city}"
+    return location.name or location.code
+
+
+def _format_stop_datetime(stop: Optional[TmsStop]) -> str:
+    if stop is None:
+        return "—"
+    start = stop.planned_time_window_start.strftime("%H:%M")
+    end = stop.planned_time_window_end.strftime("%H:%M")
+    return f"{stop.planned_date.isoformat()} {start} - {end}"
+
+
+def build_shipment_rows(
+    shipments_with_status: List[Tuple[TmsShipment, Optional[str]]],
+) -> List[dict]:
+    rows = []
+    for shipment, processed_at in shipments_with_status:
+        pickup = _stop_by_type(shipment, StopType.PICKUP)
+        delivery = _stop_by_type(shipment, StopType.DELIVERY)
+        rows.append(
+            {
+                "id": shipment.id,
+                "status_label": processed_at or "New",
+                "is_new": processed_at is None,
+                "customer_name": shipment.customer.name,
+                "carrier_name": shipment.customer.carrier,
+                "pickup_location": _format_location(pickup),
+                "pickup_date": _format_stop_datetime(pickup),
+                "dropoff_location": _format_location(delivery),
+                "dropoff_date": _format_stop_datetime(delivery),
+                "pretty_json": json.dumps(shipment.model_dump(mode="json"), indent=2),
+            }
+        )
+    return rows
+
+
+def shipments_table_context() -> dict:
+    filters = TmsShipmentFilters(limit=settings.max_bulk_size)
+    shipments_with_status = tms_service.list_shipments_with_status(filters)
+    return {"shipments": build_shipment_rows(shipments_with_status)}
+
+
 @router.get("/")
 async def dashboard(request: Request, user: Annotated[User, Depends(require_ui_user)]):
-    return templates.TemplateResponse(request, "dashboard.html", {"user": user})
+    return templates.TemplateResponse(
+        request, "dashboard.html", {"user": user, **shipments_table_context()}
+    )
+
+
+@router.post("/shipments/seed")
+async def seed_shipments(
+    request: Request,
+    user: Annotated[User, Depends(require_ui_user)],
+    count: Annotated[int, Form()],
+):
+    try:
+        tms_service.create_seed_shipments(count)
+    except ValidationError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail=str(exc)
+        ) from exc
+    return templates.TemplateResponse(
+        request, "partials/shipments_table.html", shipments_table_context()
+    )
+
+
+@router.post("/shipments/trigger")
+async def trigger_shipments(
+    request: Request,
+    user: Annotated[User, Depends(require_ui_user)],
+    count: Annotated[int, Form()],
+    target_url: Annotated[Optional[str], Form()] = None,
+):
+    if not target_url:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail="target_url is required to trigger shipments",
+        )
+    try:
+        trigger = ShipmentTrigger(target_url=target_url, count=count)
+    except PydanticValidationError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail=str(exc)
+        ) from exc
+
+    trigger_service.create_and_dispatch_shipments(trigger)
+    return templates.TemplateResponse(
+        request, "partials/shipments_table.html", shipments_table_context()
+    )

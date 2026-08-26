@@ -14,6 +14,7 @@ from integrationsandbox.tms.models import (
     TmsLocation,
     TmsShipment,
     TmsShipmentEvent,
+    TmsShipmentFilters,
 )
 from integrationsandbox.tms.service import (
     apply_event_mapping_rules,
@@ -21,6 +22,8 @@ from integrationsandbox.tms.service import (
     get_shipments_by_id_list,
     get_transformed_event_data,
     has_existing_event,
+    list_shipments_with_status,
+    mark_shipment_processed,
     update_shipment_event,
 )
 
@@ -44,6 +47,17 @@ def test_get_shipments_by_id_list_empty():
     result = get_shipments_by_id_list([])
 
     assert result == []
+
+
+def test_list_shipments_with_status_reflects_processed_state(persisted_shipments):
+    mark_shipment_processed(persisted_shipments[0].id)
+
+    result = list_shipments_with_status(TmsShipmentFilters(limit=10))
+
+    processed_count = sum(1 for _, processed_at in result if processed_at)
+    new_count = sum(1 for _, processed_at in result if processed_at is None)
+    assert processed_count == 1
+    assert new_count == len(persisted_shipments) - 1
 
 
 def test_get_transformed_event_data():

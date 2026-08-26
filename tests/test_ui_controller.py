@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta, timezone
+from unittest.mock import patch
 
 import jwt
 import pytest
@@ -6,6 +7,8 @@ from fastapi.testclient import TestClient
 
 from integrationsandbox.config import get_settings
 from integrationsandbox.main import app
+from integrationsandbox.tms.models import TmsShipmentFilters
+from integrationsandbox.tms.service import list_shipments_with_status
 
 settings = get_settings()
 
@@ -18,6 +21,18 @@ def client():
     by default) is actually sent back on subsequent requests.
     """
     return TestClient(app, base_url="https://testserver")
+
+
+@pytest.fixture
+def authenticated_client(client):
+    client.post(
+        "/ui/login",
+        data={
+            "username": settings.default_user,
+            "password": settings.default_password,
+        },
+    )
+    return client
 
 
 def test_login_with_valid_credentials_sets_cookie_and_redirects(client):
@@ -112,3 +127,83 @@ def test_logout_clears_cookie_and_subsequent_dashboard_request_redirects(client)
 
     assert dashboard_response.status_code == 303
     assert dashboard_response.headers["location"] == "/ui/login"
+
+
+def test_dashboard_lists_shipments_with_status_badges(
+    authenticated_client, persisted_shipments, persisted_processed_shipments
+):
+    response = authenticated_client.get("/ui/")
+
+    assert response.status_code == 200
+    for shipment in persisted_shipments:
+        assert shipment.id in response.text
+    for shipment in persisted_processed_shipments:
+        assert shipment.id in response.text
+    assert "New" in response.text
+
+
+def test_dashboard_shows_processed_timestamp_badge(
+    authenticated_client, persisted_processed_shipments
+):
+    response = authenticated_client.get("/ui/")
+
+    assert response.status_code == 200
+    shipments = list_shipments_with_status(TmsShipmentFilters(limit=10))
+    for _, processed_at in shipments:
+        assert processed_at in response.text
+
+
+def test_seed_endpoint_creates_shipments_and_updates_table(authenticated_client):
+    response = authenticated_client.post("/ui/shipments/seed", data={"count": 2})
+
+    assert response.status_code == 200
+    shipments = list_shipments_with_status(TmsShipmentFilters(limit=10))
+    assert len(shipments) == 2
+    for shipment, _ in shipments:
+        assert shipment.id in response.text
+    assert response.text.count('badge-info">New</span>') == 2
+
+
+@patch("integrationsandbox.trigger.service.httpx.post")
+def test_seed_endpoint_ignores_target_url(mock_post, authenticated_client):
+    response = authenticated_client.post(
+        "/ui/shipments/seed",
+        data={"count": 1, "target_url": "https://example.com/webhook"},
+    )
+
+    assert response.status_code == 200
+    mock_post.assert_not_called()
+
+
+@patch("integrationsandbox.trigger.service.httpx.post")
+def test_trigger_endpoint_dispatches_shipments_and_updates_table(
+    mock_post, authenticated_client
+):
+    mock_post.return_value.status_code = 200
+    target_url = "https://example.com/webhook"
+
+    response = authenticated_client.post(
+        "/ui/shipments/trigger", data={"count": 2, "target_url": target_url}
+    )
+
+    assert response.status_code == 200
+    mock_post.assert_called_once()
+    args, kwargs = mock_post.call_args
+    assert args[0] == target_url
+    assert len(kwargs["json"]) == 2
+
+    shipments = list_shipments_with_status(TmsShipmentFilters(limit=10))
+    assert len(shipments) == 2
+    for shipment, _ in shipments:
+        assert shipment.id in response.text
+
+
+@patch("integrationsandbox.trigger.service.httpx.post")
+def test_trigger_endpoint_without_target_url_is_rejected(
+    mock_post, authenticated_client
+):
+    response = authenticated_client.post("/ui/shipments/trigger", data={"count": 1})
+
+    assert response.status_code == 422
+    mock_post.assert_not_called()
+    assert list_shipments_with_status(TmsShipmentFilters(limit=10)) == []

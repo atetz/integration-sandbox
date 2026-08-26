@@ -6,6 +6,7 @@
     <span class="text-lg font-semibold px-2">Integration Sandbox</span>
   </div>
   <div class="navbar-end gap-2">
+    <span class="text-sm text-base-content/60">Welcome, {{ user.username }}</span>
     <button
       type="button"
       class="swap swap-rotate btn btn-ghost btn-circle"
@@ -26,11 +27,34 @@
   </div>
 </div>
 
-<div class="hero min-h-[70vh]">
-  <div class="hero-content text-center">
-    <div class="max-w-md">
-      <h1 class="text-2xl font-bold">Welcome, {{ user.username }}</h1>
-      <p class="py-4 text-base-content/60">No shipments or events yet.</p>
+<div class="p-4 md:p-6">
+  <div class="card w-full bg-base-100 shadow-sm">
+    <div class="card-body">
+      <h2 class="card-title">Shipments</h2>
+      <div id="shipments-table">
+        {% include "partials/shipments_table.html" %}
+      </div>
+      <form
+        class="mt-4"
+        hx-target="#shipments-table"
+        hx-swap="innerHTML"
+      >
+        <div class="flex flex-wrap items-end gap-3">
+          <label class="input">
+            <span class="label">Count</span>
+            <input type="number" name="count" min="1" value="1" required class="w-24" />
+          </label>
+          <label class="input min-w-64 flex-1">
+            <span class="label">Target URL</span>
+            <input type="url" name="target_url" placeholder="https://example.com/webhook" />
+          </label>
+          <button type="submit" class="btn" hx-post="/ui/shipments/seed">Seed</button>
+          <button type="submit" class="btn" hx-post="/ui/shipments/trigger">Trigger</button>
+        </div>
+        <p class="mt-1 text-xs text-base-content/60">
+          Required for Trigger. Leave blank to Seed without dispatching.
+        </p>
+      </form>
     </div>
   </div>
 </div>

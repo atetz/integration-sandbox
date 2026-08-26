@@ -1,0 +1,89 @@
+<div class="overflow-x-auto">
+  <table class="table table-sm">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Customer</th>
+        <th>Carrier</th>
+        <th>Pickup</th>
+        <th>Delivery</th>
+        <th>Status</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for shipment in shipments %}
+      <tr>
+        <td>{{ shipment.id }}</td>
+        <td>{{ shipment.customer_name }}</td>
+        <td>{{ shipment.carrier_name }}</td>
+        <td>
+          <div>{{ shipment.pickup_date }}</div>
+          <div class="text-base-content/60">{{ shipment.pickup_location }}</div>
+        </td>
+        <td>
+          <div>{{ shipment.dropoff_date }}</div>
+          <div class="text-base-content/60">{{ shipment.dropoff_location }}</div>
+        </td>
+        <td>
+          {% if shipment.is_new %}
+          <span class="badge badge-info">New</span>
+          {% else %}
+          <span class="badge badge-ghost">{{ shipment.status_label }}</span>
+          {% endif %}
+        </td>
+        <td class="text-right">
+          <button
+            type="button"
+            class="btn btn-ghost btn-xs btn-circle"
+            onclick="document.getElementById('shipment-modal-{{ shipment.id }}').showModal()"
+            aria-label="View shipment {{ shipment.id }}"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+              class="h-4 w-4"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z"
+              />
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
+              />
+            </svg>
+          </button>
+          <dialog id="shipment-modal-{{ shipment.id }}" class="modal">
+            <div class="modal-box max-w-2xl">
+              <h3 class="text-lg font-bold">Shipment {{ shipment.id }}</h3>
+              <pre
+                class="mt-4 max-h-[60vh] overflow-auto rounded-box bg-base-200 p-4 text-xs"
+              ><code>{{ shipment.pretty_json }}</code></pre>
+              <div class="modal-action">
+                <form method="dialog">
+                  <button class="btn">Close</button>
+                </form>
+              </div>
+            </div>
+            <form method="dialog" class="modal-backdrop">
+              <button>close</button>
+            </form>
+          </dialog>
+        </td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="7" class="text-center text-base-content/60">
+          No shipments yet.
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
