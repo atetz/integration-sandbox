@@ -1,7 +1,7 @@
 import logging
 import uuid
 from datetime import datetime
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional, Tuple
 
 from integrationsandbox.broker import repository
 from integrationsandbox.broker.factories import BrokerEventMessageFactory
@@ -184,6 +184,16 @@ def list_events(filters: BrokerEventFilters) -> List[BrokerEventMessage]:
     event_count = len(events) if events else 0
     logger.info("Retrieved %d events from database", event_count)
 
+    return events
+
+
+def list_events_with_status(
+    filters: BrokerEventFilters,
+) -> List[Tuple[BrokerEventMessage, Optional[str]]]:
+    logger.info("Listing broker events with status")
+    logger.debug("Filters: %s", filters.model_dump() if filters else None)
+    events = repository.get_all_with_status(filters)
+    logger.info("Retrieved %d events from database", len(events))
     return events
 
 

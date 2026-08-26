@@ -4,6 +4,7 @@ import pytest
 
 from integrationsandbox.broker.models import (
     BrokerDateQualifier,
+    BrokerEventFilters,
     BrokerLocation,
     BrokerPackagingQualifier,
 )
@@ -11,8 +12,10 @@ from integrationsandbox.broker.service import (
     apply_shipment_mapping_rules,
     get_stop_dates,
     get_tms_stop_by_type,
+    list_events_with_status,
     map_address_details,
     map_line_items,
+    mark_event_processed,
 )
 from integrationsandbox.tms.models import (
     EquipmentType,
@@ -26,6 +29,17 @@ from integrationsandbox.tms.models import (
     TmsShipment,
     TmsStop,
 )
+
+
+def test_list_events_with_status_reflects_processed_state(persisted_broker_events):
+    mark_event_processed(persisted_broker_events[0].id)
+
+    result = list_events_with_status(BrokerEventFilters(limit=10))
+
+    processed_count = sum(1 for _, processed_at in result if processed_at)
+    new_count = sum(1 for _, processed_at in result if processed_at is None)
+    assert processed_count == 1
+    assert new_count == len(persisted_broker_events) - 1
 
 
 def test_get_tms_stop_by_type_found():

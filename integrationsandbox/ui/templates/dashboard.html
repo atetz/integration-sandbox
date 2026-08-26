@@ -57,5 +57,40 @@
       </form>
     </div>
   </div>
+
+  <div class="card w-full bg-base-100 shadow-sm mt-4">
+    <div class="card-body">
+      <h2 class="card-title">Events</h2>
+      <div id="events-table">
+        {% include "partials/events_table.html" %}
+      </div>
+      <form
+        class="mt-4"
+        hx-target="#events-table"
+        hx-swap="innerHTML"
+        hx-include="#shipments-table input[name='shipment_ids']"
+      >
+        <div class="flex flex-wrap items-end gap-3">
+          <label class="select">
+            <span class="label">Event type</span>
+            <select name="event_type" required>
+              {% for event_type in event_types %}
+              <option value="{{ event_type.value }}">{{ event_type.value }}</option>
+              {% endfor %}
+            </select>
+          </label>
+          <label class="input min-w-64 flex-1">
+            <span class="label">Target URL</span>
+            <input type="url" name="target_url" placeholder="https://example.com/webhook" />
+          </label>
+          <button type="submit" class="btn" hx-post="/ui/events/seed">Seed</button>
+          <button type="submit" class="btn" hx-post="/ui/events/trigger">Trigger</button>
+        </div>
+        <p class="mt-1 text-xs text-base-content/60">
+          Select shipments above. Required for Trigger. Leave Target URL blank to Seed without dispatching.
+        </p>
+      </form>
+    </div>
+  </div>
 </div>
 {% endblock %}

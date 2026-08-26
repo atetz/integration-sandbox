@@ -1,6 +1,6 @@
 import logging
 from datetime import datetime
-from typing import Any, List, Tuple
+from typing import Any, List, Optional, Tuple
 
 from integrationsandbox.broker.models import BrokerEventFilters, BrokerEventMessage
 from integrationsandbox.infrastructure.database import create_connection
@@ -96,6 +96,26 @@ def get_all(filters: BrokerEventFilters | None) -> List[BrokerEventMessage] | No
 
         logger.info("No events found matching filters")
         return None
+
+
+@handle_db_errors
+def get_all_with_status(
+    filters: BrokerEventFilters,
+) -> List[Tuple[BrokerEventMessage, Optional[str]]]:
+    base_query = "SELECT data, processed_at from broker_event"
+    where_clause, params = build_where_clause(filters)
+    query = base_query + where_clause
+    logger.info("Querying broker events with status from database")
+    logger.debug("Query: %s with params: %s", query, params)
+
+    with create_connection() as con:
+        res = con.execute(query, params)
+        rows = res.fetchall()
+        events = [
+            (BrokerEventMessage.model_validate_json(row[0]), row[1]) for row in rows
+        ]
+        logger.info("Retrieved %d events from database", len(events))
+        return events
 
 
 @handle_db_errors

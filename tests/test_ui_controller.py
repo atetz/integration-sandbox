@@ -5,6 +5,8 @@ import jwt
 import pytest
 from fastapi.testclient import TestClient
 
+from integrationsandbox.broker.models import BrokerEventFilters, BrokerEventType
+from integrationsandbox.broker.service import list_events_with_status
 from integrationsandbox.config import get_settings
 from integrationsandbox.main import app
 from integrationsandbox.tms.models import TmsShipmentFilters
@@ -207,3 +209,142 @@ def test_trigger_endpoint_without_target_url_is_rejected(
     assert response.status_code == 422
     mock_post.assert_not_called()
     assert list_shipments_with_status(TmsShipmentFilters(limit=10)) == []
+
+
+def test_dashboard_lists_events_with_status_badges(
+    authenticated_client, persisted_broker_events
+):
+    response = authenticated_client.get("/ui/")
+
+    assert response.status_code == 200
+    for event in persisted_broker_events:
+        assert event.id in response.text
+    assert "New" in response.text
+
+
+def test_seed_events_endpoint_creates_events_for_selected_shipments(
+    authenticated_client, persisted_shipments
+):
+    shipment_ids = [shipment.id for shipment in persisted_shipments]
+
+    response = authenticated_client.post(
+        "/ui/events/seed",
+        data={
+            "shipment_ids": shipment_ids,
+            "event_type": BrokerEventType.ORDER_CREATED.value,
+        },
+    )
+
+    assert response.status_code == 200
+    events = list_events_with_status(BrokerEventFilters(limit=10))
+    assert len(events) == len(shipment_ids)
+    for event, _ in events:
+        assert event.id in response.text
+    assert response.text.count('badge-info">New</span>') == len(shipment_ids)
+
+
+def test_seed_events_endpoint_without_shipment_ids_is_rejected(authenticated_client):
+    response = authenticated_client.post(
+        "/ui/events/seed", data={"event_type": BrokerEventType.ORDER_CREATED.value}
+    )
+
+    assert response.status_code == 422
+    assert list_events_with_status(BrokerEventFilters(limit=10)) == []
+
+
+def test_seed_events_endpoint_with_unknown_shipment_id_is_rejected(
+    authenticated_client,
+):
+    response = authenticated_client.post(
+        "/ui/events/seed",
+        data={
+            "shipment_ids": ["does-not-exist"],
+            "event_type": BrokerEventType.ORDER_CREATED.value,
+        },
+    )
+
+    assert response.status_code == 422
+    assert list_events_with_status(BrokerEventFilters(limit=10)) == []
+
+
+@patch("integrationsandbox.trigger.service.httpx.post")
+def test_trigger_events_endpoint_dispatches_events_and_updates_table(
+    mock_post, authenticated_client, persisted_shipments
+):
+    mock_post.return_value.status_code = 200
+    shipment_ids = [shipment.id for shipment in persisted_shipments]
+    target_url = "https://example.com/webhook"
+
+    response = authenticated_client.post(
+        "/ui/events/trigger",
+        data={
+            "shipment_ids": shipment_ids,
+            "event_type": BrokerEventType.ORDER_CREATED.value,
+            "target_url": target_url,
+        },
+    )
+
+    assert response.status_code == 200
+    mock_post.assert_called_once()
+    args, kwargs = mock_post.call_args
+    assert args[0] == target_url
+    assert len(kwargs["json"]) == len(shipment_ids)
+
+    events = list_events_with_status(BrokerEventFilters(limit=10))
+    assert len(events) == len(shipment_ids)
+    for event, _ in events:
+        assert event.id in response.text
+
+
+@patch("integrationsandbox.trigger.service.httpx.post")
+def test_trigger_events_endpoint_without_target_url_is_rejected(
+    mock_post, authenticated_client, persisted_shipments
+):
+    shipment_ids = [shipment.id for shipment in persisted_shipments]
+
+    response = authenticated_client.post(
+        "/ui/events/trigger",
+        data={
+            "shipment_ids": shipment_ids,
+            "event_type": BrokerEventType.ORDER_CREATED.value,
+        },
+    )
+
+    assert response.status_code == 422
+    mock_post.assert_not_called()
+    assert list_events_with_status(BrokerEventFilters(limit=10)) == []
+
+
+@patch("integrationsandbox.trigger.service.httpx.post")
+def test_trigger_events_endpoint_without_shipment_ids_is_rejected(
+    mock_post, authenticated_client
+):
+    response = authenticated_client.post(
+        "/ui/events/trigger",
+        data={
+            "event_type": BrokerEventType.ORDER_CREATED.value,
+            "target_url": "https://example.com/webhook",
+        },
+    )
+
+    assert response.status_code == 422
+    mock_post.assert_not_called()
+    assert list_events_with_status(BrokerEventFilters(limit=10)) == []
+
+
+@patch("integrationsandbox.trigger.service.httpx.post")
+def test_trigger_events_endpoint_with_unknown_shipment_id_is_rejected(
+    mock_post, authenticated_client
+):
+    response = authenticated_client.post(
+        "/ui/events/trigger",
+        data={
+            "shipment_ids": ["does-not-exist"],
+            "event_type": BrokerEventType.ORDER_CREATED.value,
+            "target_url": "https://example.com/webhook",
+        },
+    )
+
+    assert response.status_code == 422
+    mock_post.assert_not_called()
+    assert list_events_with_status(BrokerEventFilters(limit=10)) == []
