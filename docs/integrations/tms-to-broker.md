@@ -219,13 +219,13 @@ See bottom of page for example payloads.
           "identification": "LOC-9973",
           "name": "Scamarcio e figli",
           "address1": "Borgo Buonauro, 27 Piano 6",
-          "address2": "",
+           "address2": null,
           "country": "IT",
           "postalCode": "81046",
           "city": "Riva",
           "latitude": 9.223782,
           "longitude": 123.12346,
-          "instructions": "",
+          "instructions": null,
           "dates": [
             {
               "qualifier": "PERIOD_EARLIEST",
@@ -241,13 +241,13 @@ See bottom of page for example payloads.
           "identification": "LOC-8521",
           "name": "Williams-Patel",
           "address1": "Studio 6\nGill courts",
-          "address2": "",
+          "address2": null,
           "country": "GB",
           "postalCode": "WA7 6JT",
           "city": "Leonardtown",
           "latitude": 13.042235,
           "longitude": -168.601537,
-          "instructions": "",
+          "instructions": null,
           "dates": [
             {
               "qualifier": "PERIOD_EARLIEST",
@@ -259,7 +259,7 @@ See bottom of page for example payloads.
             }
           ]
         },
-                "goodsDescription": "Industrial conveyor belt sections|Heavy-duty truck tires, new and retreaded options|Commercial grade floor mats for high-traffic areas",
+        "goodsDescription": "Industrial conveyor belt sections|Heavy-duty truck tires, new and retreaded options|Commercial grade floor mats for high-traffic areas",
 
         "quantity": {
           "grossWeight": 33286.01,
