@@ -266,3 +266,14 @@ async def trigger_events(
     return templates.TemplateResponse(
         request, "partials/events_table.html", events_table_context()
     )
+
+
+@router.post("/nuke")
+async def nuke(request: Request, user: Annotated[User, Depends(require_ui_user)]):
+    tms_service.delete_all_shipments()
+    broker_service.delete_all_events()
+    return templates.TemplateResponse(
+        request,
+        "partials/nuke_response.html",
+        {**shipments_table_context(), **events_table_context()},
+    )

@@ -332,6 +332,18 @@ def test_trigger_events_endpoint_without_shipment_ids_is_rejected(
     assert list_events_with_status(BrokerEventFilters(limit=10)) == []
 
 
+def test_nuke_endpoint_deletes_all_shipments_and_events_and_updates_tables(
+    authenticated_client, persisted_shipments, persisted_broker_events
+):
+    response = authenticated_client.post("/ui/nuke")
+
+    assert response.status_code == 200
+    assert list_shipments_with_status(TmsShipmentFilters(limit=10)) == []
+    assert list_events_with_status(BrokerEventFilters(limit=10)) == []
+    assert "No shipments yet." in response.text
+    assert "No events yet." in response.text
+
+
 @patch("integrationsandbox.trigger.service.httpx.post")
 def test_trigger_events_endpoint_with_unknown_shipment_id_is_rejected(
     mock_post, authenticated_client

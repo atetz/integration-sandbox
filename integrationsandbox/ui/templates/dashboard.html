@@ -92,5 +92,26 @@
       </form>
     </div>
   </div>
+
+  <div class="card w-full bg-base-100 shadow-sm mt-4">
+    <div class="card-body">
+      <h2 class="card-title text-error">Danger Zone</h2>
+      <p class="text-base-content/60">
+        Deletes every shipment and event. This cannot be undone.
+      </p>
+      <div class="mt-4">
+        <button
+          type="button"
+          class="btn btn-error"
+          hx-post="/ui/nuke"
+          hx-target="#shipments-table"
+          hx-swap="innerHTML"
+          hx-confirm="Delete all shipments and events? This cannot be undone."
+        >
+          Nuke
+        </button>
+      </div>
+    </div>
+  </div>
 </div>
 {% endblock %}
